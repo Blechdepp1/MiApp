@@ -44,7 +44,7 @@ Das Lernen wird mit einem **Punkte- und Level-System** belohnt, und die Eltern l
 ### `lrs-basis`
 - Die App lässt sich auf Android über Chrome zum Startbildschirm hinzufügen und startet im Vollbild, auch offline.
 - Jeder Bildschirm hat bei Texten und Anweisungen ein Lautsprecher-Symbol. Das Vorlesen läuft über die Web Speech API, auf Deutsch und Englisch, und die Geschwindigkeit ist einstellbar.
-- Im Einstellungsbildschirm lassen sich Schriftgröße (3 Stufen), Abstand (2 Stufen), Hintergrund (creme/weiß/hellblau/dunkel) und Schriftart (Standard / OpenDyslexic) wählen. Die Änderung wirkt sofort und bleibt nach einem Neustart erhalten.
+- Im Einstellungsbildschirm lassen sich Schriftgröße (3 Stufen), Abstand (2 Stufen), Hintergrund (creme/weiß/hellblau/dunkel) und Schriftart (Standard = Atkinson Hyperlegible Next, mit eindeutigen Buchstaben wie I/l/1 und b/d / OpenDyslexic) wählen. Beide Schriften liegen lokal in der App (SIL OFL). Die Änderung wirkt sofort und bleibt nach einem Neustart erhalten.
 - Auf einem Mittelklasse-Android-Gerät startet die App in unter 2 Sekunden.
 
 ### `sync`

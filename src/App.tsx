@@ -1,12 +1,17 @@
-import { StimmenTest } from './basis/StimmenTest.tsx';
+import { Einstellungen } from './basis/Einstellungen.tsx';
+import { EinstellungenProvider } from './basis/EinstellungenKontext.tsx';
+import { dexieSpeicher } from './basis/einstellungenSpeicher.ts';
+import type { EinstellungsSpeicher } from './basis/einstellungen.ts';
+import './basis/thema.css';
 import './App.css';
 
-export function App() {
+// Bis zur Navigation (Aufgabe 5) zeigt die App direkt die Einstellungen
+export function App({ speicher = dexieSpeicher }: { speicher?: EinstellungsSpeicher }) {
   return (
-    <main>
-      <h1>MiApp</h1>
-      <p>Hier entsteht deine Lern-App.</p>
-      <StimmenTest />
-    </main>
+    <EinstellungenProvider speicher={speicher}>
+      <main>
+        <Einstellungen />
+      </main>
+    </EinstellungenProvider>
   );
 }

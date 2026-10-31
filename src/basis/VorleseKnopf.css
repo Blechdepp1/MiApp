@@ -6,27 +6,27 @@
 }
 
 .vorlese-knopf button {
-  min-width: 48px;
-  min-height: 48px;
+  min-width: var(--touch);
+  min-height: var(--touch);
   display: inline-grid;
   place-items: center;
-  font-size: 1.75rem;
+  font-size: 1.6rem;
   border: none;
   border-radius: 50%;
-  background: #2e7d6b;
-  color: #fbf6ec;
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
   cursor: pointer;
 }
 
 .vorlese-knopf button[aria-pressed='true'] {
-  background: #f2b544;
-  color: #2b2b2b;
+  background: var(--farbe-belohnung);
+  color: var(--farbe-auf-belohnung);
 }
 
 .vorlese-hinweis {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.95rem;
-  color: #7a4a00;
+  font-size: 0.85rem;
+  color: var(--farbe-text-leise);
 }

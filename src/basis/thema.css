@@ -1,0 +1,95 @@
+﻿/* LRS-Grundgestaltung: Werte kommen als CSS-Variablen aus thema.ts */
+
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next';
+  src: url('/fonts/atkinson-next-latin-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next';
+  src: url('/fonts/atkinson-next-latin-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/opendyslexic-latin-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/opendyslexic-latin-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  /* Startwerte (creme, normal), bis die Einstellungen geladen sind */
+  --farbe-hintergrund: #fbf6ec;
+  --farbe-flaeche: #f1e7d3;
+  --farbe-text: #2b2b2b;
+  --farbe-text-leise: #5c5548;
+  --farbe-akzent: #2e6f60;
+  --farbe-auf-akzent: #ffffff;
+  --farbe-belohnung: #f2b544;
+  --farbe-auf-belohnung: #2b2b2b;
+  --schrift-groesse: 20px;
+  --schrift-familie: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --abstand-buchstaben: 0.03em;
+  --abstand-woerter: 0.12em;
+  --abstand-zeilen: 1.5;
+  --radius: 16px;
+  --touch: 48px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: var(--schrift-groesse);
+}
+
+body {
+  margin: 0;
+  font-family: var(--schrift-familie);
+  letter-spacing: var(--abstand-buchstaben);
+  word-spacing: var(--abstand-woerter);
+  line-height: var(--abstand-zeilen);
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  text-align: left;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  margin: 0 0 0.5rem;
+}
+
+/* Keine Kursivschrift: schwerer zu lesen bei LRS */
+em,
+i {
+  font-style: normal;
+  font-weight: 700;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  letter-spacing: inherit;
+  word-spacing: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--farbe-belohnung);
+  outline-offset: 2px;
+}

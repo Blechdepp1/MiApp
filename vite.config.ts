@@ -1,4 +1,6 @@
 /// <reference types="vitest/config" />
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -6,6 +8,12 @@ import { VitePWA } from 'vite-plugin-pwa';
 // GitHub Pages liefert die App unter /MiApp/ aus
 export default defineConfig({
   base: '/MiApp/',
+  // Vite-Zwischenspeicher außerhalb von Dropbox, sonst sperrt die Synchronisierung Dateien (EBUSY)
+  cacheDir: join(tmpdir(), 'miapp-vite'),
+  optimizeDeps: { include: ['dexie'] },
+  server: {
+    watch: { ignored: ['**/coverage/**', '**/test-results/**', '**/playwright-report/**'] },
+  },
   plugins: [
     react(),
     VitePWA({

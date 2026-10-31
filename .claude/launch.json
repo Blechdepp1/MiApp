@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "C:\\Users\\Marku\\AppData\\Local\\Programs\\node-v26.13.0-win-x64\\npm.cmd",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173
+    }
+  ]
+}

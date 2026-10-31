@@ -1,4 +1,5 @@
 import { useId, useState, useSyncExternalStore } from 'react';
+import { useEinstellungen } from './EinstellungenKontext.tsx';
 import { beobachteVorlesen, liestGerade, stoppen, vorlesen, type Sprache } from './vorlesen.ts';
 import './VorleseKnopf.css';
 
@@ -15,6 +16,7 @@ type Props = {
 
 export function VorleseKnopf({ text, sprache = 'de', tempo }: Props) {
   const id = useId();
+  const { einstellungen } = useEinstellungen();
   const aktiv = useSyncExternalStore(beobachteVorlesen, liestGerade) === id;
   const [hinweis, setHinweis] = useState<string | null>(null);
 
@@ -24,7 +26,7 @@ export function VorleseKnopf({ text, sprache = 'de', tempo }: Props) {
       return;
     }
     setHinweis(null);
-    const ergebnis = await vorlesen(text, sprache, { id, tempo });
+    const ergebnis = await vorlesen(text, sprache, { id, tempo: tempo ?? einstellungen.tempo });
     if (ergebnis === 'keine-stimme') setHinweis(HINWEIS[sprache]);
     if (ergebnis === 'nicht-verfuegbar') setHinweis('Vorlesen geht in diesem Browser nicht');
   }
