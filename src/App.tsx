@@ -5,7 +5,9 @@ import type { EinstellungsSpeicher } from './basis/einstellungen.ts';
 import { useZiel } from './basis/navigation.ts';
 import { KommtBald, Seite } from './basis/Seite.tsx';
 import { Startseite } from './basis/Startseite.tsx';
+import { LevelFeier } from './belohnung/LevelFeier.tsx';
 import { dexieProtokoll, type Protokoll } from './daten/protokoll.ts';
+import type { GespeicherterWert } from './daten/schluesselWert.ts';
 import { ProtokollProvider } from './daten/ProtokollKontext.tsx';
 import { ElternBereich } from './eltern/ElternBereich.tsx';
 import type { Dropbox } from './sync/dropbox.ts';
@@ -18,10 +20,12 @@ export function App({
   speicher = dexieSpeicher,
   protokoll = dexieProtokoll,
   dropbox = standardDropbox,
+  gesehenesLevel,
 }: {
   speicher?: EinstellungsSpeicher;
   protokoll?: Protokoll;
   dropbox?: Dropbox;
+  gesehenesLevel?: GespeicherterWert<number>;
 }) {
   return (
     <EinstellungenProvider speicher={speicher}>
@@ -29,6 +33,7 @@ export function App({
         <main>
           <Inhalt dropbox={dropbox} />
         </main>
+        <LevelFeier gesehen={gesehenesLevel} />
       </ProtokollProvider>
     </EinstellungenProvider>
   );

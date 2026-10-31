@@ -32,8 +32,8 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 - [x] 7. Ereignis-Protokoll und Punkte-/Level-Logik
 - [x] 8. Leitner-Logik und Antwortbewertung
 - [x] 9. Erste Vokabelrunde (Anhören → Wählen) mit Punkten
-- [ ] 10. Übungsarten „Deutsch → Englisch wählen“ und „Schreiben“
-- [ ] 11. Fortschritt auf der Startseite und Level-Aufstieg
+- [x] 10. Übungsarten „Deutsch → Englisch wählen“ und „Schreiben“
+- [x] 11. Fortschritt auf der Startseite und Level-Aufstieg
 
 **Checkpoint B:** Sie kann auf ihrem Gerät üben und Punkte sammeln. **Erster Test mit eurer Tochter.**
 

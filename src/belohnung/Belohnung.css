@@ -1,0 +1,153 @@
+.fortschritt {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+}
+
+.fortschritt-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.fortschritt-level {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--farbe-text-leise);
+}
+
+.fortschritt-titel {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.fortschritt-sterne {
+  color: var(--farbe-belohnung);
+  letter-spacing: 0.1em;
+}
+
+.fortschritt-balken {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.fortschritt-balken progress {
+  width: 100%;
+  height: 1rem;
+  accent-color: var(--farbe-belohnung);
+}
+
+.fortschritt-zeile {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.fortschritt-tagesziel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.fortschritt-punkt {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  border: 2px solid var(--farbe-akzent);
+}
+
+.fortschritt-punkt[data-voll='true'] {
+  background: var(--farbe-akzent);
+}
+
+/* Level-Feier */
+.feier {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.feier-karte {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  width: min(100%, 24rem);
+  padding: 1.5rem 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-hintergrund);
+  text-align: center;
+  animation: feier-auf 0.5s ease-out;
+}
+
+.feier-karte h2 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.feier-symbol {
+  margin: 0;
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.feier-text {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  font-size: 1.2rem;
+  text-align: left;
+}
+
+.feier-konfetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.feier-konfetti span {
+  position: absolute;
+  top: -2rem;
+  font-size: 1.6rem;
+  animation: feier-fallen 2.4s linear infinite;
+}
+
+@keyframes feier-auf {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+@keyframes feier-fallen {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+  }
+}
+
+/* „Bewegung reduzieren“ im System: keine Animation */
+@media (prefers-reduced-motion: reduce) {
+  .feier-karte,
+  .feier-konfetti span {
+    animation: none;
+  }
+
+  .feier-konfetti {
+    display: none;
+  }
+}

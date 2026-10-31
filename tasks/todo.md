@@ -116,23 +116,23 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/vokabeln-en/beispielliste.ts`, `src/vokabeln-en/Runde.tsx`, `src/vokabeln-en/UebungWaehlen.tsx`, `src/vokabeln-en/Zusammenfassung.tsx`, `e2e/vokabelrunde.spec.ts`
 **Umfang:** M
 
-### Aufgabe 10: Übungsarten „Deutsch → Englisch wählen“ und „Schreiben“
+### Aufgabe 10: Übungsarten „Deutsch → Englisch wählen“ und „Schreiben“ ✅ (Gerätetest offen)
 **Beschreibung:** Die Übungsart „DE → EN wählen“ und „Englisch schreiben“ mit Buchstaben-Hilfe (Anfangsbuchstabe und Länge als Kästchen, Tipp auf „Hilfe“ deckt einen Buchstaben auf). Die Runde wählt die Übungsart nach der Phase des Wortes.
 **Akzeptanz:**
-- [ ] Ein Wort kommt erst nach 2× richtig erkannt in die Schreibübung.
-- [ ] Hilfe kostet keine Punkte. Ohne Hilfe gibt es die vollen +2.
-- [ ] Die Bildschirmtastatur verdeckt das Eingabefeld nicht (Android-Viewport).
+- [x] Ein Wort kommt erst nach 2× richtig erkannt in die Schreibübung.
+- [x] Hilfe kostet keine Punkte. Ohne Hilfe gibt es die vollen +2, mit Hilfe +1.
+- [ ] Die Bildschirmtastatur verdeckt das Eingabefeld nicht (`interactive-widget=resizes-content`; auf dem Gerät prüfen).
 **Prüfen:** Komponententests; manuell Schreiben auf dem Gerät.
 **Abhängig von:** 9
 **Dateien:** `src/vokabeln-en/UebungDeEn.tsx`, `src/vokabeln-en/UebungSchreiben.tsx`, `src/vokabeln-en/Runde.tsx`
 **Umfang:** M
 
-### Aufgabe 11: Fortschritt auf der Startseite und Level-Aufstieg
+### Aufgabe 11: Fortschritt auf der Startseite und Level-Aufstieg ✅ (Gerätetest offen)
 **Beschreibung:** Auf der Startseite Level, Titel, Guthaben, einen Fortschrittsbalken zum nächsten Level und das Tagesziel (0/2, 1/2, ✓) anzeigen. Beim Level-Aufstieg eine Feier-Animation mit Ton, bei der der neue Titel vorgelesen wird.
 **Akzeptanz:**
-- [ ] Die Anzeige stimmt nach jeder Runde sofort.
-- [ ] Die Feier kommt genau einmal pro Aufstieg.
-- [ ] Die Animation ist abschaltbar, wenn „Bewegung reduzieren“ eingestellt ist.
+- [x] Die Anzeige stimmt nach jeder Runde sofort.
+- [x] Die Feier kommt genau einmal pro Aufstieg (auch für jeden neuen Stern).
+- [x] Die Animation ist aus, wenn im System „Bewegung reduzieren“ eingestellt ist.
 **Prüfen:** Komponententest; Playwright „Runde → Level 2 → Feier“ mit vorbefülltem Protokoll.
 **Abhängig von:** 7, 9
 **Dateien:** `src/belohnung/Fortschritt.tsx`, `src/belohnung/LevelFeier.tsx`, `src/basis/Startseite.tsx`

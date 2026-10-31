@@ -63,6 +63,16 @@ export type Level = {
   fortschritt: number;
 };
 
+// Vergleichbarer Rang: Level zählt vor Sternen
+export function rang(l: Pick<Level, 'nummer' | 'sterne'>): number {
+  return l.nummer * 1000 + l.sterne;
+}
+
+// Wohin der Fortschrittsbalken führt: nächstes Level oder nächster Stern
+export function naechstesZiel(l: Level, tabelle: readonly Levelstufe[] = LEVEL_START): string {
+  return tabelle[l.nummer]?.titel ?? 'zum nächsten Stern';
+}
+
 export function level(punkte: number, tabelle: readonly Levelstufe[] = LEVEL_START): Level {
   let index = 0;
   tabelle.forEach((stufe, i) => {

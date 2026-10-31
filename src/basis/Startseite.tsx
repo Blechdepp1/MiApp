@@ -1,3 +1,4 @@
+import { Fortschritt } from '../belohnung/Fortschritt.tsx';
 import { pfad, type Ziel } from './navigation.ts';
 import { VorleseKnopf } from './VorleseKnopf.tsx';
 import './Startseite.css';
@@ -22,6 +23,8 @@ export function Startseite() {
           <span aria-hidden="true">🔒</span>
         </a>
       </header>
+
+      <Fortschritt />
 
       <ul className="kacheln">
         {KACHELN.map((k) => (

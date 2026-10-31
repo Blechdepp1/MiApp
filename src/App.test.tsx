@@ -1,6 +1,7 @@
 import { act, render, screen, within } from '@testing-library/react';
 import { speicherImArbeitsspeicher } from './basis/einstellungen.ts';
 import { protokollImArbeitsspeicher } from './daten/protokoll.ts';
+import { wertImArbeitsspeicher } from './daten/schluesselWert.ts';
 import { pfad, ZIELE, type Ziel } from './basis/navigation.ts';
 import { App } from './App.tsx';
 
@@ -12,7 +13,13 @@ function gehe(ziel: Ziel) {
 }
 
 function zeige() {
-  render(<App speicher={speicherImArbeitsspeicher()} protokoll={protokollImArbeitsspeicher()} />);
+  render(
+    <App
+      speicher={speicherImArbeitsspeicher()}
+      protokoll={protokollImArbeitsspeicher()}
+      gesehenesLevel={wertImArbeitsspeicher<number>()}
+    />,
+  );
 }
 
 afterEach(() => gehe('start'));

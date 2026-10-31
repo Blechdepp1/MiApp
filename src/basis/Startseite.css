@@ -1,6 +1,6 @@
 .startseite {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .startseite-kopf {
@@ -18,7 +18,7 @@
 
 .startseite-gruss h1 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
 }
 
 .startseite-eltern {
@@ -50,8 +50,8 @@
   display: grid;
   place-items: center;
   gap: 0.5rem;
-  min-height: 8rem;
-  padding: 2.5rem 0.5rem 1rem;
+  min-height: 6.5rem;
+  padding: 2rem 0.5rem 0.75rem;
   border-radius: var(--radius);
   background: var(--farbe-flaeche);
   color: var(--farbe-text);
@@ -61,7 +61,7 @@
 }
 
 .kachel-symbol {
-  font-size: 3rem;
+  font-size: 2.5rem;
   line-height: 1;
 }
 
