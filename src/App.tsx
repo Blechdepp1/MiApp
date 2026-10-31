@@ -5,24 +5,31 @@ import type { EinstellungsSpeicher } from './basis/einstellungen.ts';
 import { useZiel } from './basis/navigation.ts';
 import { KommtBald, Seite } from './basis/Seite.tsx';
 import { Startseite } from './basis/Startseite.tsx';
+import { dexieProtokoll, type Protokoll } from './daten/protokoll.ts';
+import { ProtokollProvider } from './daten/ProtokollKontext.tsx';
 import { ElternBereich } from './eltern/ElternBereich.tsx';
 import type { Dropbox } from './sync/dropbox.ts';
 import { dropbox as standardDropbox } from './sync/verbindung.ts';
+import { VokabelSeite } from './vokabeln-en/VokabelSeite.tsx';
 import './basis/thema.css';
 import './App.css';
 
 export function App({
   speicher = dexieSpeicher,
+  protokoll = dexieProtokoll,
   dropbox = standardDropbox,
 }: {
   speicher?: EinstellungsSpeicher;
+  protokoll?: Protokoll;
   dropbox?: Dropbox;
 }) {
   return (
     <EinstellungenProvider speicher={speicher}>
-      <main>
-        <Inhalt dropbox={dropbox} />
-      </main>
+      <ProtokollProvider protokoll={protokoll}>
+        <main>
+          <Inhalt dropbox={dropbox} />
+        </main>
+      </ProtokollProvider>
     </EinstellungenProvider>
   );
 }
@@ -36,7 +43,7 @@ function Inhalt({ dropbox }: { dropbox: Dropbox }) {
         </Seite>
       );
     case 'vokabeln':
-      return <KommtBald titel="Vokabeln" />;
+      return <VokabelSeite />;
     case 'belohnungen':
       return <KommtBald titel="Belohnungen" />;
     case 'eltern':

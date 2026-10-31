@@ -31,7 +31,7 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 ### Phase 2: Vokabeln mit Punkten (lokal)
 - [x] 7. Ereignis-Protokoll und Punkte-/Level-Logik
 - [x] 8. Leitner-Logik und Antwortbewertung
-- [ ] 9. Erste Vokabelrunde (Anhören → Wählen) mit Punkten
+- [x] 9. Erste Vokabelrunde (Anhören → Wählen) mit Punkten
 - [ ] 10. Übungsarten „Deutsch → Englisch wählen“ und „Schreiben“
 - [ ] 11. Fortschritt auf der Startseite und Level-Aufstieg
 
