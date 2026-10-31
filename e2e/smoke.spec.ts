@@ -19,13 +19,34 @@ function gespeicherterHintergrund(page: Page) {
   );
 }
 
-test('Startseite lädt', async ({ page }) => {
+test('Startseite zeigt die Kacheln', async ({ page }) => {
   await page.goto('./');
-  await expect(page.getByRole('heading', { name: 'Einstellungen' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Hallo');
+  for (const name of ['Vokabeln', 'Belohnungen', 'Einstellungen']) {
+    await expect(page.getByRole('link', { name })).toBeVisible();
+  }
+});
+
+test('Touch-Flächen sind mindestens 48 px groß', async ({ page }) => {
+  await page.goto('./');
+  const ziele = page.locator('a, button');
+  for (let i = 0; i < (await ziele.count()); i++) {
+    const box = await ziele.nth(i).boundingBox();
+    expect(box!.width).toBeGreaterThanOrEqual(48);
+    expect(box!.height).toBeGreaterThanOrEqual(48);
+  }
+});
+
+test('Einstellungen öffnen und zurück zur Startseite', async ({ page }) => {
+  await page.goto('./');
+  await page.getByRole('link', { name: 'Einstellungen' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeVisible();
+  await page.getByRole('link', { name: /Zurück/ }).click();
+  await expect(page.getByRole('link', { name: 'Vokabeln' })).toBeVisible();
 });
 
 test('Einstellungen bleiben nach dem Neuladen erhalten', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./#/einstellungen');
   const dunkel = page
     .getByRole('radiogroup', { name: 'Hintergrund' })
     .getByRole('radio', { name: 'Dunkel' });

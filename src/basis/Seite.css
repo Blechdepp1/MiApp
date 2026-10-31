@@ -1,0 +1,40 @@
+.seite {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.seite-kopf {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.seite-zurueck {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch);
+  padding: 0.25rem 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+  color: var(--farbe-text);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.seite-titel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.seite-titel h1 {
+  margin: 0;
+}
+
+.seite-bald {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}

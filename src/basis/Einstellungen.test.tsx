@@ -79,7 +79,7 @@ describe('Einstellungen', () => {
         within(u.parentElement!).getByRole('button', { name: 'Vorlesen' }),
       ).toBeInTheDocument();
     }
-    expect(ueberschriften.length).toBe(6);
+    expect(ueberschriften.length).toBe(5);
   });
 
   it('stellt das Vorlese-Tempo ein', async () => {

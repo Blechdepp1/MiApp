@@ -43,8 +43,6 @@ export function Einstellungen() {
 
   return (
     <section className="einstellungen">
-      <Titel text="Einstellungen" ebene={1} />
-
       <div className="einstellungen-vorschau" aria-label="Vorschau">
         <VorleseKnopf text={VORSCHAU} />
         <p>{VORSCHAU}</p>
@@ -98,19 +96,10 @@ export function Einstellungen() {
   );
 }
 
-function Titel({
-  text,
-  vorlesetext,
-  ebene = 2,
-}: {
-  text: string;
-  vorlesetext?: string;
-  ebene?: 1 | 2;
-}) {
-  const Tag = ebene === 1 ? 'h1' : 'h2';
+function Titel({ text, vorlesetext }: { text: string; vorlesetext?: string }) {
   return (
     <div className="einstellungen-titel">
-      <Tag>{text}</Tag>
+      <h2>{text}</h2>
       <VorleseKnopf text={vorlesetext ?? text} />
     </div>
   );

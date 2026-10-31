@@ -51,11 +51,11 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/daten/db.ts`, `src/basis/einstellungen.ts`, `src/basis/Einstellungen.tsx`, `src/basis/thema.css`, `public/fonts/*`
 **Umfang:** M
 
-### Aufgabe 5: App-Gerüst mit Startseite und Navigation
-**Beschreibung:** Routing einrichten. Dazu eine Startseite mit großen Symbol-Kacheln (Vokabeln, Belohnungen, Einstellungen, Eltern-Schloss) und eine einheitliche Seitenvorlage mit Zurück-Knopf und Vorlese-Knopf für den Titel.
+### Aufgabe 5: App-Gerüst mit Startseite und Navigation ✅ (Gerätetest offen)
+**Beschreibung:** Routing einrichten (Hash-Navigation `#/…`, ohne zusätzliche Bibliothek). Dazu eine Startseite mit großen Symbol-Kacheln (Vokabeln, Belohnungen, Einstellungen, Eltern-Schloss) und eine einheitliche Seitenvorlage mit Zurück-Knopf und Vorlese-Knopf für den Titel.
 **Akzeptanz:**
-- [ ] Jede Kachel hat Symbol, kurzen Text und Vorlese-Knopf; die Touch-Flächen sind mindestens 48 px groß.
-- [ ] Jede Seite ist mit höchstens 2 Tipps von der Startseite erreichbar.
+- [x] Jede Kachel hat Symbol, kurzen Text und Vorlese-Knopf; die Touch-Flächen sind mindestens 48 px groß (E2E-Test).
+- [x] Jede Seite ist mit höchstens 2 Tipps von der Startseite erreichbar (aktuell 1 Tipp).
 **Prüfen:** Komponententest „jede Seite hat einen Vorlese-Knopf im Titel“; Playwright-Smoke-Test im Android-Viewport.
 **Abhängig von:** 4
 **Dateien:** `src/App.tsx`, `src/basis/Seite.tsx`, `src/basis/Startseite.tsx`, `e2e/smoke.spec.ts`
