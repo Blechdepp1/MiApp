@@ -18,12 +18,12 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `package.json`, `vite.config.ts`, `tsconfig.json`, `eslint.config.js`, `playwright.config.ts`, `.gitignore`
 **Umfang:** M
 
-### Aufgabe 2: PWA installierbar und Deployment auf GitHub Pages
+### Aufgabe 2: PWA installierbar und Deployment auf GitHub Pages ✅
 **Beschreibung:** vite-plugin-pwa mit Manifest (Name, Icons, Vollbild, Hochformat) und Offline-Cache einbinden. Ein öffentliches GitHub-Repo anlegen und eine GitHub Action einrichten, die bei jedem Push auf `main` baut und auf Pages veröffentlicht.
 **Akzeptanz:**
 - [x] Die App ist unter `https://blechdepp1.github.io/MiApp/` erreichbar. Manifest und Service Worker laufen.
-- [ ] Auf Android lässt sie sich über Chrome mit „Zum Startbildschirm hinzufügen“ installieren und startet im Vollbild.
-- [ ] Im Flugmodus startet sie nach dem ersten Laden.
+- [x] Auf Android lässt sie sich über Chrome mit „Zum Startbildschirm hinzufügen“ installieren und startet im Vollbild.
+- [x] Im Flugmodus startet sie nach dem ersten Laden.
 **Prüfen:** Lighthouse-PWA-Check ohne Fehler; manuell auf ihrem Gerät installieren.
 **Abhängig von:** 1
 **Dateien:** `vite.config.ts`, `public/icons/*`, `.github/workflows/deploy.yml`, `index.html`

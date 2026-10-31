@@ -20,7 +20,7 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 
 ### Phase 1: Grundlage
 - [x] 1. Projekt einrichten
-- [ ] 2. PWA installierbar + Deployment auf GitHub Pages
+- [x] 2. PWA installierbar + Deployment auf GitHub Pages
 - [ ] 3. Vorlese-Funktion
 - [ ] 4. LRS-Darstellung und Einstellungen
 - [ ] 5. App-Gerüst mit Startseite und Navigation
