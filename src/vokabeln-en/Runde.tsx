@@ -16,6 +16,7 @@ import {
 } from './leitner.ts';
 import { antwortOptionen, sprechtext, type Zufall } from './runde.ts';
 import type { Vokabel, Vokabelliste } from './typen.ts';
+import { UebungSchreiben } from './UebungSchreiben.tsx';
 import { UebungWaehlen } from './UebungWaehlen.tsx';
 import { Zusammenfassung, type Ergebnis } from './Zusammenfassung.tsx';
 
@@ -32,12 +33,13 @@ function vorbereiten(
   zufall: Zufall,
 ): Aktuell {
   const { liste, wort } = schritt.eintrag;
-  // Schreiben folgt in Aufgabe 10; bis dahin wird Deutsch → Englisch gewählt
-  const uebung: Uebung =
-    uebungFuer(wortStand(staende, liste.id, wort.id)) === 'erkennen' ? 'erkennen' : 'waehlen-de-en';
+  const uebung = uebungFuer(wortStand(staende, liste.id, wort.id));
+  if (uebung === 'schreiben') return { nr, uebung, optionen: [] };
   const feld = uebung === 'erkennen' ? 'de' : 'en';
   return { nr, uebung, optionen: antwortOptionen(wort, alleWoerter, feld, zufall) };
 }
+
+type Antwort = { richtig: boolean; fast?: boolean; mitHilfe?: boolean };
 
 export function Runde({
   listen,
@@ -61,8 +63,13 @@ export function Runde({
   const [aktuell, setAktuell] = useState<Aktuell | null>(() =>
     schritte[0] ? vorbereiten(0, schritte[0], staende, alleWoerter, zufall) : null,
   );
-  const [antwortRichtig, setAntwortRichtig] = useState<boolean | null>(null);
-  const [zaehler, setZaehler] = useState({ richtig: 0, verbessert: 0, gelernt: [] as Vokabel[] });
+  const [antwort, setAntwort] = useState<Antwort | null>(null);
+  const [zaehler, setZaehler] = useState({
+    richtig: 0,
+    mitHilfe: 0,
+    verbessert: 0,
+    gelernt: [] as Vokabel[],
+  });
   const [ergebnis, setErgebnis] = useState<Ergebnis | null>(null);
 
   if (ergebnis) return <Zusammenfassung ergebnis={ergebnis} onNochEinmal={onNochEinmal} />;
@@ -80,7 +87,7 @@ export function Runde({
   const schritt = schritte[aktuell.nr]!;
   const { liste, wort } = schritt.eintrag;
 
-  function beantworten(richtig: boolean) {
+  function beantworten({ richtig, fast = false, mitHilfe = false }: Antwort) {
     const stand = wortStand(staende, liste.id, wort.id);
     const { stand: neu, verbessert } = naechsterStand(
       stand,
@@ -88,8 +95,10 @@ export function Runde({
       heute,
     );
     setStaende((alt) => new Map(alt).set(schluessel(liste.id, wort.id), neu));
+    // Richtig ohne Hilfe gibt volle Punkte, mit Hilfe etwas weniger; Hilfe kostet aber nie etwas
     setZaehler((z) => ({
-      richtig: z.richtig + (richtig ? 1 : 0),
+      richtig: z.richtig + (richtig && !mitHilfe ? 1 : 0),
+      mitHilfe: z.mitHilfe + (richtig && mitHilfe ? 1 : 0),
       verbessert: z.verbessert + (verbessert ? 1 : 0),
       gelernt: richtig && !z.gelernt.includes(wort) ? [...z.gelernt, wort] : z.gelernt,
     }));
@@ -97,24 +106,30 @@ export function Runde({
     if (!richtig && !schritt.wiederholung) {
       setSchritte((s) => [...s, { eintrag: schritt.eintrag, wiederholung: true }]);
     }
-    setAntwortRichtig(richtig);
+    setAntwort({ richtig, fast, mitHilfe });
     protokoll.hinzufuegen({
       typ: 'antwort',
       listeId: liste.id,
       wortId: wort.id,
       uebung: aktuell!.uebung,
       richtig,
+      ...(fast && { fastRichtig: true }),
+      ...(mitHilfe && { mitHilfe: true }),
     });
   }
 
   async function weiter() {
-    setAntwortRichtig(null);
+    setAntwort(null);
     const naechster = schritte[aktuell!.nr + 1];
     if (naechster) {
       setAktuell(vorbereiten(aktuell!.nr + 1, naechster, staende, alleWoerter, zufall));
       return;
     }
-    const runde = { richtig: zaehler.richtig, mitHilfe: 0, verbessert: zaehler.verbessert };
+    const runde = {
+      richtig: zaehler.richtig,
+      mitHilfe: zaehler.mitHilfe,
+      verbessert: zaehler.verbessert,
+    };
     await protokoll.hinzufuegen({ typ: 'runde-beendet', ...runde });
     const vorher = tagesziel(ereignisse, heute);
     const zielGeradeErreicht = vorher.runden + 1 === vorher.ziel;
@@ -129,16 +144,26 @@ export function Runde({
   return (
     <div className="runde">
       <Fortschritt aktuell={aktuell.nr + 1} gesamt={schritte.length} />
-      <UebungWaehlen
-        key={aktuell.nr}
-        wort={wort}
-        optionen={aktuell.optionen}
-        richtung={aktuell.uebung === 'erkennen' ? 'en-de' : 'de-en'}
-        onAntwort={beantworten}
-      />
-      {antwortRichtig !== null && (
+      {aktuell.uebung === 'schreiben' ? (
+        <UebungSchreiben
+          key={aktuell.nr}
+          wort={wort}
+          onAntwort={({ bewertung, mitHilfe }) =>
+            beantworten({ richtig: bewertung !== 'falsch', fast: bewertung === 'fast', mitHilfe })
+          }
+        />
+      ) : (
+        <UebungWaehlen
+          key={aktuell.nr}
+          wort={wort}
+          optionen={aktuell.optionen}
+          richtung={aktuell.uebung === 'erkennen' ? 'en-de' : 'de-en'}
+          onAntwort={(richtig) => beantworten({ richtig })}
+        />
+      )}
+      {antwort && (
         <Rueckmeldung
-          richtig={antwortRichtig}
+          antwort={antwort}
           wort={wort}
           kommtNochmal={!schritt.wiederholung}
           onWeiter={weiter}
@@ -160,20 +185,31 @@ function Fortschritt({ aktuell, gesamt }: { aktuell: number; gesamt: number }) {
 }
 
 function Rueckmeldung({
-  richtig,
+  antwort,
   wort,
   kommtNochmal,
   onWeiter,
 }: {
-  richtig: boolean;
+  antwort: Antwort;
   wort: Vokabel;
   kommtNochmal: boolean;
   onWeiter: () => void;
 }) {
   const lob = 'Richtig! Super gemacht!';
+  const fast = 'Fast richtig! Das zählt. So schreibt man es:';
   return (
-    <div className="runde-rueckmeldung" role="status" data-richtig={richtig}>
-      {richtig ? (
+    <div className="runde-rueckmeldung" role="status" data-richtig={antwort.richtig}>
+      {antwort.fast ? (
+        <>
+          <p>
+            <VorleseKnopf text={fast} />
+            <span>{fast}</span>
+          </p>
+          <p className="runde-loesung" lang="en">
+            <VorleseKnopf text={sprechtext(wort.en)} sprache="en" /> {wort.en}
+          </p>
+        </>
+      ) : antwort.richtig ? (
         <p>
           <VorleseKnopf text={lob} />
           <span>{lob} 🎉</span>

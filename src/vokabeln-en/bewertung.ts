@@ -45,6 +45,15 @@ export function abstand(a: string, b: string): number {
   return d[a.length]![b.length]!;
 }
 
+// Die Form, die in der Schreibübung als Kästchen gezeigt wird: erste Alternative, ohne Optionales
+export function hauptform(loesung: string): string {
+  const erste = loesung.split(/[,;/]/)[0] ?? loesung;
+  return erste
+    .replace(/\([^)]*\)/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function bewerteSchreiben(eingabe: string, loesung: string): Bewertung {
   const antwort = normal(eingabe);
   if (!antwort) return 'falsch';

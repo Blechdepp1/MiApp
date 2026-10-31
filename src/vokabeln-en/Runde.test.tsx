@@ -147,6 +147,52 @@ describe('Runde', () => {
     expect(screen.getByText(/Für heute hast du alle Wörter geübt/)).toBeInTheDocument();
   });
 
+  describe('Schreiben', () => {
+    // Zweimal erkannt (an zwei Tagen), also ist heute Schreiben dran
+    const zweimalErkannt = ['house', 'dog', 'cat'].flatMap((id) => [
+      antwortAm(id, true, '2026-10-29'),
+      antwortAm(id, true, '2026-10-30'),
+    ]);
+
+    async function schreibe(text: string, hilfe = 0) {
+      for (let i = 0; i < hilfe; i++) {
+        await userEvent.click(screen.getByRole('button', { name: '💡 Hilfe' }));
+      }
+      await userEvent.type(screen.getByRole('textbox'), `${text}{Enter}`);
+    }
+
+    function gefragtesWort(container: HTMLElement) {
+      return LISTE.woerter.find((w) => w.de === frage(container))!;
+    }
+
+    it('fragt nach zweimal Erkennen das Schreiben ab', () => {
+      const { container } = zeige(zweimalErkannt);
+      expect(screen.getByText('Schreib das Wort auf Englisch.')).toBeInTheDocument();
+      expect(['Haus', 'Hund', 'Katze']).toContain(frage(container));
+    });
+
+    it('zählt „fast richtig“ als richtig und zeigt die Schreibweise', async () => {
+      const { container, protokoll } = zeige(zweimalErkannt);
+      // Gleich fällige Wörter kommen in Listenreihenfolge: zuerst „Haus“
+      expect(gefragtesWort(container).id).toBe('house');
+      await schreibe('housx');
+      expect(screen.getByRole('status')).toHaveTextContent('Fast richtig!');
+      expect((await protokoll.alle()).at(-1)).toMatchObject({ richtig: true, fastRichtig: true });
+    });
+
+    it('gibt mit Hilfe 1 statt 2 Punkte, aber nie Abzug', async () => {
+      const { container, protokoll } = zeige(zweimalErkannt);
+      for (let i = 0; i < 3; i++) {
+        const wort = gefragtesWort(container);
+        await schreibe(wort.en, i === 0 ? 1 : 0);
+        await userEvent.click(screen.getByRole('button', { name: 'Weiter →' }));
+      }
+      // 10 + 2 × 2 ohne Hilfe + 1 × 1 mit Hilfe
+      expect(await screen.findByText('+15 Punkte')).toBeInTheDocument();
+      expect((await protokoll.alle()).at(-1)).toMatchObject({ richtig: 2, mitHilfe: 1 });
+    });
+  });
+
   it('bietet nach der Runde „Noch eine Runde“ an', async () => {
     const { container, nochEinmal } = zeige();
     for (let i = 0; i < 3; i++) await antworte(container, true);
