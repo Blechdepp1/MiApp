@@ -105,7 +105,7 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/vokabeln-en/leitner.ts`, `src/vokabeln-en/bewertung.ts`, `src/vokabeln-en/*.test.ts`
 **Umfang:** S
 
-### Aufgabe 9: Erste Vokabelrunde (Anhören → Wählen) mit Punkten ✅ (Gerätetest offen)
+### Aufgabe 9: Erste Vokabelrunde (Anhören → Wählen) mit Punkten ✅
 **Beschreibung:** Eine eingebaute Beispiel-Vokabelliste anlegen. Der Rundenbildschirm spielt das englische Wort vor, sie wählt aus 3 deutschen Antworten. Nach einem Fehler sieht sie die richtige Lösung mit Vorlesen und kommt weiter. Am Rundenende gibt es eine Zusammenfassung mit den erhaltenen Punkten. Die Ereignisse werden gespeichert.
 **Akzeptanz:**
 - [x] Eine Runde lässt sich komplett durchspielen, die Punkte stimmen mit Aufgabe 7 überein (Komponenten- und E2E-Test).
