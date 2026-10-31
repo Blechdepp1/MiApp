@@ -23,7 +23,7 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 - [x] 2. PWA installierbar + Deployment auf GitHub Pages
 - [x] 3. Vorlese-Funktion
 - [x] 4. LRS-Darstellung und Einstellungen
-- [ ] 5. App-Gerüst mit Startseite und Navigation
+- [x] 5. App-Gerüst mit Startseite und Navigation
 - [ ] 6. Dropbox-Durchstich
 
 **Checkpoint A:** App ist auf ihrem Handy installiert, liest vor und kann eine Testdatei in Dropbox schreiben.

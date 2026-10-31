@@ -51,7 +51,7 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/daten/db.ts`, `src/basis/einstellungen.ts`, `src/basis/Einstellungen.tsx`, `src/basis/thema.css`, `public/fonts/*`
 **Umfang:** M
 
-### Aufgabe 5: App-Gerüst mit Startseite und Navigation ✅ (Gerätetest offen)
+### Aufgabe 5: App-Gerüst mit Startseite und Navigation ✅
 **Beschreibung:** Routing einrichten (Hash-Navigation `#/…`, ohne zusätzliche Bibliothek). Dazu eine Startseite mit großen Symbol-Kacheln (Vokabeln, Belohnungen, Einstellungen, Eltern-Schloss) und eine einheitliche Seitenvorlage mit Zurück-Knopf und Vorlese-Knopf für den Titel.
 **Akzeptanz:**
 - [x] Jede Kachel hat Symbol, kurzen Text und Vorlese-Knopf; die Touch-Flächen sind mindestens 48 px groß (E2E-Test).
