@@ -24,7 +24,7 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 - [x] 3. Vorlese-Funktion
 - [x] 4. LRS-Darstellung und Einstellungen
 - [x] 5. App-Gerüst mit Startseite und Navigation
-- [ ] 6. Dropbox-Durchstich
+- [x] 6. Dropbox-Durchstich
 
 **Checkpoint A:** App ist auf ihrem Handy installiert, liest vor und kann eine Testdatei in Dropbox schreiben.
 

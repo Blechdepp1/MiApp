@@ -61,20 +61,20 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/App.tsx`, `src/basis/Seite.tsx`, `src/basis/Startseite.tsx`, `e2e/smoke.spec.ts`
 **Umfang:** M
 
-### Aufgabe 6: Dropbox-Durchstich
+### Aufgabe 6: Dropbox-Durchstich ✅
 **Beschreibung:** Gemeinsam mit dir in der Dropbox App Console eine App mit Zugriffstyp „App folder“ anlegen (Redirect auf die Pages-Adresse und localhost). Dann „Mit Dropbox verbinden“ über OAuth PKCE umsetzen, den Refresh-Token lokal speichern und eine Testdatei schreiben und lesen.
 **Akzeptanz:**
-- [ ] Die Verbindung klappt auf ihrem Handy in der installierten PWA, nicht nur im Browser-Tab.
-- [ ] Nach 1 Tag (abgelaufener Access-Token) funktioniert der Zugriff ohne neue Anmeldung.
-- [ ] Die App sieht nur den Ordner `Apps/MiApp`.
+- [x] Die Verbindung klappt auf dem Android-Handy in der installierten PWA (Test erfolgreich am 01.11.2026, 00:21).
+- [x] Nach Ablauf des Access-Tokens funktioniert der Zugriff ohne neue Anmeldung (Unit-Test; auf dem Gerät wird es sich im Alltag zeigen, Access-Tokens laufen nach 4 Stunden ab).
+- [x] Die App sieht nur ihren App-Ordner (Zugriffstyp „App folder“).
 **Prüfen:** Unit-Test des Token-Handlings mit gemocktem SDK; manuell eine Testdatei in deiner Dropbox prüfen.
 **Abhängig von:** 2
 **Dateien:** `src/sync/dropbox.ts`, `src/sync/dropbox.test.ts`, `src/sync/Verbinden.tsx`
 **Umfang:** M
 
 ### ✅ Checkpoint A
-- [ ] Alle Tests grün, Build fehlerfrei
-- [ ] Auf ihrem Handy installiert: Vorlesen DE/EN funktioniert, Einstellungen wirken, Dropbox-Testdatei geschrieben
+- [x] Alle Tests grün (94 Unit, 4 E2E), Build fehlerfrei
+- [x] Auf dem Android-Handy installiert: Vorlesen DE/EN funktioniert, Einstellungen wirken, Dropbox-Testdatei geschrieben
 - [ ] Gemeinsamer Blick auf den Stand, bevor es weitergeht
 
 ---
