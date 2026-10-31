@@ -1,0 +1,44 @@
+/* Vorläufige Grundgestaltung, wird in Aufgabe 4 durch das LRS-Thema ersetzt */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  background: #fbf6ec;
+  color: #2b2b2b;
+}
+
+main {
+  padding: 1rem;
+  max-width: 40rem;
+}
+
+.stimmen-beispiele {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.stimmen-beispiele li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stimmen-tempo {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.stimmen-tempo input {
+  width: 100%;
+  min-height: 48px;
+}
+
+.stimmen-diagnose dt {
+  font-weight: bold;
+}
+
+.stimmen-diagnose dd {
+  margin: 0 0 0.5rem;
+}
