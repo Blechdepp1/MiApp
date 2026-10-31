@@ -102,7 +102,7 @@ Das Lernen wird mit einem **Punkte- und Level-System** belohnt, und die Eltern l
 | UI | React 19 + Vite |
 | PWA | vite-plugin-pwa (Workbox) |
 | Lokale Daten | Dexie (IndexedDB) |
-| Sync | Dropbox HTTP API v2 (offizielles `dropbox` SDK), OAuth PKCE, App-Ordner-Zugriff |
+| Sync | Dropbox HTTP API v2 direkt per `fetch` (ohne SDK, ca. 200 Zeilen in `src/sync/dropbox.ts`), OAuth PKCE mit Refresh-Token, App-Ordner-Zugriff |
 | Vorlesen | Web Speech API (`speechSynthesis`) |
 | KI | Claude API direkt aus dem Browser des Eltern-Geräts |
 | Tests | Vitest + Testing Library, Playwright für End-to-End |
