@@ -1,6 +1,7 @@
 import { erstelleEreignis, type Uebung } from '../daten/ereignisse.ts';
 import {
   berechneStaende,
+  extraRundeAuswaehlen,
   naechsterStand,
   NEU_PRO_RUNDE,
   plusTage,
@@ -93,6 +94,22 @@ describe('naechsterStand', () => {
     expect(ergebnis.stand.fach).toBe(2);
   });
 
+  it('stuft ein noch nicht fälliges Wort bei richtig nicht hoch (Extra-Runde)', () => {
+    const stand: WortStand = { fach: 3, faelligAb: '2026-11-05', erkannt: 2 };
+    const ergebnis = naechsterStand(stand, { richtig: true, uebung: 'schreiben' }, '2026-11-01');
+    expect(ergebnis).toEqual({ stand, verbessert: false });
+  });
+
+  it('setzt ein noch nicht fälliges Wort bei falsch trotzdem zurück', () => {
+    const stand: WortStand = { fach: 3, faelligAb: '2026-11-05', erkannt: 2 };
+    const { stand: neu } = naechsterStand(
+      stand,
+      { richtig: false, uebung: 'schreiben' },
+      '2026-11-01',
+    );
+    expect(neu).toMatchObject({ fach: 1, faelligAb: '2026-11-02' });
+  });
+
   it('zählt Schreiben nicht als Erkennen', () => {
     const { stand } = naechsterStand(NEU, { richtig: true, uebung: 'schreiben' }, '2026-11-01');
     expect(stand.erkannt).toBe(0);
@@ -116,6 +133,33 @@ describe('berechneStaende', () => {
     ]);
     expect(staende.get(schluessel('l', 'w0'))).toMatchObject({ fach: 2, erkannt: 2 });
     expect(staende.get(schluessel('l', 'w1'))).toMatchObject({ fach: 1, faelligAb: '2026-11-03' });
+  });
+});
+
+describe('extraRundeAuswaehlen', () => {
+  it('nimmt nur schon geübte Wörter, unsichere zuerst, höchstens 10', () => {
+    const ereignisse = [
+      ...Array.from({ length: 12 }, (_, i) => antwort('2026-10-31', `w${i}`, true)),
+      antwort('2026-11-01', 'w0', true),
+    ];
+    const runde = extraRundeAuswaehlen([liste(20)], berechneStaende(ereignisse), () => 0.5);
+    expect(runde).toHaveLength(RUNDE_MAX);
+    expect(runde.every((r) => r.stand.fach === 1)).toBe(true);
+    expect(runde.map((r) => r.wort.id)).not.toContain('w0');
+  });
+
+  it('mischt innerhalb eines Fachs, damit nicht immer dieselben kommen', () => {
+    const staende = berechneStaende(
+      Array.from({ length: 12 }, (_, i) => antwort('2026-10-31', `w${i}`, true)),
+    );
+    let n = 0;
+    const absteigend = () => 1 - n++ / 100;
+    const runde = extraRundeAuswaehlen([liste(12)], staende, absteigend);
+    expect(runde[0]!.wort.id).toBe('w11');
+  });
+
+  it('ist leer, wenn noch nichts geübt wurde', () => {
+    expect(extraRundeAuswaehlen([liste(5)], new Map())).toEqual([]);
   });
 });
 

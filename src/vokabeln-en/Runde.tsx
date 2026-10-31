@@ -6,6 +6,7 @@ import type { LernEreignis, Uebung } from '../daten/ereignisse.ts';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 import {
   berechneStaende,
+  extraRundeAuswaehlen,
   naechsterStand,
   rundeAuswaehlen,
   schluessel,
@@ -57,8 +58,15 @@ export function Runde({
   const protokoll = useProtokoll();
   const alleWoerter = listen.flatMap((l) => l.woerter);
   const [staende, setStaende] = useState(() => berechneStaende(ereignisse));
+  // Ist heute nichts mehr fällig, darf sie freiwillig weiter wiederholen
+  const [auswahl] = useState(() => {
+    const normal = rundeAuswaehlen(listen, staende, heute);
+    return normal.length > 0
+      ? { extra: false, woerter: normal }
+      : { extra: true, woerter: extraRundeAuswaehlen(listen, staende, zufall) };
+  });
   const [schritte, setSchritte] = useState<Schritt[]>(() =>
-    rundeAuswaehlen(listen, staende, heute).map((eintrag) => ({ eintrag, wiederholung: false })),
+    auswahl.woerter.map((eintrag) => ({ eintrag, wiederholung: false })),
   );
   const [aktuell, setAktuell] = useState<Aktuell | null>(() =>
     schritte[0] ? vorbereiten(0, schritte[0], staende, alleWoerter, zufall) : null,
@@ -75,7 +83,7 @@ export function Runde({
   if (ergebnis) return <Zusammenfassung ergebnis={ergebnis} onNochEinmal={onNochEinmal} />;
 
   if (!aktuell) {
-    const text = 'Super! Für heute hast du alle Wörter geübt. Morgen geht es weiter.';
+    const text = 'Hier gibt es noch keine Wörter zum Üben.';
     return (
       <p className="runde-leer">
         <VorleseKnopf text={text} />
@@ -143,6 +151,7 @@ export function Runde({
 
   return (
     <div className="runde">
+      {auswahl.extra && aktuell.nr === 0 && <ExtraHinweis />}
       <Fortschritt aktuell={aktuell.nr + 1} gesamt={schritte.length} />
       {aktuell.uebung === 'schreiben' ? (
         <UebungSchreiben
@@ -170,6 +179,16 @@ export function Runde({
         />
       )}
     </div>
+  );
+}
+
+function ExtraHinweis() {
+  const text = 'Alle Wörter für heute sind geschafft! Das ist eine Extra-Runde zum Wiederholen.';
+  return (
+    <p className="runde-extra">
+      <VorleseKnopf text={text} />
+      <span>⭐ {text}</span>
+    </p>
   );
 }
 

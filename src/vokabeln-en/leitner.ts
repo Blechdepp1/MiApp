@@ -52,8 +52,8 @@ export function naechsterStand(
     };
   }
   const erkannt = antwort.uebung === 'schreiben' ? stand.erkannt : stand.erkannt + 1;
-  // Ein Fehler von heute wird erst an einem späteren Tag „verbessert“ und hochgestuft
-  if (stand.fehlerTag === tag) {
+  // Noch nicht fällig (Extra-Runde, oder Fehler von heute): üben ja, hochstufen erst am Fälligkeitstag
+  if (tag < stand.faelligAb) {
     return { stand: { ...stand, erkannt }, verbessert: false };
   }
   const fach = Math.min(Math.max(stand.fach, 0) + 1, FAECHER);
@@ -98,4 +98,22 @@ export function rundeAuswaehlen(
   const neu = alle.filter((w) => w.stand.fach === 0);
   const platzFuerNeu = Math.min(NEU_PRO_RUNDE, RUNDE_MAX - Math.min(faellig.length, RUNDE_MAX));
   return [...faellig.slice(0, RUNDE_MAX), ...neu.slice(0, platzFuerNeu)];
+}
+
+// Wenn heute nichts mehr fällig ist: freiwillige Extra-Runde mit bereits geübten Wörtern,
+// unsichere zuerst, innerhalb eines Fachs zufällig, damit nicht immer dieselben kommen
+export function extraRundeAuswaehlen(
+  listen: readonly Vokabelliste[],
+  staende: Map<string, WortStand>,
+  zufall: () => number = Math.random,
+): RundenWort[] {
+  const geuebt = listen
+    .flatMap((liste) =>
+      liste.woerter.map((wort) => ({ liste, wort, stand: wortStand(staende, liste.id, wort.id) })),
+    )
+    .filter((w) => w.stand.fach > 0)
+    .map((w) => ({ w, los: zufall() }))
+    .sort((a, b) => a.w.stand.fach - b.w.stand.fach || a.los - b.los)
+    .map(({ w }) => w);
+  return geuebt.slice(0, RUNDE_MAX);
 }

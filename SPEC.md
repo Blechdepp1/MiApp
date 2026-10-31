@@ -85,6 +85,7 @@ Das Lernen wird mit einem **Punkte- und Level-System** belohnt, und die Eltern l
 - Übungsarten: **Anhören → Bild/Wort wählen**, **Deutsch → Englisch wählen**, **Englisch schreiben** mit Buchstaben-Hilfe. Jede Übung lässt sich anhören.
 - **Erst erkennen, dann schreiben:** Ein neues Wort wird zuerst angehört und erkannt (EN → DE). In die Schreibübung (DE → EN) kommt es erst, wenn es zweimal richtig erkannt wurde.
 - Wiederholung in Abständen (Leitner-System, 5 Fächer): Falsch beantwortete Wörter kommen in derselben Runde und am nächsten Tag wieder.
+- **Kein Tageslimit:** Ist heute nichts mehr fällig, gibt es beliebig viele freiwillige Extra-Runden zum Wiederholen, mit normalen Punkten. Richtige Antworten in Extra-Runden verschieben ein Wort nicht im Wiederholungsplan, Fehler setzen es aber zurück.
 - Eine Runde hat höchstens 10 Wörter und dauert etwa 5 Minuten. Am Ende gibt es eine Zusammenfassung, die das Gelernte zeigt, keine Fehlerliste.
 - Beim Schreiben gilt Groß-/Kleinschreibung nicht als Fehler, und kleine Tippfehler (Abstand 1) gelten als „fast richtig“ mit Hinweis.
 

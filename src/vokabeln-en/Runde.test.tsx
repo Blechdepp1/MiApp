@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { erstelleEreignis, type LernEreignis } from '../daten/ereignisse.ts';
 import { protokollImArbeitsspeicher, type Protokoll } from '../daten/protokoll.ts';
 import { ProtokollProvider } from '../daten/ProtokollKontext.tsx';
+import { berechneStaende, schluessel } from './leitner.ts';
 import { Runde } from './Runde.tsx';
 import type { Vokabelliste } from './typen.ts';
 
@@ -141,10 +142,48 @@ describe('Runde', () => {
     expect(['Haus', 'Hund', 'Katze']).toContain(frage(container));
   });
 
-  it('lobt, wenn heute nichts mehr fällig ist', () => {
-    const heute = ['house', 'dog', 'cat'].map((id) => antwortAm(id, true, HEUTE));
-    zeige(heute);
-    expect(screen.getByText(/Für heute hast du alle Wörter geübt/)).toBeInTheDocument();
+  describe('Extra-Runde', () => {
+    const heuteGeuebt = ['house', 'dog', 'cat'].map((id) => antwortAm(id, true, HEUTE));
+
+    it('bietet eine Extra-Runde an, wenn heute nichts mehr fällig ist', () => {
+      zeige(heuteGeuebt);
+      expect(screen.getByText(/Das ist eine Extra-Runde zum Wiederholen/)).toBeInTheDocument();
+      expect(screen.getByText('Wort 1 von 3')).toBeInTheDocument();
+    });
+
+    it('gibt Punkte, verschiebt die Wörter aber nicht im Wiederholungsplan', async () => {
+      const protokoll = protokollImArbeitsspeicher();
+      const { container } = zeige(heuteGeuebt, protokoll);
+      for (let i = 0; i < 3; i++) await antworte(container, true);
+      expect(await screen.findByText('+16 Punkte')).toBeInTheDocument();
+      const neu = (await protokoll.alle()).filter((e) => e.typ === 'antwort');
+      const staende = berechneStaende([...heuteGeuebt, ...neu]);
+      expect(staende.get(schluessel('l', 'house'))).toMatchObject({
+        fach: 1,
+        faelligAb: '2026-11-02',
+      });
+    });
+
+    it('lässt beliebig viele Extra-Runden zu', async () => {
+      const { container, nochEinmal } = zeige(heuteGeuebt);
+      for (let i = 0; i < 3; i++) await antworte(container, true);
+      await userEvent.click(await screen.findByRole('button', { name: 'Noch eine Runde' }));
+      expect(nochEinmal).toHaveBeenCalled();
+    });
+  });
+
+  it('meldet freundlich, wenn es gar keine Wörter gibt', () => {
+    render(
+      <ProtokollProvider protokoll={protokollImArbeitsspeicher()}>
+        <Runde
+          listen={[{ id: 'leer', name: 'Leer', woerter: [] }]}
+          ereignisse={[]}
+          heute={HEUTE}
+          onNochEinmal={() => {}}
+        />
+      </ProtokollProvider>,
+    );
+    expect(screen.getByText(/noch keine Wörter/)).toBeInTheDocument();
   });
 
   describe('Schreiben', () => {
