@@ -1,20 +1,20 @@
-# Umsetzungsplan: MiApp Version 1
+﻿# Umsetzungsplan: MiApp Version 1
 
-Grundlage: [SPEC.md](../SPEC.md) v1.0 · Aufgaben im Detail: [todo.md](todo.md)
+Grundlage: [SPEC.md](../SPEC.md) v1.0 Â· Aufgaben im Detail: [todo.md](todo.md)
 
-## Überblick
+## Ãœberblick
 
-Wir bauen die PWA in dünnen, lauffähigen Scheiben. Zuerst kommt die Grundlage: App installierbar, Vorlesen, LRS-Darstellung. Die riskanten Teile (Vorlesen auf dem echten Android-Gerät, Dropbox-Anmeldung) testen wir **früh** mit einem Durchstich.
-Danach entsteht der Vokabeltrainer mit Punkten **lokal auf einem Gerät**. Diese Version kann eure Tochter schon ausprobieren, bevor Sync und Eltern-Bereich fertig sind.
-Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
+Wir bauen die PWA in dÃ¼nnen, lauffÃ¤higen Scheiben. Zuerst kommt die Grundlage: App installierbar, Vorlesen, LRS-Darstellung. Die riskanten Teile (Vorlesen auf dem echten Android-GerÃ¤t, Dropbox-Anmeldung) testen wir **frÃ¼h** mit einem Durchstich.
+Danach entsteht der Vokabeltrainer mit Punkten **lokal auf einem GerÃ¤t**. Diese Version kann eure Tochter schon ausprobieren, bevor Sync und Eltern-Bereich fertig sind.
+Danach folgen Sync, Belohnungen einlÃ¶sen und zuletzt der Foto-Import mit KI.
 
 ## Architektur-Entscheidungen
 
-- **Ereignis-Protokoll als Kern:** Jede Lernaktion wird als Ereignis lokal gespeichert (Dexie). Punkte, Level, Guthaben und der Leitner-Stand werden daraus *berechnet*. Der Sync muss deshalb nur Protokolle austauschen und zusammenführen und kennt keine Konflikte bei Zahlen.
-- **Fachlogik ohne React:** Punkte, Level, Leitner, Antwortbewertung und Merge sind reine Funktionen in `*/logik.ts` und vollständig unit-getestet.
-- **Lokal zuerst:** Die App funktioniert komplett ohne Dropbox. Der Sync ist eine Schicht darüber, die Dateien abgleicht.
+- **Ereignis-Protokoll als Kern:** Jede Lernaktion wird als Ereignis lokal gespeichert (Dexie). Punkte, Level, Guthaben und der Leitner-Stand werden daraus *berechnet*. Der Sync muss deshalb nur Protokolle austauschen und zusammenfÃ¼hren und kennt keine Konflikte bei Zahlen.
+- **Fachlogik ohne React:** Punkte, Level, Leitner, Antwortbewertung und Merge sind reine Funktionen in `*/logik.ts` und vollstÃ¤ndig unit-getestet.
+- **Lokal zuerst:** Die App funktioniert komplett ohne Dropbox. Der Sync ist eine Schicht darÃ¼ber, die Dateien abgleicht.
 - **Eingebaute Beispiel-Vokabelliste**, damit der Vokabeltrainer vor dem Foto-Import testbar ist.
-- **Geräte-Rolle** (Kind/Eltern) wird beim Einrichten gewählt und lokal gespeichert. Der KI-Schlüssel kann nur auf einem Eltern-Gerät hinterlegt werden.
+- **GerÃ¤te-Rolle** (Kind/Eltern) wird beim Einrichten gewÃ¤hlt und lokal gespeichert. Der KI-SchlÃ¼ssel kann nur auf einem Eltern-GerÃ¤t hinterlegt werden.
 
 ## Aufgabenliste (Index)
 
@@ -23,41 +23,41 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 - [x] 2. PWA installierbar + Deployment auf GitHub Pages
 - [x] 3. Vorlese-Funktion
 - [x] 4. LRS-Darstellung und Einstellungen
-- [x] 5. App-Gerüst mit Startseite und Navigation
+- [x] 5. App-GerÃ¼st mit Startseite und Navigation
 - [x] 6. Dropbox-Durchstich
 
 **Checkpoint A:** App ist auf ihrem Handy installiert, liest vor und kann eine Testdatei in Dropbox schreiben.
 
 ### Phase 2: Vokabeln mit Punkten (lokal)
-- [ ] 7. Ereignis-Protokoll und Punkte-/Level-Logik
+- [x] 7. Ereignis-Protokoll und Punkte-/Level-Logik
 - [ ] 8. Leitner-Logik und Antwortbewertung
-- [ ] 9. Erste Vokabelrunde (Anhören → Wählen) mit Punkten
-- [ ] 10. Übungsarten „Deutsch → Englisch wählen“ und „Schreiben“
+- [ ] 9. Erste Vokabelrunde (AnhÃ¶ren â†’ WÃ¤hlen) mit Punkten
+- [ ] 10. Ãœbungsarten â€žDeutsch â†’ Englisch wÃ¤hlenâ€œ und â€žSchreibenâ€œ
 - [ ] 11. Fortschritt auf der Startseite und Level-Aufstieg
 
-**Checkpoint B:** Sie kann auf ihrem Gerät üben und Punkte sammeln. **Erster Test mit eurer Tochter.**
+**Checkpoint B:** Sie kann auf ihrem GerÃ¤t Ã¼ben und Punkte sammeln. **Erster Test mit eurer Tochter.**
 
 ### Phase 3: Sync und Belohnungen
-- [ ] 12. Geräte-Rolle und Eltern-PIN
+- [ ] 12. GerÃ¤te-Rolle und Eltern-PIN
 - [ ] 13. Dropbox-Sync von Ereignissen und Inhalten
 - [ ] 14. Belohnungen und Level-Tabelle verwalten (Eltern)
-- [ ] 15. Belohnung einlösen und bestätigen
+- [ ] 15. Belohnung einlÃ¶sen und bestÃ¤tigen
 
-**Checkpoint C:** Kind- und Eltern-Handy zeigen dieselben Punkte, und eine Belohnung lässt sich einlösen und bestätigen.
+**Checkpoint C:** Kind- und Eltern-Handy zeigen dieselben Punkte, und eine Belohnung lÃ¤sst sich einlÃ¶sen und bestÃ¤tigen.
 
 ### Phase 4: Eltern-Bereich mit KI
-- [ ] 16. KI-Schlüssel hinterlegen
+- [ ] 16. KI-SchlÃ¼ssel hinterlegen
 - [ ] 17. Foto-Import einer Vokabelliste
-- [ ] 18. Wochenübersicht für Eltern
-- [ ] 19. End-to-End-Tests und Abnahme auf dem Gerät
+- [ ] 18. WochenÃ¼bersicht fÃ¼r Eltern
+- [ ] 19. End-to-End-Tests und Abnahme auf dem GerÃ¤t
 
-**Checkpoint D:** Alle Abnahmekriterien aus SPEC.md Abschnitt 10 sind erfüllt, und Version 1 ist fertig.
+**Checkpoint D:** Alle Abnahmekriterien aus SPEC.md Abschnitt 10 sind erfÃ¼llt, und Version 1 ist fertig.
 
 ## Risiken
 
-| Risiko | Auswirkung | Gegenmaßnahme |
+| Risiko | Auswirkung | GegenmaÃŸnahme |
 |---|---|---|
-| Android hat keine oder schlechte deutsche/englische Stimme im Browser | Hoch | Früh in Aufgabe 3 auf dem echten Gerät prüfen. Notfalls Google-Sprachdaten in den Android-Einstellungen nachinstallieren, im Notfall vorab erzeugte Audiodateien. |
+| Android hat keine oder schlechte deutsche/englische Stimme im Browser | Hoch | FrÃ¼h in Aufgabe 3 auf dem echten GerÃ¤t prÃ¼fen. Notfalls Google-Sprachdaten in den Android-Einstellungen nachinstallieren, im Notfall vorab erzeugte Audiodateien. |
 | Dropbox-Anmeldung (PKCE) aus der PWA klappt nicht sauber (Weiterleitung, Token-Erneuerung) | Hoch | Durchstich in Aufgabe 6, bevor wir darauf aufbauen. |
 | Claude API direkt aus dem Browser (CORS) | Mittel | Die API erlaubt Browser-Aufrufe mit eigenem Header. Kurzer Test zu Beginn von Aufgabe 17. Notfalls Import am PC. |
 | Handschrift oder schlechte Fotos werden falsch erkannt | Mittel | Bearbeitbare Vorschau vor der Freigabe, das ist ohnehin Pflicht. |

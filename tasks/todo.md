@@ -81,12 +81,13 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 
 ## Phase 2: Vokabeln mit Punkten (lokal)
 
-### Aufgabe 7: Ereignis-Protokoll und Punkte-/Level-Logik
+### Aufgabe 7: Ereignis-Protokoll und Punkte-/Level-Logik ✅
 **Beschreibung:** Typen für Lern-Ereignisse und eine Dexie-Tabelle anlegen. Dazu reine Funktionen für `gesamtPunkte`, `guthaben`, `level` (mit Start-Tabelle „Entdeckerin“ und Sternen ab Level 8) und `tagesziel` (2 Runden). Alle Punktwerte stehen zentral in `belohnung/werte.ts`.
 **Akzeptanz:**
-- [ ] Die Berechnungen entsprechen exakt SPEC `belohnung`. Fehler senken nie die Punkte, Einlösungen senken nur das Guthaben.
-- [ ] Das Tagesziel-Bonus gibt es höchstens einmal pro Tag.
-- [ ] Mindestens 90 % Testabdeckung.
+- [x] Die Berechnungen entsprechen exakt SPEC `belohnung`. Fehler senken nie die Punkte, Einlösungen senken nur das Guthaben.
+- [x] Den Tagesziel-Bonus gibt es höchstens einmal pro Tag (wird aus den Runden pro Tag berechnet, nicht gespeichert).
+- [x] Mindestens 90 % Testabdeckung (Zeilen 100 %).
+**Ergänzung:** „Mit Hilfe“ richtig gibt +1 statt +2 (siehe Aufgabe 10).
 **Prüfen:** `npm test -- belohnung --coverage`
 **Abhängig von:** 4
 **Dateien:** `src/daten/ereignisse.ts`, `src/belohnung/logik.ts`, `src/belohnung/werte.ts`, `src/belohnung/logik.test.ts`
