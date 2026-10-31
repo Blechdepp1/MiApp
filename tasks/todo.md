@@ -29,12 +29,12 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `vite.config.ts`, `public/icons/*`, `.github/workflows/deploy.yml`, `index.html`
 **Umfang:** M
 
-### Aufgabe 3: Vorlese-Funktion
+### Aufgabe 3: Vorlese-Funktion ✅
 **Beschreibung:** Einen Dienst `vorlesen(text, sprache)` auf Basis von `speechSynthesis` bauen. Er wählt die passende Stimme für Deutsch bzw. Englisch, unterstützt eine Geschwindigkeit und bricht eine laufende Ausgabe ab. Dazu die Komponente `<VorleseKnopf text sprache />` mit großem Lautsprecher-Symbol.
 **Akzeptanz:**
-- [ ] Auf ihrem Gerät klingen deutsche und englische Texte jeweils in der richtigen Stimme.
-- [ ] Ein zweiter Tipp stoppt das Vorlesen, und ein neuer Knopf unterbricht den alten.
-- [ ] Fehlt eine Stimme, bekommt sie einen verständlichen Hinweis (Symbol + Text), und die App stürzt nicht ab.
+- [x] Auf dem Android-Gerät (Handy der Eltern) klingen deutsche und englische Texte jeweils in der richtigen Stimme.
+- [x] Ein zweiter Tipp stoppt das Vorlesen, und ein neuer Knopf unterbricht den alten.
+- [x] Fehlt eine Stimme, bekommt sie einen verständlichen Hinweis (Symbol + Text), und die App stürzt nicht ab.
 **Prüfen:** Unit-Tests mit gemocktem `speechSynthesis`; manuell auf dem Gerät DE und EN.
 **Abhängig von:** 1
 **Dateien:** `src/basis/vorlesen.ts`, `src/basis/vorlesen.test.ts`, `src/basis/VorleseKnopf.tsx`
