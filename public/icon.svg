@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#2E7D6B"/>
+  <!-- aufgeschlagenes Buch -->
+  <path d="M96 168c56-20 108-16 152 12v196c-44-28-96-32-152-12z" fill="#FBF6EC"/>
+  <path d="M416 168c-56-20-108-16-152 12v196c44-28 96-32 152-12z" fill="#FBF6EC"/>
+  <!-- Schallwellen: Vorlesen -->
+  <path d="M300 230q20 26 0 52" fill="none" stroke="#2E7D6B" stroke-width="14" stroke-linecap="round"/>
+  <path d="M330 210q36 46 0 92" fill="none" stroke="#2E7D6B" stroke-width="14" stroke-linecap="round"/>
+  <!-- Stern: Belohnung -->
+  <path d="M176 214l12 24 26 4-19 18 5 26-24-13-24 13 5-26-19-18 26-4z" fill="#F2B544"/>
+</svg>
