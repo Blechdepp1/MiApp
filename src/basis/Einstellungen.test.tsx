@@ -22,7 +22,7 @@ describe('Einstellungen', () => {
     zeige();
     const gruppe = screen.getByRole('radiogroup', { name: 'Hintergrund' });
     await userEvent.click(within(gruppe).getByRole('radio', { name: 'Dunkel' }));
-    expect(variable('--farbe-hintergrund')).toBe(FARBEN.dunkel.hintergrund);
+    await vi.waitFor(() => expect(variable('--farbe-hintergrund')).toBe(FARBEN.dunkel.hintergrund));
     expect(within(gruppe).getByRole('radio', { name: 'Dunkel' })).toHaveAttribute(
       'aria-checked',
       'true',
@@ -42,7 +42,8 @@ describe('Einstellungen', () => {
     expect(
       await within(neu).findByRole('radio', { name: 'Sehr groß', checked: true }),
     ).toBeVisible();
-    expect(variable('--schrift-groesse')).toBe('28px');
+    // Das Thema wird in einem Effekt nach dem Rendern gesetzt
+    await vi.waitFor(() => expect(variable('--schrift-groesse')).toBe('28px'));
   });
 
   it('überschreibt eine Auswahl nicht, wenn das Laden länger dauert', async () => {
@@ -65,7 +66,7 @@ describe('Einstellungen', () => {
   it('startet mit den LRS-Standardwerten', async () => {
     zeige();
     expect(await screen.findByRole('radio', { name: 'Creme', checked: true })).toBeInTheDocument();
-    expect(variable('--abstand-zeilen')).toBe('1.5');
+    await vi.waitFor(() => expect(variable('--abstand-zeilen')).toBe('1.5'));
     expect(screen.getByRole('slider', { name: 'Vorlese-Tempo' })).toHaveValue(
       String(STANDARD.tempo),
     );
