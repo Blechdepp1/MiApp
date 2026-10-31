@@ -40,7 +40,7 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/basis/vorlesen.ts`, `src/basis/vorlesen.test.ts`, `src/basis/VorleseKnopf.tsx`
 **Umfang:** S
 
-### Aufgabe 4: LRS-Darstellung und Einstellungen ✅ (Gerätetest offen)
+### Aufgabe 4: LRS-Darstellung und Einstellungen ✅
 **Beschreibung:** Das Dexie-Grundschema anlegen und die Darstellung über CSS-Variablen steuern (Schriftgröße 3 Stufen, Abstand 2 Stufen, Hintergrund creme/weiß/hellblau/dunkel, Schrift Standard/OpenDyslexic lokal). Dazu ein Einstellungsbildschirm mit Live-Vorschau und Vorlese-Knöpfen.
 **Akzeptanz:**
 - [x] Jede Änderung wirkt sofort auf alle Bildschirme und bleibt nach einem Neustart erhalten (Unit- und E2E-Test).

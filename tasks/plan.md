@@ -22,7 +22,7 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 - [x] 1. Projekt einrichten
 - [x] 2. PWA installierbar + Deployment auf GitHub Pages
 - [x] 3. Vorlese-Funktion
-- [ ] 4. LRS-Darstellung und Einstellungen
+- [x] 4. LRS-Darstellung und Einstellungen
 - [ ] 5. App-Gerüst mit Startseite und Navigation
 - [ ] 6. Dropbox-Durchstich
 
