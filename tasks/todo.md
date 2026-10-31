@@ -93,12 +93,13 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/daten/ereignisse.ts`, `src/belohnung/logik.ts`, `src/belohnung/werte.ts`, `src/belohnung/logik.test.ts`
 **Umfang:** S
 
-### Aufgabe 8: Leitner-Logik und Antwortbewertung
+### Aufgabe 8: Leitner-Logik und Antwortbewertung ✅
 **Beschreibung:** Reine Funktionen für den Leitner-Stand aus den Ereignissen (5 Fächer, Fälligkeit), die Auswahl einer Runde (höchstens 10 Wörter, fällige zuerst, falsche kommen in der Runde wieder) und die Phase pro Wort (erkennen → schreiben nach 2× richtig erkannt). Dazu die Bewertung von Schreibantworten: richtig, fast richtig (Abstand 1) oder falsch, Groß-/Kleinschreibung egal.
 **Akzeptanz:**
-- [ ] Ein falsches Wort kommt in derselben Runde und am nächsten Tag wieder.
-- [ ] „fast richtig“ zählt als richtig mit Hinweis.
-- [ ] Mindestens 90 % Testabdeckung.
+- [x] Ein falsches Wort ist am nächsten Tag wieder fällig (das Wiederholen in derselben Runde übernimmt die Runde in Aufgabe 9).
+- [x] „fast richtig“ (ein Buchstabe falsch, fehlend, zu viel oder vertauscht; ab 4 Buchstaben) wird erkannt; als richtig mit Hinweis zählt es in Aufgabe 10.
+- [x] Mindestens 90 % Testabdeckung (Zeilen 100 %).
+**Festgelegt:** Pausen je Fach 1/1/3/7/14 Tage; höchstens 5 neue Wörter pro Runde; Reihenfolge der Übungen: anhören & erkennen → Deutsch → Englisch wählen → schreiben; ein Fehler und die Korrektur am selben Tag zählen nicht als „verbessert“ (sonst wäre absichtlich falsch antworten lohnender).
 **Prüfen:** `npm test -- vokabeln-en --coverage`
 **Abhängig von:** 7
 **Dateien:** `src/vokabeln-en/leitner.ts`, `src/vokabeln-en/bewertung.ts`, `src/vokabeln-en/*.test.ts`
