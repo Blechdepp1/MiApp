@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { punkteFuerRunde, tagesziel } from '../belohnung/logik.ts';
 import { PUNKTE } from '../belohnung/werte.ts';
+import { useEinstellungen } from '../basis/EinstellungenKontext.tsx';
+import { vorlesen } from '../basis/vorlesen.ts';
 import { useProtokoll } from '../daten/ProtokollKontext.tsx';
 import type { LernEreignis, Uebung } from '../daten/ereignisse.ts';
 import { useVerlassenBestaetigen } from '../basis/verlassen.ts';
@@ -51,6 +53,7 @@ export function Runde({
   vorrang,
   zufall = Math.random,
   onNochEinmal,
+  sprich = vorlesen,
 }: {
   listen: Vokabelliste[];
   ereignisse: LernEreignis[];
@@ -59,8 +62,10 @@ export function Runde({
   vorrang?: ReadonlySet<string>;
   zufall?: Zufall;
   onNochEinmal: () => void;
+  sprich?: typeof vorlesen;
 }) {
   const protokoll = useProtokoll();
+  const { einstellungen } = useEinstellungen();
   const alleWoerter = listen.flatMap((l) => l.woerter);
   const [staende, setStaende] = useState(() => berechneStaende(ereignisse));
   // Ist heute nichts mehr fällig, darf sie freiwillig weiter wiederholen
@@ -123,6 +128,11 @@ export function Runde({
       setSchritte((s) => [...s, { eintrag: schritt.eintrag, wiederholung: true }]);
     }
     setAntwort({ richtig, fast, mitHilfe });
+    // Das englische Wort gleich noch einmal hören, während es zu sehen ist (Klang, Schriftbild und
+    // Bedeutung zusammen; bei LRS besonders hilfreich). Abschaltbar in den Einstellungen.
+    if (einstellungen.wortVorsagen === 'an') {
+      void sprich(sprechtext(wort.en), 'en', { tempo: einstellungen.tempo });
+    }
     protokoll.hinzufuegen({
       typ: 'antwort',
       listeId: liste.id,

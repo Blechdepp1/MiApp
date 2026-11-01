@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.tsx';
 import { IST_VORSCHAU } from './basis/kanal.ts';
+import { beobachteInstallation } from './basis/installieren.ts';
 import { beobachteSichtbarenBereich } from './basis/sichtbarerBereich.ts';
 import { istRueckkehrVonDropbox } from './sync/verbindung.ts';
 
@@ -16,6 +17,7 @@ if (istRueckkehrVonDropbox()) {
 }
 
 beobachteSichtbarenBereich();
+beobachteInstallation();
 
 if (IST_VORSCHAU) document.title = `🧪 Test – ${document.title}`;
 

@@ -4,6 +4,7 @@ export type Schriftgroesse = 'normal' | 'gross' | 'sehr-gross';
 export type Abstand = 'normal' | 'weit';
 export type Hintergrund = 'creme' | 'weiss' | 'hellblau' | 'dunkel';
 export type Schrift = 'standard' | 'opendyslexic';
+export type AnAus = 'an' | 'aus';
 
 export type Einstellungen = {
   schriftgroesse: Schriftgroesse;
@@ -11,6 +12,8 @@ export type Einstellungen = {
   hintergrund: Hintergrund;
   schrift: Schrift;
   tempo: number;
+  // Nach jeder Antwort das englische Wort einmal vorsprechen (Klang + Schriftbild + Bedeutung)
+  wortVorsagen: AnAus;
 };
 
 export const STANDARD: Einstellungen = {
@@ -19,6 +22,7 @@ export const STANDARD: Einstellungen = {
   hintergrund: 'creme',
   schrift: 'standard',
   tempo: 0.9,
+  wortVorsagen: 'an',
 };
 
 export const TEMPO_MIN = 0.5;
@@ -34,6 +38,7 @@ const ERLAUBT = {
   abstand: ['normal', 'weit'],
   hintergrund: ['creme', 'weiss', 'hellblau', 'dunkel'],
   schrift: ['standard', 'opendyslexic'],
+  wortVorsagen: ['an', 'aus'],
 } as const;
 
 // Gespeicherte Werte prüfen, damit alte oder kaputte Daten nie die Darstellung zerstören

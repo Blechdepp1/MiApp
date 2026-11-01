@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { erstelleEreignis, type LernEreignis } from '../daten/ereignisse.ts';
 import { protokollImArbeitsspeicher, type Protokoll } from '../daten/protokoll.ts';
 import { ProtokollProvider } from '../daten/ProtokollKontext.tsx';
+import { speicherImArbeitsspeicher } from '../basis/einstellungen.ts';
+import { EinstellungenProvider } from '../basis/EinstellungenKontext.tsx';
 import { berechneStaende, schluessel } from './leitner.ts';
 import { Runde } from './Runde.tsx';
 import type { Vokabelliste } from './typen.ts';
@@ -23,14 +25,21 @@ const LISTE: Vokabelliste = {
 function zeige(
   ereignisse: LernEreignis[] = [],
   protokoll: Protokoll = protokollImArbeitsspeicher(),
+  sprich = vi.fn(async () => 'ok' as const),
 ) {
   const nochEinmal = vi.fn();
   const ansicht = render(
     <ProtokollProvider protokoll={protokoll}>
-      <Runde listen={[LISTE]} ereignisse={ereignisse} heute={HEUTE} onNochEinmal={nochEinmal} />
+      <Runde
+        listen={[LISTE]}
+        ereignisse={ereignisse}
+        heute={HEUTE}
+        onNochEinmal={nochEinmal}
+        sprich={sprich}
+      />
     </ProtokollProvider>,
   );
-  return { ...ansicht, protokoll, nochEinmal };
+  return { ...ansicht, protokoll, nochEinmal, sprich };
 }
 
 function frage(container: HTMLElement): string {
@@ -59,6 +68,40 @@ function antwortAm(wortId: string, richtig: boolean, tag = '2026-10-31') {
 }
 
 describe('Runde', () => {
+  it('spricht nach jeder Antwort das englische Wort noch einmal vor', async () => {
+    const { container, sprich } = zeige();
+    const gefragt = frage(container);
+    const wort = LISTE.woerter.find((w) => w.en === gefragt || w.de === gefragt)!;
+    const optionen = within(container.querySelector('.uebung-optionen')!).getAllByRole('button', {
+      name: (name) => !name.startsWith('Vorlesen'),
+    });
+    await userEvent.click(optionen[0]!);
+    expect(sprich).toHaveBeenCalledWith(wort.en, 'en', expect.anything());
+  });
+
+  it('spricht nicht vor, wenn es in den Einstellungen aus ist', async () => {
+    const sprich = vi.fn(async () => 'ok' as const);
+    const { container } = render(
+      <EinstellungenProvider speicher={speicherImArbeitsspeicher({ wortVorsagen: 'aus' })}>
+        <ProtokollProvider protokoll={protokollImArbeitsspeicher()}>
+          <Runde
+            listen={[LISTE]}
+            ereignisse={[]}
+            heute={HEUTE}
+            onNochEinmal={vi.fn()}
+            sprich={sprich}
+          />
+        </ProtokollProvider>
+      </EinstellungenProvider>,
+    );
+    await new Promise((r) => setTimeout(r, 20));
+    const optionen = within(container.querySelector('.uebung-optionen')!).getAllByRole('button', {
+      name: (name) => !name.startsWith('Vorlesen'),
+    });
+    await userEvent.click(optionen[0]!);
+    expect(sprich).not.toHaveBeenCalled();
+  });
+
   it('spielt eine Runde durch und vergibt die Punkte', async () => {
     const { container, protokoll } = zeige();
     expect(screen.getByText('Wort 1 von 3')).toBeInTheDocument();

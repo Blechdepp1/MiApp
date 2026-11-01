@@ -2,6 +2,7 @@ import { Fortschritt } from '../belohnung/Fortschritt.tsx';
 import { useOffeneEinloesungen } from '../eltern/Einloesungen.tsx';
 import { useGeraet } from '../eltern/GeraetKontext.tsx';
 import { SagUnsWas } from '../feedback/SagUnsWas.tsx';
+import { AppHinweis } from './AppHinweis.tsx';
 import type { Ziel } from './navigation.ts';
 import { Verweis } from './Verweis.tsx';
 import { VorleseKnopf } from './VorleseKnopf.tsx';
@@ -56,6 +57,7 @@ export function Startseite() {
       </ul>
 
       <SagUnsWas />
+      <AppHinweis />
     </div>
   );
 }

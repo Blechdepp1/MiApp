@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { TEMPO_MAX, TEMPO_MIN, type Einstellungen as Werte } from './einstellungen.ts';
+import { TEMPO_MAX, TEMPO_MIN, type AnAus, type Einstellungen as Werte } from './einstellungen.ts';
 import { useEinstellungen } from './EinstellungenKontext.tsx';
 import { FARBEN } from './thema.ts';
 import { VorleseKnopf } from './VorleseKnopf.tsx';
@@ -39,6 +39,11 @@ const SCHRIFTEN: Option<Werte['schrift']>[] = [
 
 const VORSCHAU = 'Der Hund läuft über die Wiese. Die Biene fliegt zur Blume.';
 
+const VORSAGEN: Option<AnAus>[] = [
+  { wert: 'an', text: 'Ja' },
+  { wert: 'aus', text: 'Nein' },
+];
+
 export function Einstellungen() {
   const { einstellungen, aendern } = useEinstellungen();
 
@@ -72,6 +77,13 @@ export function Einstellungen() {
         optionen={SCHRIFTEN}
         wert={einstellungen.schrift}
         waehlen={(schrift) => aendern({ schrift })}
+      />
+
+      <Auswahl
+        titel="Wort nach der Antwort vorsagen"
+        optionen={VORSAGEN}
+        wert={einstellungen.wortVorsagen}
+        waehlen={(wortVorsagen) => aendern({ wortVorsagen })}
       />
 
       <div className="einstellungen-gruppe">

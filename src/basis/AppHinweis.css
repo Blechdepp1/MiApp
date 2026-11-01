@@ -1,0 +1,36 @@
+.app-hinweis {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  border: 2px dashed var(--farbe-akzent);
+  background: var(--farbe-hintergrund);
+  font-size: 0.9rem;
+}
+
+.app-hinweis p {
+  margin: 0;
+}
+
+.app-hinweis-knoepfe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.app-hinweis-knoepfe button {
+  min-height: var(--touch);
+  padding: 0.25rem 1rem;
+  border-radius: var(--radius);
+  border: 2px solid var(--farbe-akzent);
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-hinweis-knoepfe .app-hinweis-haupt {
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
+}

@@ -17,6 +17,7 @@ describe('bereinige', () => {
       hintergrund: 'dunkel',
       schrift: 'opendyslexic',
       tempo: 0.7,
+      wortVorsagen: 'aus',
     };
     expect(bereinige(gespeichert)).toEqual(gespeichert);
   });

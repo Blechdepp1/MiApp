@@ -10,6 +10,8 @@ Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei F
 - Mit ganz großer Schrift passt jetzt alles auf den Bildschirm.
 - Ist eine Antwort falsch, steht da „Nicht schlimm!“, und du kannst dir alles vorlesen lassen.
 - Die Smileys bei „Sag uns was“ haben jetzt Wörter darunter.
+- Nach jeder Antwort hörst du das englische Wort noch einmal. Ausschalten kannst du das in den Einstellungen.
+- Im Browser zeigt die Startseite, wie MiApp als App im Vollbild läuft.
 
 ## 0.11.0 – 01.11.2026
 
