@@ -199,6 +199,13 @@ Nichts in der App **widerspricht** den LRS-Grundsätzen oder dem Forschungsstand
 
 ## 4. Offene Fragen an die Eltern
 
+**Antworten der Eltern (01.11.2026):**
+- Milena hat einen **Nachteilsausgleich**. Schule: **Realschule in Nordrhein-Westfalen**. Ob ihre Rechtschreibung in Englisch bewertet wird (Notenschutz), ist noch offen.
+- Abfrage durch die Lehrkraft, Lehrbuch, unregelmäßige Verben und lautes Sprechen: fragen die Eltern nach.
+- LRS-Förderung gibt es in der Schule (keine Abstimmung nötig), eine Therapie derzeit nicht.
+- Folgerung bis zur Klärung: Schreiben bleibt Übungsform (es hilft beim Lernen), „fast richtig“ stuft weiter hoch, die Sprechkarte (V6) bleibt vorgemerkt.
+
+
 1. **Nachteilsausgleich / Notenschutz in Englisch:** Hat Milena einen Bescheid? Wird ihre **Rechtschreibung in Englisch bewertet**? Davon hängt ab, wie stark die App auf Schreiben setzt (V3, V5, V6) und ob „fast richtig“ weiter hochstufen soll.
 2. **Bundesland und Schulart:** Damit wir die geltenden LRS-Regeln nachlesen können.
 3. **Wie fragt die Lehrkraft Vokabeln ab?** Schriftlich DE→EN, EN→DE, mündlich, in Sätzen? Die App sollte ähnlich üben.
