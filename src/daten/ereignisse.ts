@@ -16,7 +16,8 @@ export type EreignisDaten =
       mitHilfe?: boolean;
     }
   | { typ: 'runde-beendet'; richtig: number; mitHilfe: number; verbessert: number }
-  | { typ: 'eingeloest'; belohnungId: string; preis: number }
+  // Name und Symbol werden mitgespeichert, damit die Liste auch nach Änderungen an den Belohnungen stimmt
+  | { typ: 'eingeloest'; belohnungId: string; preis: number; name?: string; symbol?: string }
   | { typ: 'bestaetigt'; einloesungId: string };
 
 export type LernEreignis = Basis & EreignisDaten;

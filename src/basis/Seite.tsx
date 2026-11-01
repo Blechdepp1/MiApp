@@ -28,15 +28,3 @@ export function Seite({
     </div>
   );
 }
-
-export function KommtBald({ titel }: { titel: string }) {
-  const text = 'Das kommt bald!';
-  return (
-    <Seite titel={titel}>
-      <p className="seite-bald">
-        <VorleseKnopf text={text} />
-        <span>{text}</span>
-      </p>
-    </Seite>
-  );
-}

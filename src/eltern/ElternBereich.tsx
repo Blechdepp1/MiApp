@@ -4,6 +4,7 @@ import { useSync } from '../sync/SyncKontext.tsx';
 import { SyncStatus } from '../sync/SyncStatus.tsx';
 import { DropboxVerbinden } from '../sync/Verbinden.tsx';
 import { BelohnungenVerwalten } from './BelohnungenVerwalten.tsx';
+import { Einloesungen } from './Einloesungen.tsx';
 import { ElternTuer } from './ElternTuer.tsx';
 import { LevelVerwalten } from './LevelVerwalten.tsx';
 import { useGeraet } from './GeraetKontext.tsx';
@@ -18,6 +19,7 @@ export function ElternBereich({ dropbox }: { dropbox: Dropbox }) {
           Dieses Gerät gehört:{' '}
           <strong>{geraet?.rolle === 'eltern' ? 'den Eltern' : 'dem Kind'}</strong>
         </p>
+        <Einloesungen />
         <DropboxVerbinden dropbox={dropbox} onAenderung={abgleichen} />
         <SyncStatus />
         <BelohnungenVerwalten />

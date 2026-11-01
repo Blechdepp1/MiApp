@@ -48,6 +48,40 @@ export function guthaben(ereignisse: readonly LernEreignis[]): number {
   return gesamtPunkte(ereignisse) - ausgegeben;
 }
 
+export type Einloesung = {
+  id: string;
+  belohnungId: string;
+  preis: number;
+  name?: string;
+  symbol?: string;
+  zeit: string;
+  bestaetigt: boolean;
+};
+
+// Alle Einlösungen, neueste zuerst; bestätigt ist eine, zu der es ein „bestaetigt“-Ereignis gibt
+export function einloesungen(ereignisse: readonly LernEreignis[]): Einloesung[] {
+  const bestaetigt = new Set(
+    ereignisse.flatMap((e) => (e.typ === 'bestaetigt' ? [e.einloesungId] : [])),
+  );
+  return ereignisse
+    .flatMap((e) =>
+      e.typ === 'eingeloest'
+        ? [
+            {
+              id: e.id,
+              belohnungId: e.belohnungId,
+              preis: e.preis,
+              name: e.name,
+              symbol: e.symbol,
+              zeit: e.zeit,
+              bestaetigt: bestaetigt.has(e.id),
+            },
+          ]
+        : [],
+    )
+    .sort((a, b) => b.zeit.localeCompare(a.zeit));
+}
+
 export function tagesziel(ereignisse: readonly LernEreignis[], heute: string) {
   const runden = rundenProTag(ereignisse).get(heute) ?? 0;
   return { runden, ziel: TAGESZIEL_RUNDEN, erreicht: runden >= TAGESZIEL_RUNDEN };

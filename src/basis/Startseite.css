@@ -3,6 +3,17 @@
   gap: 1rem;
 }
 
+.startseite-hinweis {
+  display: block;
+  min-height: var(--touch);
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-belohnung);
+  color: var(--farbe-auf-belohnung);
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .startseite-kopf {
   display: flex;
   align-items: flex-start;

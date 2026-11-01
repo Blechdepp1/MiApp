@@ -69,6 +69,101 @@
   background: var(--farbe-akzent);
 }
 
+/* Belohnungen-Seite */
+.belohnungen-guthaben,
+.belohnungen-meldung {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.belohnungen-guthaben {
+  font-size: 1.15rem;
+}
+
+.belohnungen-meldung {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+  border-left: 8px solid var(--farbe-akzent);
+}
+
+.belohnungen-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.belohnung-karte {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+}
+
+.belohnung-karte[data-erreichbar='true'] {
+  box-shadow: 0 0 0 3px var(--farbe-belohnung);
+}
+
+.belohnung-symbol {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.belohnung-text {
+  flex: 1;
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.belohnung-text progress {
+  width: 100%;
+  height: 0.8rem;
+  accent-color: var(--farbe-belohnung);
+}
+
+.belohnung-fehlt {
+  font-size: 0.9rem;
+  color: var(--farbe-text-leise);
+}
+
+.belohnungen-verlauf h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem;
+}
+
+.belohnungen-verlauf ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.belohnungen-verlauf li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.belohnung-status {
+  margin-left: auto;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--farbe-text-leise);
+}
+
+.belohnung-status[data-bestaetigt='true'] {
+  color: var(--farbe-akzent);
+}
+
 /* Level-Feier */
 .feier {
   position: fixed;

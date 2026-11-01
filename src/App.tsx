@@ -4,8 +4,9 @@ import { EinstellungenProvider } from './basis/EinstellungenKontext.tsx';
 import { dexieSpeicher } from './basis/einstellungenSpeicher.ts';
 import type { EinstellungsSpeicher } from './basis/einstellungen.ts';
 import { useZiel } from './basis/navigation.ts';
-import { KommtBald, Seite } from './basis/Seite.tsx';
+import { Seite } from './basis/Seite.tsx';
 import { Startseite } from './basis/Startseite.tsx';
+import { BelohnungenSeite } from './belohnung/BelohnungenSeite.tsx';
 import { LevelFeier } from './belohnung/LevelFeier.tsx';
 import { dexieInhalte, type InhalteSpeicher } from './daten/inhalte.ts';
 import { InhalteProvider } from './daten/InhalteKontext.tsx';
@@ -89,7 +90,7 @@ function Inhalt({ dropbox }: { dropbox: Dropbox }) {
     case 'vokabeln':
       return <VokabelSeite />;
     case 'belohnungen':
-      return <KommtBald titel="Belohnungen" />;
+      return <BelohnungenSeite />;
     case 'eltern':
       return <ElternBereich dropbox={dropbox} />;
     case 'start':
