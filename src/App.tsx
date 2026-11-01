@@ -25,6 +25,8 @@ import { LektionenProvider } from './lektionen/LektionenKontext.tsx';
 import { dexieLektionen, type LektionenSpeicher } from './lektionen/speicher.ts';
 import { SyncProvider } from './sync/SyncKontext.tsx';
 import { dropbox as standardDropbox } from './sync/verbindung.ts';
+import { IST_VORSCHAU } from './basis/kanal.ts';
+import { VorschauBand } from './basis/VorschauBand.tsx';
 import { VokabelSeite } from './vokabeln-en/VokabelSeite.tsx';
 import './basis/thema.css';
 import './App.css';
@@ -40,7 +42,10 @@ export function App({
   abgleichStand,
   inhalteStand,
   lektionenStand,
+  vorschau = IST_VORSCHAU,
 }: {
+  // Testkanal: Band „Testversion“ mit Umschalter zwischen Kind- und Eltern-Ansicht
+  vorschau?: boolean;
   speicher?: EinstellungsSpeicher;
   protokoll?: Protokoll;
   dropbox?: Dropbox;
@@ -64,6 +69,7 @@ export function App({
                 inhalteStand={inhalteStand}
                 lektionenStand={lektionenStand}
               >
+                {vorschau && <VorschauBand />}
                 <Eingerichtet>
                   <main>
                     <Inhalt dropbox={dropbox} />

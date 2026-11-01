@@ -2,7 +2,6 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.tsx';
 import { IST_VORSCHAU } from './basis/kanal.ts';
-import { VorschauBand } from './basis/VorschauBand.tsx';
 import { istRueckkehrVonDropbox } from './sync/verbindung.ts';
 
 // Nach der Dropbox-Anmeldung landet man auf der Startadresse: direkt in den Eltern-Bereich
@@ -12,7 +11,6 @@ if (IST_VORSCHAU) document.title = `🧪 Test – ${document.title}`;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {IST_VORSCHAU && <VorschauBand />}
     <App />
   </StrictMode>,
 );

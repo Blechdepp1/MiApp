@@ -23,7 +23,7 @@ async function eingerichtet(): Promise<GeraetSpeicher> {
 }
 
 // Rendert die App und wartet, bis das Gerät geladen ist
-async function zeige(geraet?: GeraetSpeicher) {
+async function zeige(geraet?: GeraetSpeicher, vorschau = false) {
   window.history.replaceState(null, '', '#/');
   render(
     <App
@@ -41,6 +41,7 @@ async function zeige(geraet?: GeraetSpeicher) {
       inhalte={inhalteImArbeitsspeicher()}
       lektionen={lektionenImArbeitsspeicher()}
       lektionenStand={wertImArbeitsspeicher()}
+      vorschau={vorschau}
     />,
   );
   await screen.findAllByRole('heading', { level: 1 });
@@ -54,6 +55,21 @@ describe('App', () => {
     expect(
       screen.getByRole('heading', { name: 'Willkommen! Wer benutzt dieses Gerät?' }),
     ).toBeInTheDocument();
+  });
+
+  it('zeigt das Testversion-Band mit Rollenwechsel nur im Testkanal', async () => {
+    await zeige();
+    expect(screen.queryByText(/Testversion/)).toBeNull();
+  });
+
+  it('wechselt im Testkanal zwischen Kind- und Eltern-Ansicht', async () => {
+    const geraet = await eingerichtet();
+    await zeige(geraet, true);
+    await act(async () => {
+      screen.getByRole('button', { name: /zur Eltern-Ansicht/ }).click();
+    });
+    expect(await geraet.rolle.laden()).toBe('eltern');
+    expect(screen.getByRole('button', { name: /zur Kind-Ansicht/ })).toBeInTheDocument();
   });
 
   it('zeigt auf der Startseite Kacheln mit Vorlese-Knopf', async () => {
