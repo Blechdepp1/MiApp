@@ -81,21 +81,32 @@ export function uebungFuer(stand: WortStand): Uebung {
 
 export type RundenWort = { liste: Vokabelliste; wort: Vokabel; stand: WortStand };
 
+// Listen mit Vorrang (z. B. Klassenarbeit steht an) kommen jeweils zuerst
+function vorrangZuerst(vorrang: ReadonlySet<string>) {
+  return (a: RundenWort, b: RundenWort) =>
+    Number(vorrang.has(b.liste.id)) - Number(vorrang.has(a.liste.id));
+}
+
 // Fällige Wörter zuerst (schwierigste zuerst), dann neue, insgesamt höchstens RUNDE_MAX
 export function rundeAuswaehlen(
   listen: readonly Vokabelliste[],
   staende: Map<string, WortStand>,
   heute: string,
+  vorrang: ReadonlySet<string> = new Set(),
 ): RundenWort[] {
+  const zuerst = vorrangZuerst(vorrang);
   const alle = listen.flatMap((liste) =>
     liste.woerter.map((wort) => ({ liste, wort, stand: wortStand(staende, liste.id, wort.id) })),
   );
   const faellig = alle
     .filter((w) => w.stand.fach > 0 && w.stand.faelligAb <= heute)
     .sort(
-      (a, b) => a.stand.fach - b.stand.fach || a.stand.faelligAb.localeCompare(b.stand.faelligAb),
+      (a, b) =>
+        zuerst(a, b) ||
+        a.stand.fach - b.stand.fach ||
+        a.stand.faelligAb.localeCompare(b.stand.faelligAb),
     );
-  const neu = alle.filter((w) => w.stand.fach === 0);
+  const neu = alle.filter((w) => w.stand.fach === 0).sort(zuerst);
   const platzFuerNeu = Math.min(NEU_PRO_RUNDE, RUNDE_MAX - Math.min(faellig.length, RUNDE_MAX));
   return [...faellig.slice(0, RUNDE_MAX), ...neu.slice(0, platzFuerNeu)];
 }
@@ -106,14 +117,16 @@ export function extraRundeAuswaehlen(
   listen: readonly Vokabelliste[],
   staende: Map<string, WortStand>,
   zufall: () => number = Math.random,
+  vorrang: ReadonlySet<string> = new Set(),
 ): RundenWort[] {
+  const zuerst = vorrangZuerst(vorrang);
   const geuebt = listen
     .flatMap((liste) =>
       liste.woerter.map((wort) => ({ liste, wort, stand: wortStand(staende, liste.id, wort.id) })),
     )
     .filter((w) => w.stand.fach > 0)
     .map((w) => ({ w, los: zufall() }))
-    .sort((a, b) => a.w.stand.fach - b.w.stand.fach || a.los - b.los)
+    .sort((a, b) => zuerst(a.w, b.w) || a.w.stand.fach - b.w.stand.fach || a.los - b.los)
     .map(({ w }) => w);
   return geuebt.slice(0, RUNDE_MAX);
 }

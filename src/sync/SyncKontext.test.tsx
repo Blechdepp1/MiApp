@@ -4,7 +4,10 @@ import { protokollImArbeitsspeicher, type Protokoll } from '../daten/protokoll.t
 import { inhalteImArbeitsspeicher } from '../daten/inhalte.ts';
 import { InhalteProvider } from '../daten/InhalteKontext.tsx';
 import { ProtokollProvider } from '../daten/ProtokollKontext.tsx';
+import { LektionenProvider } from '../lektionen/LektionenKontext.tsx';
+import { lektionenImArbeitsspeicher } from '../lektionen/speicher.ts';
 import type { InhalteStand } from './inhalteAbgleich.ts';
+import type { LektionenStand } from './lektionenAbgleich.ts';
 import { wertImArbeitsspeicher } from '../daten/schluesselWert.ts';
 import { ausJsonl, eigeneDatei, type AbgleichStand } from './abgleich.ts';
 import { erstelleDropbox, type Dropbox } from './dropbox.ts';
@@ -19,15 +22,18 @@ function zeige(dropbox: Dropbox, protokoll: Protokoll = protokollImArbeitsspeich
   render(
     <ProtokollProvider protokoll={protokoll}>
       <InhalteProvider speicher={inhalteImArbeitsspeicher()}>
-        <SyncProvider
-          dropbox={dropbox}
-          stand={wertImArbeitsspeicher<AbgleichStand>()}
-          inhalteStand={wertImArbeitsspeicher<InhalteStand>()}
-          intervallMs={60_000}
-          verzoegerungMs={20}
-        >
-          <SyncStatus />
-        </SyncProvider>
+        <LektionenProvider speicher={lektionenImArbeitsspeicher()}>
+          <SyncProvider
+            dropbox={dropbox}
+            stand={wertImArbeitsspeicher<AbgleichStand>()}
+            inhalteStand={wertImArbeitsspeicher<InhalteStand>()}
+            lektionenStand={wertImArbeitsspeicher<LektionenStand>()}
+            intervallMs={60_000}
+            verzoegerungMs={20}
+          >
+            <SyncStatus />
+          </SyncProvider>
+        </LektionenProvider>
       </InhalteProvider>
     </ProtokollProvider>,
   );

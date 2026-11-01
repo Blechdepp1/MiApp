@@ -209,7 +209,7 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 
 ## Phase 4: Eltern-Bereich mit KI
 
-### Aufgabe 16: KI-Schlüssel hinterlegen ✅ (Gerätetest offen)
+### Aufgabe 16: KI-Schlüssel hinterlegen ✅ (auf dem Eltern-Handy geprüft)
 **Beschreibung:** Im Eltern-Bereich den Anthropic-API-Schlüssel eingeben, mit einem kleinen Testaufruf prüfen und nur lokal speichern. Das geht nur auf Geräten mit der Rolle „Eltern“.
 **Akzeptanz:**
 - [x] Der Schlüssel landet nie in Dropbox, im Repo oder in Logs (gerätegebundener Speicher, Test).
@@ -221,12 +221,13 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/eltern/kiSchluessel.ts`, `src/eltern/KiEinstellungen.tsx`
 **Umfang:** S
 
-### Aufgabe 17a: Lektionen – Format, Speicherung, Abgleich
+### Aufgabe 17a: Lektionen – Format, Speicherung, Abgleich ✅
 **Beschreibung:** Lektions-Format nach SPEC 2a (`id`, `fach`, `titel`, `klassenarbeit?`, `erstellt`, fachspezifische `inhalte`; Version 1: Englisch-Wortpaare). Lektionen werden lokal gespeichert und als `inhalte/lektionen/<id>.json` abgeglichen (nur Eltern schreiben). Der Vokabeltrainer übt alle aktiven Englisch-Lektionen statt nur der Beispielliste; steht eine Klassenarbeit an, kommen deren Wörter bevorzugt.
 **Akzeptanz:**
-- [ ] Eine Lektion vom Eltern-Gerät erscheint nach dem Abgleich auf dem Kind-Gerät und wird in Vokabelrunden geübt.
-- [ ] Das Format lässt weitere Fächer zu, ohne bestehende Lektionen zu ändern (Test mit unbekanntem Fach: wird ignoriert, nicht gelöscht).
-- [ ] Wörter einer Lektion mit Klassenarbeit in den nächsten 7 Tagen kommen in Runden zuerst.
+- [x] Eine Lektion vom Eltern-Gerät erscheint nach dem Abgleich auf dem Kind-Gerät und wird in Vokabelrunden geübt (Unit-Tests; auf dem Gerät mit 17b).
+- [x] Das Format lässt weitere Fächer zu, ohne bestehende Lektionen zu ändern (unbekanntes Fach wird behalten, aber nicht geübt).
+- [x] Wörter einer Lektion mit Klassenarbeit in den nächsten 7 Tagen kommen in Runden zuerst (auch in Extra-Runden).
+**Umsetzung:** Gelöschte Lektionen bleiben als Markierung, damit das Löschen auf allen Geräten ankommt. Die Beispielliste wird nur geübt, solange es keine Englisch-Lektion gibt.
 **Prüfen:** Unit-Tests für Format, Abgleich und Rundenauswahl.
 **Abhängig von:** 13, 14
 **Dateien:** `src/lektionen/lektion.ts`, `src/lektionen/lektion.test.ts`, `src/sync/inhalteAbgleich.ts`, `src/vokabeln-en/leitner.ts`

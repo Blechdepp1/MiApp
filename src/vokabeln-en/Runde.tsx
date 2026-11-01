@@ -48,12 +48,15 @@ export function Runde({
   listen,
   ereignisse,
   heute,
+  vorrang,
   zufall = Math.random,
   onNochEinmal,
 }: {
   listen: Vokabelliste[];
   ereignisse: LernEreignis[];
   heute: string;
+  // Listen, deren Wörter zuerst kommen (Klassenarbeit steht an)
+  vorrang?: ReadonlySet<string>;
   zufall?: Zufall;
   onNochEinmal: () => void;
 }) {
@@ -62,10 +65,10 @@ export function Runde({
   const [staende, setStaende] = useState(() => berechneStaende(ereignisse));
   // Ist heute nichts mehr fällig, darf sie freiwillig weiter wiederholen
   const [auswahl] = useState(() => {
-    const normal = rundeAuswaehlen(listen, staende, heute);
+    const normal = rundeAuswaehlen(listen, staende, heute, vorrang);
     return normal.length > 0
       ? { extra: false, woerter: normal }
-      : { extra: true, woerter: extraRundeAuswaehlen(listen, staende, zufall) };
+      : { extra: true, woerter: extraRundeAuswaehlen(listen, staende, zufall, vorrang) };
   });
   const [schritte, setSchritte] = useState<Schritt[]>(() =>
     auswahl.woerter.map((eintrag) => ({ eintrag, wiederholung: false })),

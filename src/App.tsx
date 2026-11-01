@@ -20,6 +20,9 @@ import { GeraetProvider, useGeraet } from './eltern/GeraetKontext.tsx';
 import type { AbgleichStand } from './sync/abgleich.ts';
 import type { Dropbox } from './sync/dropbox.ts';
 import type { InhalteStand } from './sync/inhalteAbgleich.ts';
+import type { LektionenStand } from './sync/lektionenAbgleich.ts';
+import { LektionenProvider } from './lektionen/LektionenKontext.tsx';
+import { dexieLektionen, type LektionenSpeicher } from './lektionen/speicher.ts';
 import { SyncProvider } from './sync/SyncKontext.tsx';
 import { dropbox as standardDropbox } from './sync/verbindung.ts';
 import { VokabelSeite } from './vokabeln-en/VokabelSeite.tsx';
@@ -33,8 +36,10 @@ export function App({
   gesehenesLevel,
   geraet = dexieGeraetSpeicher,
   inhalte = dexieInhalte,
+  lektionen = dexieLektionen,
   abgleichStand,
   inhalteStand,
+  lektionenStand,
 }: {
   speicher?: EinstellungsSpeicher;
   protokoll?: Protokoll;
@@ -42,23 +47,32 @@ export function App({
   gesehenesLevel?: GespeicherterWert<number>;
   geraet?: GeraetSpeicher;
   inhalte?: InhalteSpeicher;
+  lektionen?: LektionenSpeicher;
   abgleichStand?: GespeicherterWert<AbgleichStand>;
   inhalteStand?: GespeicherterWert<InhalteStand>;
+  lektionenStand?: GespeicherterWert<LektionenStand>;
 }) {
   return (
     <EinstellungenProvider speicher={speicher}>
       <ProtokollProvider protokoll={protokoll}>
         <InhalteProvider speicher={inhalte}>
-          <GeraetProvider speicher={geraet}>
-            <SyncProvider dropbox={dropbox} stand={abgleichStand} inhalteStand={inhalteStand}>
-              <Eingerichtet>
-                <main>
-                  <Inhalt dropbox={dropbox} />
-                </main>
-                <LevelFeier gesehen={gesehenesLevel} />
-              </Eingerichtet>
-            </SyncProvider>
-          </GeraetProvider>
+          <LektionenProvider speicher={lektionen}>
+            <GeraetProvider speicher={geraet}>
+              <SyncProvider
+                dropbox={dropbox}
+                stand={abgleichStand}
+                inhalteStand={inhalteStand}
+                lektionenStand={lektionenStand}
+              >
+                <Eingerichtet>
+                  <main>
+                    <Inhalt dropbox={dropbox} />
+                  </main>
+                  <LevelFeier gesehen={gesehenesLevel} />
+                </Eingerichtet>
+              </SyncProvider>
+            </GeraetProvider>
+          </LektionenProvider>
         </InhalteProvider>
       </ProtokollProvider>
     </EinstellungenProvider>
