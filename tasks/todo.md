@@ -233,12 +233,13 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/lektionen/lektion.ts`, `src/lektionen/lektion.test.ts`, `src/sync/inhalteAbgleich.ts`, `src/vokabeln-en/leitner.ts`
 **Umfang:** M
 
-### Aufgabe 17b: Lektion aus Fotos (Englisch)
+### Aufgabe 17b: Lektion aus Fotos (Englisch) ✅ (Test mit echtem Blatt offen)
 **Beschreibung:** Im Eltern-Bereich „Neue Lektion“: Fach (vorerst Englisch), Titel, optional Klassenarbeits-Datum, ein oder mehrere Fotos (`<input capture>`), verkleinern, an die Claude API mit Bildverständnis schicken. Sie liefert Wortpaare EN/DE als JSON (mit Schema). Die Eltern sehen eine bearbeitbare Tabelle und geben die Lektion frei. Fotos werden nicht gespeichert.
 **Akzeptanz:**
-- [ ] Ein typisches Schulbuch-Vokabelblatt ist in unter 3 Minuten vom Foto bis zur Lektion auf ihrem Gerät.
-- [ ] Erkannte Paare lassen sich vor der Freigabe ändern, löschen und ergänzen.
-- [ ] Ohne Netz oder bei einem KI-Fehler gibt es einen verständlichen Hinweis und nichts geht verloren.
+- [ ] Ein typisches Schulbuch-Vokabelblatt ist in unter 3 Minuten vom Foto bis zur Lektion auf ihrem Gerät (auf dem Gerät messen).
+- [x] Erkannte Paare lassen sich vor der Freigabe ändern, löschen und ergänzen.
+- [x] Ohne Netz oder bei einem KI-Fehler gibt es einen verständlichen Hinweis und nichts geht verloren (Fotos bleiben).
+**Umsetzung:** Strukturierte Ausgabe per JSON-Schema (`betaJSONSchemaOutputFormat`), Rückfallebene `fallbacks: "default"`; Fotos im Browser auf 1600 px verkleinert; Lektionen-Liste mit Löschen im Eltern-Bereich.
 **Prüfen:** Unit-Test der Antwort-Verarbeitung mit gemockter API-Antwort; manuell mit einem echten Blatt aus der Schule.
 **Abhängig von:** 16, 17a
 **Dateien:** `src/eltern/fotoImport.ts`, `src/eltern/fotoImport.test.ts`, `src/eltern/LektionAusFotos.tsx`

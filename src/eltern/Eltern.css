@@ -146,6 +146,87 @@
   color: var(--farbe-text);
 }
 
+/* Lektionen */
+.lektion-text {
+  flex: 1;
+  display: grid;
+  min-width: 0;
+  font-size: 0.95rem;
+}
+
+.lektion-neu {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lektion-neu p {
+  margin: 0;
+}
+
+.lektion-neu > label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+.lektion-neu input:not([type='file']) {
+  min-height: var(--touch);
+  padding: 0.25rem 0.75rem;
+  border: 2px solid var(--farbe-text-leise);
+  border-radius: 10px;
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  min-width: 0;
+}
+
+.lektion-fotos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.lektion-fotos figure {
+  position: relative;
+  margin: 0;
+}
+
+.lektion-fotos img {
+  display: block;
+  width: 5.5rem;
+  height: 5.5rem;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.lektion-fotos button {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  width: 2rem;
+  height: 2rem;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.lektion-dateiknopf {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius);
+  border: 3px solid var(--farbe-akzent);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lektion-dateiknopf input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
 /* PIN-Zahlenfeld */
 .pin {
   display: grid;

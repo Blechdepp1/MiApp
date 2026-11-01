@@ -7,6 +7,7 @@ import { BelohnungenVerwalten } from './BelohnungenVerwalten.tsx';
 import { Einloesungen } from './Einloesungen.tsx';
 import { ElternTuer } from './ElternTuer.tsx';
 import { KiEinstellungen } from './KiEinstellungen.tsx';
+import { Lektionen } from './Lektionen.tsx';
 import { LevelVerwalten } from './LevelVerwalten.tsx';
 import { useGeraet } from './GeraetKontext.tsx';
 
@@ -21,6 +22,7 @@ export function ElternBereich({ dropbox }: { dropbox: Dropbox }) {
           <strong>{geraet?.rolle === 'eltern' ? 'den Eltern' : 'dem Kind'}</strong>
         </p>
         <Einloesungen />
+        <Lektionen />
         <DropboxVerbinden dropbox={dropbox} onAenderung={abgleichen} />
         <SyncStatus />
         <BelohnungenVerwalten />
