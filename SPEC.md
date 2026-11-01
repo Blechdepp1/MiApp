@@ -1,6 +1,6 @@
 # Spec: MiApp – Lern-App bei LRS
 
-Status: **v1.1** (01.11.2026) – v1.0 freigegeben am 31.10.2026; ergänzt um Lektionen aus Fotos und Mathe (Abschnitt 2a)
+Status: **v1.2** (01.11.2026) – v1.0 freigegeben am 31.10.2026; ergänzt um Lektionen aus Fotos und Mathe (Abschnitt 2a), Erweiterungen nach Rückmeldung (10a) und Lerninhalte verwalten (10a)
 Hintergrund: [Recherche-LRS.md](Recherche-LRS.md)
 
 ## 1. Ziel
@@ -114,6 +114,7 @@ Schulmaterial (Buchseiten, Hefteinträge, Arbeitsblätter, Lernzettel) kommt üb
 - **Lektion aus Fotos** (siehe 2a): In Version 1 für Englisch. Die Eltern fotografieren eine oder mehrere Seiten, geben Titel und optional ein Klassenarbeits-Datum an. Die App schickt die Bilder an die Claude API (Modell mit Bildverständnis) und bekommt Wortpaare EN/DE zurück. Die Eltern sehen eine **bearbeitbare Vorschau** und geben sie frei, erst dann wird die Lektion nach `inhalte/lektionen/` geschrieben. Fotos werden nicht gespeichert. Das Lektionsformat ist so angelegt, dass Deutsch und Mathe später ohne Umbau dazukommen.
 - Der **KI-Schlüssel** wird nur auf dem Eltern-Gerät gespeichert und **nie** nach Dropbox synchronisiert.
 - Die Eltern verwalten Belohnungen und die Level-Tabelle, bestätigen Einlösungen und sehen eine Wochenübersicht (Lerntage, Minuten, gelernte Wörter, schwierige Wörter).
+- Lerninhalte lassen sich gegliedert verwalten und bearbeiten, auch bequem am PC (siehe 10a „Lerninhalte verwalten“).
 
 ## 4. Tech Stack
 
@@ -252,6 +253,14 @@ export function gesamtPunkte(ereignisse: LernEreignis[]): number {
 - **Bonus für Einsatz, nicht für Noten:** Punkte fürs Eintragen und fürs Nachtragen des Ergebnisses – unabhängig von der Note – plus ein **Extra-Bonus bei Verbesserung** im selben Fach. Werte zentral in `belohnung/werte.ts`.
 - Ergebnisse müssen die **Eltern bestätigen** (wie beim Einlösen), erst dann zählen Ergebnis- und Verbesserungsbonus.
 - Im Eltern-Bereich gibt es eine **Übersicht** aller Tests mit Datum, Fach und Note.
+
+### Lerninhalte verwalten (Eltern, auch am PC)
+- **Am PC nutzbar:** Dieselbe Adresse im Browser; der PC wird einmal als Eltern-Gerät eingerichtet (PIN, Dropbox verbinden). Auf breiten Bildschirmen zweispaltig: links die Gliederung, rechts die gewählte Lektion. Am Handy bleibt alles einspaltig bedienbar.
+- **Gliederung:** Fach → Lektion → Inhalte (bei Englisch: Wörter). Jede Lektion hat Titel, optional Klassenarbeits-Datum, eine **Reihenfolge** und einen **Status**: *aktiv* (wird geübt), *pausiert* (noch nicht dran) oder *archiviert* (fertig, bleibt für Wiederholungen erhalten). So ist sichtbar, **was gerade dran ist**.
+- **Bearbeiten:** Wörter ändern, ergänzen und löschen, Lektionen umbenennen, Datum setzen, verschieben, pausieren und archivieren. Eine Wortliste lässt sich auch als Text einfügen (eine Zeile pro Paar, z. B. `began – anfangen, beginnen`). Bearbeitete Wörter behalten ihre `id`, damit der Lernstand erhalten bleibt. Löschen bleibt mit Rückfrage möglich.
+- **Wo steht Milena:** Pro Lektion ein Fortschrittsbalken mit *neu* / *am Lernen* (Leitner-Fach 1–2) / *sicher* (Fach 3 und höher). Pro Wort: Fach, zuletzt geübt, wie oft falsch. Dazu „Wörter, die ihr gerade schwerfallen“ (meiste Fehler der letzten 14 Tage) und wann sie zuletzt geübt hat.
+- Die **Wochenübersicht** (Lerntage, Minuten, Runden, gelernte Wörter) ist Teil dieser Ansicht.
+- **Daten:** Lektionen bekommen die optionalen Felder `status` und `reihenfolge`; der Abgleich bleibt „neueste Änderung gewinnt“ je Lektion. Alle Fortschrittszahlen werden wie bisher aus dem Ereignis-Protokoll berechnet.
 
 ## 11. Offene Fragen
 

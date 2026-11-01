@@ -1,6 +1,6 @@
 # Umsetzungsplan: MiApp Version 1
 
-Grundlage: [SPEC.md](../SPEC.md) v1.0 · Aufgaben im Detail: [todo.md](todo.md)
+Grundlage: [SPEC.md](../SPEC.md) v1.2 · Aufgaben im Detail: [todo.md](todo.md)
 
 ## Überblick
 
@@ -49,7 +49,8 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 - [x] 16. KI-Schlüssel hinterlegen
 - [x] 17a. Lektionen: Format, Speicherung, Abgleich (vorbereitet für Deutsch und Mathe)
 - [x] 17b. Lektion aus Fotos (Englisch)
-- [ ] 18. Wochenübersicht für Eltern
+- [ ] 18a. Lerninhalte verwalten: Fach → Lektion → Wörter, Status (aktiv/pausiert/archiviert), bearbeiten, am PC zweispaltig
+- [ ] 18b. Fortschritt pro Lektion (neu / am Lernen / sicher), schwierige Wörter und Wochenübersicht
 - [ ] 19. End-to-End-Tests und Abnahme auf dem Gerät
 
 **Checkpoint D:** Alle Abnahmekriterien aus SPEC.md Abschnitt 10 sind erfüllt, und Version 1 ist fertig.

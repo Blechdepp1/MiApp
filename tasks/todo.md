@@ -240,19 +240,32 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 - [x] Erkannte Paare lassen sich vor der Freigabe ändern, löschen und ergänzen.
 - [x] Ohne Netz oder bei einem KI-Fehler gibt es einen verständlichen Hinweis und nichts geht verloren (Fotos bleiben).
 **Umsetzung:** Strukturierte Ausgabe per JSON-Schema (`betaJSONSchemaOutputFormat`), Rückfallebene `fallbacks: "default"`; Fotos im Browser auf 1600 px verkleinert; Lektionen-Liste mit Löschen im Eltern-Bereich.
+**Nach dem ersten echten Test (01.11.2026):** Fehlende Übersetzungen ergänzt die KI passend zur 6. Klasse und markiert sie (✨); Kamera direkt in der App (Android beendete die App bei der System-Kamera); Entwurf und Eltern-Freigabe überstehen einen Neustart; „Neue Lektion“ als Vollbild. Mit Foto-Upload auf dem Handy geprüft: „sehr gut“.
 **Prüfen:** Unit-Test der Antwort-Verarbeitung mit gemockter API-Antwort; manuell mit einem echten Blatt aus der Schule.
 **Abhängig von:** 16, 17a
 **Dateien:** `src/eltern/fotoImport.ts`, `src/eltern/fotoImport.test.ts`, `src/eltern/LektionAusFotos.tsx`
 **Umfang:** M
 
-### Aufgabe 18: Wochenübersicht für Eltern
-**Beschreibung:** Im Eltern-Bereich eine Übersicht der letzten 7 Tage: Lerntage, Minuten, Runden, gelernte Wörter (Leitner-Fach 3 oder höher) und die schwierigsten Wörter. Dazu Auswahl, welche Vokabellisten aktiv sind.
+### Aufgabe 18a: Lerninhalte verwalten – Gliederung und Bearbeiten (SPEC 10a)
+**Beschreibung:** Eigene Ansicht „Lerninhalte“ im Eltern-Bereich: Fach → Lektion → Wörter. Lektionen mit Status (aktiv, pausiert, archiviert) und Reihenfolge; Wörter bearbeiten, ergänzen, löschen, Liste als Text einfügen. Am PC zweispaltig.
+**Akzeptanz:**
+- [ ] Eine bestehende Lektion lässt sich bearbeiten; bearbeitete Wörter behalten ihren Lernstand (gleiche `id`).
+- [ ] Pausierte und archivierte Lektionen kommen nicht in neue Runden (archivierte nur noch als Wiederholung fälliger Wörter).
+- [ ] Änderungen erscheinen nach dem Abgleich auf Milenas Gerät.
+- [ ] Am PC (Breite ≥ 1000 px) zweispaltig, am Handy einspaltig ohne waagerechtes Scrollen.
+**Prüfen:** Unit-Tests (Status-Filter, Text einfügen), Komponententests, E2E im Desktop- und Handy-Format; manuell am PC.
+**Abhängig von:** 17a, 17b
+**Dateien:** `src/lektionen/lektion.ts`, `src/eltern/Lerninhalte.tsx`, `src/eltern/LektionBearbeiten.tsx`, `src/vokabeln-en/quellen.ts`
+**Umfang:** M
+
+### Aufgabe 18b: Fortschritt pro Lektion und Wochenübersicht
+**Beschreibung:** In der Ansicht „Lerninhalte“ pro Lektion den Fortschritt (neu / am Lernen / sicher) und pro Wort Fach, zuletzt geübt und Fehlerzahl. Dazu „Wörter, die ihr gerade schwerfallen“ und die Wochenübersicht der letzten 7 Tage (Lerntage, Minuten, Runden, gelernte Wörter).
 **Akzeptanz:**
 - [ ] Die Zahlen stimmen mit dem Ereignis-Protokoll überein (Unit-Test).
-- [ ] Inaktive Listen kommen nicht mehr in Runden vor.
+- [ ] Sichtbar ist, welche Lektion gerade dran ist und wann sie zuletzt geübt hat.
 **Prüfen:** Unit- und Komponententests.
-**Abhängig von:** 13, 17
-**Dateien:** `src/eltern/Wochenuebersicht.tsx`, `src/eltern/statistik.ts`, `src/eltern/statistik.test.ts`
+**Abhängig von:** 13, 18a
+**Dateien:** `src/eltern/statistik.ts`, `src/eltern/statistik.test.ts`, `src/eltern/Wochenuebersicht.tsx`
 **Umfang:** M
 
 ### Aufgabe 19: End-to-End-Tests und Abnahme auf dem Gerät
@@ -261,7 +274,7 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 - [ ] Alle E2E-Tests grün.
 - [ ] Jeder Punkt aus SPEC Abschnitt 10 ist abgehakt.
 **Prüfen:** `npm run test:e2e`; Abnahme-Checkliste gemeinsam.
-**Abhängig von:** 15, 17, 18
+**Abhängig von:** 15, 17, 18a, 18b
 **Dateien:** `e2e/*.spec.ts`
 **Umfang:** M
 
