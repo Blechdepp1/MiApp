@@ -10,6 +10,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 // GitHub Pages liefert die App unter /MiApp/ aus, den Testkanal unter /MiApp/vorschau/
 const VORSCHAU = process.env.MIAPP_KANAL === 'vorschau';
 const BASIS = VORSCHAU ? '/MiApp/vorschau/' : '/MiApp/';
+const ICON_ENDUNG = VORSCHAU ? '-vorschau' : '';
 const VERSION = (JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }).version;
 
 function commit() {
@@ -83,10 +84,16 @@ export default defineConfig({
         orientation: 'portrait',
         background_color: '#FBF6EC',
         theme_color: VORSCHAU ? '#B4572E' : '#2E7D6B',
+        // Testkanal mit gelbem Symbol, damit man ihn auf dem Startbildschirm unterscheidet
         icons: [
-          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: `pwa-192${ICON_ENDUNG}.png`, sizes: '192x192', type: 'image/png' },
+          { src: `pwa-512${ICON_ENDUNG}.png`, sizes: '512x512', type: 'image/png' },
+          {
+            src: `pwa-512${ICON_ENDUNG}.png`,
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
         ],
       },
       workbox: {
