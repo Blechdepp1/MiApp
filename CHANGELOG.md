@@ -9,6 +9,7 @@ Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei F
 - Was noch nicht dran ist, kommt nicht in deine Runden. Aus dem Archiv wiederholst du nur Wörter, die du schon kannst.
 - Wörter lassen sich nachträglich verbessern, ohne dass dein Lernstand verloren geht.
 - Eltern können eine Wortliste einfach einfügen, zum Beispiel vom PC aus.
+- Im Eltern-Bereich steht, mit welchem Dropbox-Ordner das Gerät verbunden ist.
 
 ## 0.9.0 – 01.11.2026
 

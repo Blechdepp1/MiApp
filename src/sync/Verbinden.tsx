@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { DROPBOX_ORDNER_ANZEIGE } from '../basis/kanal.ts';
 import { DropboxFehler, type Dropbox } from './dropbox.ts';
 import './Verbinden.css';
 
@@ -119,7 +120,7 @@ export function DropboxVerbinden({
         <>
           <p>
             Dieses Gerät ist nicht verbunden. Die App bekommt nur Zugriff auf ihren eigenen Ordner
-            in deiner Dropbox.
+            in deiner Dropbox: <strong>{DROPBOX_ORDNER_ANZEIGE}</strong>
           </p>
           <button type="button" className="verbinden-haupt" onClick={verbinden}>
             Mit Dropbox verbinden
@@ -130,6 +131,9 @@ export function DropboxVerbinden({
       {zustand.art === 'verbunden' && (
         <>
           <p>Dieses Gerät ist mit Dropbox verbunden.</p>
+          <p>
+            Ordner: <strong>{DROPBOX_ORDNER_ANZEIGE}</strong>
+          </p>
           <div className="verbinden-knoepfe">
             <button type="button" className="verbinden-haupt" onClick={testen}>
               Verbindung testen

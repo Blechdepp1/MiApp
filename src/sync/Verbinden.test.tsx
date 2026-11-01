@@ -74,6 +74,11 @@ describe('DropboxVerbinden', () => {
     expect(screen.getByRole('button', { name: 'Mit Dropbox verbinden' })).toBeInTheDocument();
   });
 
+  it('zeigt, mit welchem Ordner das Gerät verbunden ist', async () => {
+    render(<DropboxVerbinden dropbox={attrappe(true)} adresse={adresse()} />);
+    expect(await screen.findByText('Apps/MiApp')).toBeInTheDocument();
+  });
+
   it('testet die Verbindung mit Schreiben und Lesen', async () => {
     const dropbox = attrappe(true);
     render(<DropboxVerbinden dropbox={dropbox} adresse={adresse()} />);
