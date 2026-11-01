@@ -1,12 +1,12 @@
 # Spec: MiApp – Lern-App bei LRS
 
-Status: **v1.0 freigegeben** (31.10.2026)
+Status: **v1.1** (01.11.2026) – v1.0 freigegeben am 31.10.2026; ergänzt um Lektionen aus Fotos und Mathe (Abschnitt 2a)
 Hintergrund: [Recherche-LRS.md](Recherche-LRS.md)
 
 ## 1. Ziel
 
 Wir bauen eine Lern-App für unsere Tochter (Klasse 5–7, Lese-Rechtschreib-Schwäche) auf ihrem Android-Gerät.
-Sie soll **regelmäßig und gern** üben: zuerst englische Vokabeln aus der Schule, später deutsche Rechtschreibung und Lesen.
+Sie soll **regelmäßig und gern** üben: zuerst englische Vokabeln aus der Schule, später deutsche Rechtschreibung, Lesen und Mathe – jeweils mit Inhalten, die wir aus Schulbüchern, Heften und Arbeitsblättern abfotografieren.
 Das Lernen wird mit einem **Punkte- und Level-System** belohnt, und die Eltern legen echte Belohnungen fest.
 
 **Nutzer:innen**
@@ -33,11 +33,31 @@ Das Lernen wird mit einem **Punkte- und Level-System** belohnt, und die Eltern l
 | `sync` | Abgleich über Dropbox (App-Ordner): Inhalte und Lern-Ereignisse zwischen Kind- und Eltern-Gerät, offline zuerst | `lrs-basis` |
 | `belohnung` | Punkte, Level & Titel, echte Belohnungen definieren/einlösen | `lrs-basis`, `sync` |
 | `vokabeln-en` | Englisch-Vokabeltrainer mit Wiederholung in Abständen | `lrs-basis`, `sync`, `belohnung` |
-| `eltern-bereich` | Eltern-Modus (PIN): Foto → KI → Vokabelliste, Belohnungen verwalten, Einlösungen bestätigen, Fortschritt | `sync`, `belohnung`, `vokabeln-en` |
-| `rechtschreibung-de` | *(später)* Training der Fehlerschwerpunkte | `lrs-basis`, `sync`, `belohnung` |
-| `lesen-de` | *(später)* Lesetraining, Textverständnis | `lrs-basis`, `sync`, `belohnung` |
+| `eltern-bereich` | Eltern-Modus (PIN): Lektion aus Fotos (Foto → KI → Vorschau → Freigabe), Belohnungen verwalten, Einlösungen bestätigen, Fortschritt | `sync`, `belohnung`, `vokabeln-en` |
+| `rechtschreibung-de` | *(später)* Training der Fehlerschwerpunkte, Lernwörter aus Lektionen | `lrs-basis`, `sync`, `belohnung`, `eltern-bereich` |
+| `lesen-de` | *(später)* Lesetraining, Textverständnis, Lesetexte aus Lektionen | `lrs-basis`, `sync`, `belohnung`, `eltern-bereich` |
+| `mathe` | *(später, neu)* Übungsaufgaben zu den Themen aus Lektionen, Textaufgaben vorlesbar, Schritt-für-Schritt-Hilfen | `lrs-basis`, `sync`, `belohnung`, `eltern-bereich` |
 
-**Reihenfolge:** `lrs-basis` → `sync` → `belohnung` → `vokabeln-en` → `eltern-bereich` = **Version 1**. Danach folgen `rechtschreibung-de` und `lesen-de`, jeweils mit eigenem Spec.
+**Reihenfolge:** `lrs-basis` → `sync` → `belohnung` → `vokabeln-en` → `eltern-bereich` = **Version 1**. Danach folgen `rechtschreibung-de`, `lesen-de` und `mathe`, jeweils mit eigenem Spec.
+
+## 2a. Lektionen aus Fotos (gilt für alle Fächer)
+
+Schulmaterial (Buchseiten, Hefteinträge, Arbeitsblätter, Lernzettel) kommt über **Lektionen** in die App:
+
+1. **Fotografieren:** Im Eltern-Bereich ein oder mehrere Fotos aufnehmen (z. B. Buchseite + Hefteintrag).
+2. **Einordnen:** Fach (Englisch, Deutsch, Mathe) und Titel wählen (z. B. „Unit 3“, „Brüche“), optional das Datum einer Klassenarbeit.
+3. **Auswerten:** Die Claude API erkennt den Inhalt und liefert strukturierte Übungsdaten je Fach:
+   - **Englisch:** Wortpaare EN/DE → Vokabeltrainer (`vokabeln-en`, Version 1).
+   - **Deutsch:** Lernwörter/Diktatwörter → `rechtschreibung-de`; Lesetexte mit Verständnisfragen → `lesen-de`.
+   - **Mathe:** erkannte Aufgabentypen → `mathe` erzeugt **ähnliche Aufgaben mit neuen Zahlen**. Ob eine Antwort stimmt, **rechnet die App selbst nach** (nicht die KI).
+4. **Prüfen und freigeben:** Die Eltern sehen eine bearbeitbare Vorschau; erst nach Freigabe wird die Lektion als `inhalte/lektionen/<id>.json` gespeichert und per Dropbox verteilt.
+5. **Klassenarbeit:** Hat eine Lektion ein Datum, übt die App sie in den Tagen davor bevorzugt.
+
+**Format:** Jede Lektion hat `id`, `fach`, `titel`, optional `klassenarbeit` (Datum), `erstellt` und fachspezifische `inhalte`. In Version 1 gibt es nur Englisch-Lektionen; neue Fächer ergänzen nur einen neuen Inhaltstyp und ein Übungsmodul, der Foto-Import bleibt gleich.
+
+**Datenschutz:** Fotos gehen nur zur Auswertung an die Claude API und werden nicht gespeichert; auf Arbeitsblättern möglichst keine Namen. Schulmaterial wird nur privat in der Familie genutzt.
+
+**Offen für später:** Welche Mathe-Themen in ihrer Klasse dran sind (wird vor dem `mathe`-Spec erfragt).
 
 ## 3. Was jedes Modul in Version 1 können muss
 
@@ -91,7 +111,7 @@ Das Lernen wird mit einem **Punkte- und Level-System** belohnt, und die Eltern l
 
 ### `eltern-bereich`
 - Er ist über ein Symbol + 4-stellige PIN erreichbar. Die PIN wird nur lokal gehasht gespeichert.
-- **Foto-Import:** Die Eltern fotografieren die Vokabelliste mit der Kamera. Die App schickt das Bild an die Claude API (Modell mit Bildverständnis) und bekommt Wortpaare EN/DE zurück. Die Eltern sehen eine **bearbeitbare Vorschau** und geben sie frei, erst dann wird die Liste nach `inhalte/` geschrieben. Das Foto wird nicht gespeichert.
+- **Lektion aus Fotos** (siehe 2a): In Version 1 für Englisch. Die Eltern fotografieren eine oder mehrere Seiten, geben Titel und optional ein Klassenarbeits-Datum an. Die App schickt die Bilder an die Claude API (Modell mit Bildverständnis) und bekommt Wortpaare EN/DE zurück. Die Eltern sehen eine **bearbeitbare Vorschau** und geben sie frei, erst dann wird die Lektion nach `inhalte/lektionen/` geschrieben. Fotos werden nicht gespeichert. Das Lektionsformat ist so angelegt, dass Deutsch und Mathe später ohne Umbau dazukommen.
 - Der **KI-Schlüssel** wird nur auf dem Eltern-Gerät gespeichert und **nie** nach Dropbox synchronisiert.
 - Die Eltern verwalten Belohnungen und die Level-Tabelle, bestätigen Einlösungen und sehen eine Wochenübersicht (Lerntage, Minuten, gelernte Wörter, schwierige Wörter).
 

@@ -219,15 +219,26 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/eltern/kiSchluessel.ts`, `src/eltern/KiEinstellungen.tsx`
 **Umfang:** S
 
-### Aufgabe 17: Foto-Import einer Vokabelliste
-**Beschreibung:** Das Vokabelblatt mit der Kamera fotografieren (`<input capture>`), verkleinern und an die Claude API mit Bildverständnis schicken. Sie liefert Wortpaare EN/DE als JSON (mit Schema). Die Eltern sehen eine bearbeitbare Tabelle, geben der Liste einen Namen und geben sie frei. Danach wird sie nach `inhalte/vokabeln/<id>.json` geschrieben. Das Foto wird nicht gespeichert.
+### Aufgabe 17a: Lektionen – Format, Speicherung, Abgleich
+**Beschreibung:** Lektions-Format nach SPEC 2a (`id`, `fach`, `titel`, `klassenarbeit?`, `erstellt`, fachspezifische `inhalte`; Version 1: Englisch-Wortpaare). Lektionen werden lokal gespeichert und als `inhalte/lektionen/<id>.json` abgeglichen (nur Eltern schreiben). Der Vokabeltrainer übt alle aktiven Englisch-Lektionen statt nur der Beispielliste; steht eine Klassenarbeit an, kommen deren Wörter bevorzugt.
 **Akzeptanz:**
-- [ ] Ein typisches Schulbuch-Vokabelblatt ist in unter 3 Minuten vom Foto bis zur Liste auf ihrem Gerät.
+- [ ] Eine Lektion vom Eltern-Gerät erscheint nach dem Abgleich auf dem Kind-Gerät und wird in Vokabelrunden geübt.
+- [ ] Das Format lässt weitere Fächer zu, ohne bestehende Lektionen zu ändern (Test mit unbekanntem Fach: wird ignoriert, nicht gelöscht).
+- [ ] Wörter einer Lektion mit Klassenarbeit in den nächsten 7 Tagen kommen in Runden zuerst.
+**Prüfen:** Unit-Tests für Format, Abgleich und Rundenauswahl.
+**Abhängig von:** 13, 14
+**Dateien:** `src/lektionen/lektion.ts`, `src/lektionen/lektion.test.ts`, `src/sync/inhalteAbgleich.ts`, `src/vokabeln-en/leitner.ts`
+**Umfang:** M
+
+### Aufgabe 17b: Lektion aus Fotos (Englisch)
+**Beschreibung:** Im Eltern-Bereich „Neue Lektion“: Fach (vorerst Englisch), Titel, optional Klassenarbeits-Datum, ein oder mehrere Fotos (`<input capture>`), verkleinern, an die Claude API mit Bildverständnis schicken. Sie liefert Wortpaare EN/DE als JSON (mit Schema). Die Eltern sehen eine bearbeitbare Tabelle und geben die Lektion frei. Fotos werden nicht gespeichert.
+**Akzeptanz:**
+- [ ] Ein typisches Schulbuch-Vokabelblatt ist in unter 3 Minuten vom Foto bis zur Lektion auf ihrem Gerät.
 - [ ] Erkannte Paare lassen sich vor der Freigabe ändern, löschen und ergänzen.
 - [ ] Ohne Netz oder bei einem KI-Fehler gibt es einen verständlichen Hinweis und nichts geht verloren.
 **Prüfen:** Unit-Test der Antwort-Verarbeitung mit gemockter API-Antwort; manuell mit einem echten Blatt aus der Schule.
-**Abhängig von:** 13, 16
-**Dateien:** `src/eltern/fotoImport.ts`, `src/eltern/fotoImport.test.ts`, `src/eltern/FotoImport.tsx`, `src/vokabeln-en/listen.ts`
+**Abhängig von:** 16, 17a
+**Dateien:** `src/eltern/fotoImport.ts`, `src/eltern/fotoImport.test.ts`, `src/eltern/LektionAusFotos.tsx`
 **Umfang:** M
 
 ### Aufgabe 18: Wochenübersicht für Eltern

@@ -47,11 +47,17 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 
 ### Phase 4: Eltern-Bereich mit KI
 - [ ] 16. KI-Schlüssel hinterlegen
-- [ ] 17. Foto-Import einer Vokabelliste
+- [ ] 17a. Lektionen: Format, Speicherung, Abgleich (vorbereitet für Deutsch und Mathe)
+- [ ] 17b. Lektion aus Fotos (Englisch)
 - [ ] 18. Wochenübersicht für Eltern
 - [ ] 19. End-to-End-Tests und Abnahme auf dem Gerät
 
 **Checkpoint D:** Alle Abnahmekriterien aus SPEC.md Abschnitt 10 sind erfüllt, und Version 1 ist fertig.
+
+### Nach Version 1 (jeweils mit eigenem Spec)
+- `rechtschreibung-de` – Lernwörter aus Deutsch-Lektionen, Fehlerschwerpunkte
+- `lesen-de` – Lesetexte aus Lektionen mit Verständnisfragen
+- `mathe` – ähnliche Aufgaben zu den Themen aus Mathe-Lektionen; vorher Themen der Klasse erfragen
 
 ## Risiken
 
