@@ -39,8 +39,8 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 
 ### Phase 3: Sync und Belohnungen
 - [x] 12. Geräte-Rolle und Eltern-PIN
-- [ ] 13. Dropbox-Sync von Ereignissen und Inhalten
-- [ ] 14. Belohnungen und Level-Tabelle verwalten (Eltern)
+- [x] 13. Dropbox-Sync von Ereignissen und Inhalten
+- [x] 14. Belohnungen und Level-Tabelle verwalten (Eltern)
 - [ ] 15. Belohnung einlösen und bestätigen
 
 **Checkpoint C:** Kind- und Eltern-Handy zeigen dieselben Punkte, und eine Belohnung lässt sich einlösen und bestätigen.
