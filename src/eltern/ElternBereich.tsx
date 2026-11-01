@@ -3,7 +3,9 @@ import type { Dropbox } from '../sync/dropbox.ts';
 import { useSync } from '../sync/SyncKontext.tsx';
 import { SyncStatus } from '../sync/SyncStatus.tsx';
 import { DropboxVerbinden } from '../sync/Verbinden.tsx';
+import { BelohnungenVerwalten } from './BelohnungenVerwalten.tsx';
 import { ElternTuer } from './ElternTuer.tsx';
+import { LevelVerwalten } from './LevelVerwalten.tsx';
 import { useGeraet } from './GeraetKontext.tsx';
 
 export function ElternBereich({ dropbox }: { dropbox: Dropbox }) {
@@ -18,6 +20,8 @@ export function ElternBereich({ dropbox }: { dropbox: Dropbox }) {
         </p>
         <DropboxVerbinden dropbox={dropbox} onAenderung={abgleichen} />
         <SyncStatus />
+        <BelohnungenVerwalten />
+        <LevelVerwalten />
       </ElternTuer>
     </Seite>
   );

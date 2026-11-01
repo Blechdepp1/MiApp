@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { Einstellungen } from '../basis/einstellungen.ts';
 import type { LernEreignis } from './ereignisse.ts';
+import type { InhaltEintrag } from './inhalte.ts';
 
 // Lokale Datenbank auf dem Gerät (IndexedDB)
 type EinstellungenZeile = { id: 'geraet' } & Partial<Einstellungen>;
@@ -11,6 +12,7 @@ class MiAppDb extends Dexie {
   einstellungen!: EntityTable<EinstellungenZeile, 'id'>;
   schluessel!: EntityTable<SchluesselZeile, 'id'>;
   ereignisse!: EntityTable<LernEreignis, 'id'>;
+  inhalte!: EntityTable<InhaltEintrag, 'name'>;
 
   constructor() {
     super('miapp');
@@ -22,6 +24,9 @@ class MiAppDb extends Dexie {
     });
     this.version(3).stores({
       ereignisse: 'id, zeit, typ',
+    });
+    this.version(4).stores({
+      inhalte: 'name',
     });
   }
 }

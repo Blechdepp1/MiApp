@@ -7,7 +7,10 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useInhalteSpeicher } from '../daten/InhalteKontext.tsx';
 import { useProtokoll } from '../daten/ProtokollKontext.tsx';
+import { useGeraet } from '../eltern/GeraetKontext.tsx';
+import { gleicheInhalteAb, type InhalteStand } from './inhalteAbgleich.ts';
 import { dexieWert, type GespeicherterWert } from '../daten/schluesselWert.ts';
 import { gleicheAb, type AbgleichStand } from './abgleich.ts';
 import { DropboxFehler, type Dropbox } from './dropbox.ts';
@@ -28,6 +31,7 @@ const Kontext = createContext<Wert>({
 });
 
 const standardStand = dexieWert<AbgleichStand>('abgleich-stand');
+const standardInhalteStand = dexieWert<InhalteStand>('inhalte-stand');
 
 export const INTERVALL_MS = 30_000;
 // Kurz warten, damit nach einer Antwort nicht sofort und mehrfach übertragen wird
@@ -38,17 +42,22 @@ export const VERZOEGERUNG_MS = 3_000;
 export function SyncProvider({
   dropbox,
   stand = standardStand,
+  inhalteStand = standardInhalteStand,
   intervallMs = INTERVALL_MS,
   verzoegerungMs = VERZOEGERUNG_MS,
   children,
 }: {
   dropbox: Dropbox;
   stand?: GespeicherterWert<AbgleichStand>;
+  inhalteStand?: GespeicherterWert<InhalteStand>;
   intervallMs?: number;
   verzoegerungMs?: number;
   children: ReactNode;
 }) {
   const protokoll = useProtokoll();
+  const inhalte = useInhalteSpeicher();
+  // Nur Eltern-Geräte dürfen Inhalte schreiben
+  const darfInhalteSchreiben = useGeraet().geraet?.rolle === 'eltern';
   const [zustand, setZustand] = useState<SyncZustand>({ verbunden: false, laeuft: false });
   const laeuft = useRef(false);
 
@@ -62,6 +71,12 @@ export function SyncProvider({
       }
       setZustand((z) => ({ ...z, verbunden: true, laeuft: true }));
       await gleicheAb({ dropbox, protokoll, stand });
+      await gleicheInhalteAb({
+        dropbox,
+        inhalte,
+        darfSchreiben: darfInhalteSchreiben,
+        stand: inhalteStand,
+      });
       setZustand({ verbunden: true, laeuft: false, zuletzt: new Date() });
     } catch (fehler) {
       setZustand((z) => ({
@@ -75,7 +90,7 @@ export function SyncProvider({
     } finally {
       laeuft.current = false;
     }
-  }, [dropbox, protokoll, stand]);
+  }, [dropbox, protokoll, stand, inhalte, darfInhalteSchreiben, inhalteStand]);
 
   useEffect(() => {
     let verzoegert: ReturnType<typeof setTimeout> | undefined;
@@ -89,17 +104,19 @@ export function SyncProvider({
 
     abgleichen();
     const abmelden = protokoll.beobachte(spaeter);
+    const abmeldenInhalte = inhalte.beobachte(spaeter);
     const intervall = setInterval(wennSichtbar, intervallMs);
     window.addEventListener('online', abgleichen);
     document.addEventListener('visibilitychange', wennSichtbar);
     return () => {
       clearTimeout(verzoegert);
       abmelden();
+      abmeldenInhalte();
       clearInterval(intervall);
       window.removeEventListener('online', abgleichen);
       document.removeEventListener('visibilitychange', wennSichtbar);
     };
-  }, [abgleichen, protokoll, intervallMs, verzoegerungMs]);
+  }, [abgleichen, protokoll, inhalte, intervallMs, verzoegerungMs]);
 
   return <Kontext.Provider value={{ ...zustand, abgleichen }}>{children}</Kontext.Provider>;
 }

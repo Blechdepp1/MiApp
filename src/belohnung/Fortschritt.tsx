@@ -1,4 +1,5 @@
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
+import { useInhalt } from '../daten/InhalteKontext.tsx';
 import { useEreignisse } from '../daten/ProtokollKontext.tsx';
 import { gesamtPunkte, level, naechstesZiel, tagesziel, tagVon } from './logik.ts';
 import './Belohnung.css';
@@ -6,13 +7,14 @@ import './Belohnung.css';
 // Level, Punkte und Tagesziel auf der Startseite
 export function Fortschritt({ heute = tagVon(new Date().toISOString()) }: { heute?: string }) {
   const ereignisse = useEreignisse();
+  const [stufen] = useInhalt('level');
   if (!ereignisse) return null;
 
   const punkte = gesamtPunkte(ereignisse);
-  const l = level(punkte);
+  const l = level(punkte, stufen);
   const ziel = tagesziel(ereignisse, heute);
   const bisZiel = l.naechstesAb - punkte;
-  const naechstes = naechstesZiel(l);
+  const naechstes = naechstesZiel(l, stufen);
   const naechstesText = naechstes.startsWith('zum') ? naechstes : `bis ${naechstes}`;
   const sterne = '★'.repeat(l.sterne);
 

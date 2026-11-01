@@ -1,7 +1,10 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { protokollImArbeitsspeicher, type Protokoll } from '../daten/protokoll.ts';
+import { inhalteImArbeitsspeicher } from '../daten/inhalte.ts';
+import { InhalteProvider } from '../daten/InhalteKontext.tsx';
 import { ProtokollProvider } from '../daten/ProtokollKontext.tsx';
+import type { InhalteStand } from './inhalteAbgleich.ts';
 import { wertImArbeitsspeicher } from '../daten/schluesselWert.ts';
 import { ausJsonl, eigeneDatei, type AbgleichStand } from './abgleich.ts';
 import { erstelleDropbox, type Dropbox } from './dropbox.ts';
@@ -15,14 +18,17 @@ const RUNDE = { typ: 'runde-beendet', richtig: 5, mitHilfe: 0, verbessert: 0 } a
 function zeige(dropbox: Dropbox, protokoll: Protokoll = protokollImArbeitsspeicher([], 'kind-1')) {
   render(
     <ProtokollProvider protokoll={protokoll}>
-      <SyncProvider
-        dropbox={dropbox}
-        stand={wertImArbeitsspeicher<AbgleichStand>()}
-        intervallMs={60_000}
-        verzoegerungMs={20}
-      >
-        <SyncStatus />
-      </SyncProvider>
+      <InhalteProvider speicher={inhalteImArbeitsspeicher()}>
+        <SyncProvider
+          dropbox={dropbox}
+          stand={wertImArbeitsspeicher<AbgleichStand>()}
+          inhalteStand={wertImArbeitsspeicher<InhalteStand>()}
+          intervallMs={60_000}
+          verzoegerungMs={20}
+        >
+          <SyncStatus />
+        </SyncProvider>
+      </InhalteProvider>
     </ProtokollProvider>,
   );
   return protokoll;

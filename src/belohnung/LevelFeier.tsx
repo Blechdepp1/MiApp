@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useEinstellungen } from '../basis/EinstellungenKontext.tsx';
 import { vorlesen } from '../basis/vorlesen.ts';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
+import { useInhalt } from '../daten/InhalteKontext.tsx';
 import { useEreignisse } from '../daten/ProtokollKontext.tsx';
 import { dexieWert, type GespeicherterWert } from '../daten/schluesselWert.ts';
 import { gesamtPunkte, level, rang } from './logik.ts';
@@ -22,7 +23,8 @@ export function LevelFeier({
   const { einstellungen } = useEinstellungen();
   const [gesehenerRang, setGesehenerRang] = useState<number | null>(null);
   const knopf = useRef<HTMLButtonElement>(null);
-  const aktuell = ereignisse ? level(gesamtPunkte(ereignisse)) : null;
+  const [stufen] = useInhalt('level');
+  const aktuell = ereignisse ? level(gesamtPunkte(ereignisse), stufen) : null;
   const aktuellerRang = aktuell ? rang(aktuell) : null;
 
   useEffect(() => {

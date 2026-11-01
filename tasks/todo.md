@@ -165,11 +165,11 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/eltern/rolle.ts`, `src/eltern/Pin.tsx`, `src/eltern/ElternBereich.tsx`
 **Umfang:** S
 
-### Aufgabe 13: Dropbox-Sync von Ereignissen und Inhalten ✅ Ereignisse (Gerätetest offen) · Inhalte → Aufgabe 14
+### Aufgabe 13: Dropbox-Sync von Ereignissen und Inhalten ✅ Ereignisse (mit zwei Geräten geprüft) · Inhalte → Aufgabe 14
 **Beschreibung:** Jedes Gerät hängt seine Ereignisse an `ereignisse/<geraete-id>.jsonl` an und lädt die Protokolle der anderen. Nur das Eltern-Gerät schreibt `inhalte/*.json`. Die Protokolle werden ohne Duplikate zusammengeführt (Ereignis-IDs). Abgeglichen wird beim Start, nach jeder Runde, bei wiederkehrendem Netz und alle 30 Sekunden im Vordergrund.
 **Akzeptanz:**
 - [x] Zwei Geräte, eins offline, üben beide: Nach dem Abgleich zeigen beide dieselben Punkte, und kein Ereignis fehlt oder ist doppelt (Unit-Test mit zwei simulierten Geräten; echter Test mit zwei Handys offen).
-- [ ] Das Kind-Gerät schreibt nie nach `inhalte/` (kommt mit den ersten Inhalten in Aufgabe 14).
+- [x] Das Kind-Gerät schreibt nie nach `inhalte/` (umgesetzt mit Aufgabe 14, Unit-Test).
 - [x] Die Merge-Logik hat mindestens 90 % Testabdeckung (`abgleich.ts`: 100 % Zeilen).
 **Umsetzung:** Eigene Datei wird nur neu hochgeladen, wenn eigene Ereignisse dazugekommen sind oder sie fehlt; fremde Dateien nur bei geänderter Revision geladen. Kaputte Zeilen werden übersprungen. Status und „Jetzt abgleichen“ im Eltern-Bereich.
 **Prüfen:** Unit-Tests des Merges mit gemocktem Dropbox; manuell zwei Geräte, eins im Flugmodus.
@@ -177,11 +177,12 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/sync/abgleich.ts`, `src/sync/abgleich.test.ts`, `src/sync/useSync.ts`, `src/daten/db.ts`
 **Umfang:** M
 
-### Aufgabe 14: Belohnungen und Level-Tabelle verwalten (Eltern)
+### Aufgabe 14: Belohnungen und Level-Tabelle verwalten (Eltern) ✅ (Gerätetest offen)
 **Beschreibung:** Im Eltern-Bereich Belohnungen anlegen, ändern und löschen (Name, Symbol, Preis) und die Level-Tabelle bearbeiten. Die Startwerte aus SPEC sind vorbelegt. Gespeichert wird in `inhalte/belohnungen.json` und `inhalte/level.json`.
 **Akzeptanz:**
-- [ ] Eine Änderung ist nach dem Abgleich auf dem Kind-Gerät sichtbar.
-- [ ] Ungültige Eingaben (Preis 0, Schwellen nicht aufsteigend) werden verständlich abgelehnt.
+- [x] Eine Änderung ist nach dem Abgleich auf dem Kind-Gerät sichtbar (Unit-Test; auf dem Gerät prüfen – Level-Titel erscheinen auf der Startseite, Belohnungen ab Aufgabe 15).
+- [x] Ungültige Eingaben (Preis 0, Schwellen nicht aufsteigend) werden verständlich abgelehnt.
+**Umsetzung:** Nur Eltern-Geräte schreiben Inhalte; bei zwei Eltern-Geräten gewinnt der neueste Stand. Auf dem Kind-Gerät werden Belohnungen/Level im Eltern-Bereich nur angezeigt.
 **Prüfen:** Komponententests; manuell Änderung am Eltern-Handy → Kind-Handy.
 **Abhängig von:** 13
 **Dateien:** `src/eltern/BelohnungenVerwalten.tsx`, `src/eltern/LevelVerwalten.tsx`, `src/belohnung/inhalte.ts`

@@ -7,6 +7,8 @@ import { useZiel } from './basis/navigation.ts';
 import { KommtBald, Seite } from './basis/Seite.tsx';
 import { Startseite } from './basis/Startseite.tsx';
 import { LevelFeier } from './belohnung/LevelFeier.tsx';
+import { dexieInhalte, type InhalteSpeicher } from './daten/inhalte.ts';
+import { InhalteProvider } from './daten/InhalteKontext.tsx';
 import { dexieProtokoll, type Protokoll } from './daten/protokoll.ts';
 import type { GespeicherterWert } from './daten/schluesselWert.ts';
 import { ProtokollProvider } from './daten/ProtokollKontext.tsx';
@@ -16,6 +18,7 @@ import { dexieGeraetSpeicher, type GeraetSpeicher } from './eltern/geraet.ts';
 import { GeraetProvider, useGeraet } from './eltern/GeraetKontext.tsx';
 import type { AbgleichStand } from './sync/abgleich.ts';
 import type { Dropbox } from './sync/dropbox.ts';
+import type { InhalteStand } from './sync/inhalteAbgleich.ts';
 import { SyncProvider } from './sync/SyncKontext.tsx';
 import { dropbox as standardDropbox } from './sync/verbindung.ts';
 import { VokabelSeite } from './vokabeln-en/VokabelSeite.tsx';
@@ -28,28 +31,34 @@ export function App({
   dropbox = standardDropbox,
   gesehenesLevel,
   geraet = dexieGeraetSpeicher,
+  inhalte = dexieInhalte,
   abgleichStand,
+  inhalteStand,
 }: {
-  abgleichStand?: GespeicherterWert<AbgleichStand>;
   speicher?: EinstellungsSpeicher;
   protokoll?: Protokoll;
   dropbox?: Dropbox;
   gesehenesLevel?: GespeicherterWert<number>;
   geraet?: GeraetSpeicher;
+  inhalte?: InhalteSpeicher;
+  abgleichStand?: GespeicherterWert<AbgleichStand>;
+  inhalteStand?: GespeicherterWert<InhalteStand>;
 }) {
   return (
     <EinstellungenProvider speicher={speicher}>
       <ProtokollProvider protokoll={protokoll}>
-        <SyncProvider dropbox={dropbox} stand={abgleichStand}>
+        <InhalteProvider speicher={inhalte}>
           <GeraetProvider speicher={geraet}>
-            <Eingerichtet>
-              <main>
-                <Inhalt dropbox={dropbox} />
-              </main>
-              <LevelFeier gesehen={gesehenesLevel} />
-            </Eingerichtet>
+            <SyncProvider dropbox={dropbox} stand={abgleichStand} inhalteStand={inhalteStand}>
+              <Eingerichtet>
+                <main>
+                  <Inhalt dropbox={dropbox} />
+                </main>
+                <LevelFeier gesehen={gesehenesLevel} />
+              </Eingerichtet>
+            </SyncProvider>
           </GeraetProvider>
-        </SyncProvider>
+        </InhalteProvider>
       </ProtokollProvider>
     </EinstellungenProvider>
   );

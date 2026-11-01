@@ -1,6 +1,7 @@
 import { act, render, screen, within } from '@testing-library/react';
 import { speicherImArbeitsspeicher } from './basis/einstellungen.ts';
 import { pfad, ZIELE, type Ziel } from './basis/navigation.ts';
+import { inhalteImArbeitsspeicher } from './daten/inhalte.ts';
 import { protokollImArbeitsspeicher } from './daten/protokoll.ts';
 import { wertImArbeitsspeicher } from './daten/schluesselWert.ts';
 import { geraetImArbeitsspeicher, type GeraetSpeicher } from './eltern/geraet.ts';
@@ -35,6 +36,8 @@ async function zeige(geraet?: GeraetSpeicher) {
         abrufen: vi.fn(),
       })}
       abgleichStand={wertImArbeitsspeicher()}
+      inhalteStand={wertImArbeitsspeicher()}
+      inhalte={inhalteImArbeitsspeicher()}
     />,
   );
   await screen.findAllByRole('heading', { level: 1 });
