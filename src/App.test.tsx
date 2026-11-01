@@ -75,7 +75,7 @@ describe('App', () => {
 
   it('zeigt auf der Startseite Kacheln mit Vorlese-Knopf', async () => {
     await zeige();
-    for (const name of ['Vokabeln', 'Tests', 'Belohnungen', 'Einstellungen']) {
+    for (const name of ['Vokabeln', 'Tests', 'Erfolge', 'Belohnungen', 'Einstellungen']) {
       const kachel = screen.getByRole('link', { name }).closest('li')!;
       expect(within(kachel).getByRole('button', { name: 'Vorlesen' })).toBeInTheDocument();
     }
@@ -86,6 +86,7 @@ describe('App', () => {
     start: /^Hallo/,
     vokabeln: /^Vokabeln$/,
     tests: /^Meine Tests$/,
+    erfolge: /^Meine Erfolge$/,
     belohnungen: /^Belohnungen$/,
     einstellungen: /^Einstellungen$/,
     eltern: /^Eltern-Bereich$/,

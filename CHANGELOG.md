@@ -3,6 +3,13 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.16.0 – 01.11.2026
+
+- Neue Kachel „🌟 Erfolge“: Hier siehst du, was du schon alles geschafft hast.
+- Die Woche als Balken: An welchem Tag hast du wie viele Punkte gesammelt? ⭐ heißt: Tagesziel geschafft.
+- Ein Kalender zeigt, an welchen Tagen du gelernt hast. Mit ‹ und › blätterst du zu früheren Monaten.
+- Unter „So hast du gesammelt“ steht für jeden Tag, wofür es Punkte gab, auch neue Level.
+
 ## 0.15.0 – 01.11.2026
 
 - Die Belohnungen stehen nach Punkten sortiert: die günstigste zuerst.

@@ -23,6 +23,7 @@ import type { InhalteStand } from './sync/inhalteAbgleich.ts';
 import type { LektionenStand } from './sync/lektionenAbgleich.ts';
 import { LektionenProvider } from './lektionen/LektionenKontext.tsx';
 import { dexieLektionen, type LektionenSpeicher } from './lektionen/speicher.ts';
+import { ErfolgeSeite } from './erfolge/ErfolgeSeite.tsx';
 import { SyncProvider } from './sync/SyncKontext.tsx';
 import { dropbox as standardDropbox } from './sync/verbindung.ts';
 import { IST_VORSCHAU } from './basis/kanal.ts';
@@ -114,6 +115,8 @@ function Inhalt({ dropbox }: { dropbox: Dropbox }) {
       return <VokabelSeite />;
     case 'tests':
       return <TestsSeite />;
+    case 'erfolge':
+      return <ErfolgeSeite />;
     case 'belohnungen':
       return <BelohnungenSeite />;
     case 'eltern':

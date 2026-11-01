@@ -1,0 +1,289 @@
+.erfolge-karte {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+}
+
+.erfolge-karte h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.erfolge-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.erfolge-leer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.erfolge-los {
+  display: grid;
+  place-items: center;
+  min-height: var(--touch);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Vier große Zahlen, bei großer Schrift untereinander */
+.erfolge-zahlen {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr));
+  gap: 0.6rem;
+}
+
+.erfolge-zahlen div {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.6rem 0.4rem;
+  border-radius: calc(var(--radius) * 0.75);
+  background: var(--farbe-hintergrund);
+  text-align: center;
+}
+
+.erfolge-zahlen dt {
+  font-size: 0.85rem;
+  color: var(--farbe-text-leise);
+}
+
+.erfolge-zahlen dd {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Wochenbalken: Montag bis Sonntag */
+.erfolge-balken {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.3rem;
+  align-items: end;
+}
+
+.erfolge-balken li {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.2rem 0;
+  border-radius: 10px;
+}
+
+.erfolge-balken li[data-heute] {
+  outline: 3px solid var(--farbe-akzent);
+  outline-offset: 1px;
+}
+
+.erfolge-balken-zahl {
+  min-height: 1.3em;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.erfolge-balken-saeule {
+  display: flex;
+  align-items: flex-end;
+  width: 70%;
+  height: 7rem;
+  border-radius: 8px;
+  background: var(--farbe-hintergrund);
+  overflow: hidden;
+}
+
+.erfolge-balken-saeule span {
+  width: 100%;
+  min-height: 0;
+  border-radius: 8px 8px 0 0;
+  background: var(--farbe-belohnung);
+}
+
+.erfolge-balken-tag {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.erfolge-balken-ziel {
+  min-height: 1.3em;
+  font-size: 0.8rem;
+}
+
+.erfolge-satz {
+  margin: 0;
+  font-weight: 700;
+}
+
+.erfolge-legende {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--farbe-text-leise);
+}
+
+/* Kalender */
+.erfolge-monat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.erfolge-monat button {
+  min-width: var(--touch);
+  min-height: var(--touch);
+  border: 3px solid var(--farbe-akzent);
+  border-radius: 50%;
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.erfolge-monat button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.erfolge-kalender {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.erfolge-kalender-zeile {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+
+.erfolge-kalender-wochentag {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--farbe-text-leise);
+}
+
+.erfolge-kalender-tag {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  background: var(--farbe-hintergrund);
+}
+
+.erfolge-kalender-tag[data-geuebt] {
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
+  font-weight: 700;
+}
+
+.erfolge-kalender-tag[data-heute] {
+  outline: 3px solid var(--farbe-belohnung);
+  outline-offset: 1px;
+}
+
+.erfolge-kalender-stern {
+  position: absolute;
+  top: -0.35em;
+  right: -0.25em;
+  font-size: 0.7rem;
+}
+
+.erfolge-legende-geuebt {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: var(--farbe-akzent);
+}
+
+/* Verlauf nach Tagen */
+.erfolge-verlauf {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.erfolge-verlauf-kopf {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.erfolge-verlauf-kopf h3 {
+  margin: 0;
+  flex: 1;
+  font-size: 1rem;
+}
+
+.erfolge-plus {
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  background: var(--farbe-belohnung);
+  color: var(--farbe-auf-belohnung);
+  font-weight: 700;
+}
+
+.erfolge-verlauf ul {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.erfolge-verlauf ul li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: calc(var(--radius) * 0.6);
+  background: var(--farbe-hintergrund);
+}
+
+.erfolge-verlauf ul li[data-art='level'] {
+  background: var(--farbe-belohnung);
+  color: var(--farbe-auf-belohnung);
+  font-weight: 700;
+}
+
+.erfolge-punkte {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.erfolge-mehr {
+  min-height: var(--touch);
+  border: 3px solid var(--farbe-akzent);
+  border-radius: var(--radius);
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

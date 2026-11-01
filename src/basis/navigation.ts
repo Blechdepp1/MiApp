@@ -5,6 +5,7 @@ export const ZIELE = [
   'start',
   'vokabeln',
   'tests',
+  'erfolge',
   'belohnungen',
   'einstellungen',
   'eltern',

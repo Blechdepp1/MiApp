@@ -105,6 +105,13 @@ const ANSICHTEN: Record<string, (page: Page, darstellung: Darstellung) => Promis
     await expect(page.getByRole('heading', { level: 1, name: 'Belohnungen' })).toBeVisible();
   },
 
+  Erfolge: async (page, d) => {
+    await startseite(page, d);
+    await setzePunkte(page, 320);
+    await page.getByRole('link', { name: 'Erfolge' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Meine Erfolge' })).toBeVisible();
+  },
+
   Einstellungen: async (page, d) => {
     await startseite(page, d);
     await page.getByRole('link', { name: 'Einstellungen' }).click();
