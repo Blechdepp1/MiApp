@@ -188,7 +188,7 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/eltern/BelohnungenVerwalten.tsx`, `src/eltern/LevelVerwalten.tsx`, `src/belohnung/inhalte.ts`
 **Umfang:** M
 
-### Aufgabe 15: Belohnung einlösen und bestätigen ✅ (Gerätetest offen)
+### Aufgabe 15: Belohnung einlösen und bestätigen ✅ (auf den Geräten geprüft)
 **Beschreibung:** Das Kind sieht alle Belohnungen mit Preis und Fortschritt („noch 300 Punkte“). Es löst ein, wenn das Guthaben reicht, und die Einlösung ist dann „offen“. Die Eltern sehen offene Einlösungen und bestätigen sie. Beides sind Ereignisse.
 **Akzeptanz:**
 - [x] Das Guthaben sinkt sofort beim Einlösen, das Level nicht (Unit- und E2E-Test).
@@ -201,9 +201,9 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Umfang:** M
 
 ### ✅ Checkpoint C
-- [ ] Alle Tests grün
-- [ ] Kind- und Eltern-Handy synchron, Belohnung einlösen und bestätigen klappt
-- [ ] Gemeinsame Durchsicht
+- [x] Alle Tests grün (277 Unit, 10 E2E)
+- [x] Kind- und Eltern-Handy synchron, Belohnung einlösen und bestätigen klappt (geprüft am 01.11.2026)
+- [ ] Noch offen von den Eltern: geänderter Level-Titel auf dem Kind-Gerät, Plausibilität der Lernzeiten
 
 ---
 
