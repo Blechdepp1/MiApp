@@ -2,6 +2,7 @@ import type { LernEreignis } from '../daten/ereignisse.ts';
 import type { GespeicherterWert } from '../daten/schluesselWert.ts';
 import type { Protokoll } from '../daten/protokoll.ts';
 import type { Dropbox } from './dropbox.ts';
+import { DATENFORMAT, istZuNeu } from './format.ts';
 
 // Jedes Gerät schreibt nur seine eigene Datei; gelesen werden die Dateien aller Geräte.
 // Dadurch gibt es keine Schreibkonflikte, und Doppeltes fällt über die Ereignis-id heraus.
@@ -21,8 +22,9 @@ export type AbgleichStand = {
 
 export type AbgleichErgebnis = { neu: number; hochgeladen: boolean };
 
+// Erste Zeile nennt das Datenformat, danach ein Ereignis pro Zeile
 export function zuJsonl(ereignisse: readonly LernEreignis[]): string {
-  return ereignisse.map((e) => JSON.stringify(e)).join('\n') + (ereignisse.length ? '\n' : '');
+  return [{ format: DATENFORMAT }, ...ereignisse].map((e) => JSON.stringify(e)).join('\n') + '\n';
 }
 
 const TYPEN = new Set(['antwort', 'runde-beendet', 'eingeloest', 'bestaetigt']);
@@ -76,6 +78,8 @@ export async function gleicheAb({
   for (const datei of dateien) {
     if (datei.pfad.toLowerCase() === meinPfad || revs[datei.pfad] === datei.rev) continue;
     const text = await dropbox.herunterladen(datei.pfad);
+    // Von einer neueren App-Version: später noch einmal lesen, wenn dieses Gerät aktuell ist
+    if (text !== undefined && istZuNeu(text)) continue;
     if (text !== undefined) neu += await protokoll.importiere(ausJsonl(text));
     revs[datei.pfad] = datei.rev;
   }

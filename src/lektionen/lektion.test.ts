@@ -156,6 +156,27 @@ describe('gleicheLektionenAb', () => {
     expect((await kind.lektionen.alle()).map((l) => l.id).sort()).toEqual(['a', 'b']);
   });
 
+  it('schreibt das Datenformat in die Datei, aber nicht in die Lektion', async () => {
+    const seite = dropboxAttrappe();
+    const eltern = await geraet('eltern', seite, [lektion('a')]);
+    const kind = await geraet('kind', seite);
+    await eltern.abgleichen();
+    expect(JSON.parse(seite.dateien.get(lektionDatei('a'))!.inhalt)).toMatchObject({ format: 1 });
+    await kind.abgleichen();
+    expect(await kind.lektionen.lade('a')).toEqual(lektion('a'));
+  });
+
+  it('überschreibt keine Lektion, die eine neuere App-Version geschrieben hat', async () => {
+    const seite = dropboxAttrappe();
+    const neuer = JSON.stringify({ ...lektion('a', { titel: 'Neu' }), format: 99 });
+    seite.dateien.set(lektionDatei('a'), { inhalt: neuer, rev: 'r1' });
+    const eltern = await geraet('eltern', seite, [
+      lektion('a', { geaendert: '2026-11-02T10:00:00Z' }),
+    ]);
+    expect(await eltern.abgleichen()).toEqual({ uebernommen: 0, hochgeladen: 0 });
+    expect(seite.dateien.get(lektionDatei('a'))!.inhalt).toBe(neuer);
+  });
+
   it('zwei Eltern-Geräte legen gleichzeitig Lektionen an, ohne sich zu überschreiben', async () => {
     const seite = dropboxAttrappe();
     const papa = await geraet('eltern', seite, [lektion('papa')]);

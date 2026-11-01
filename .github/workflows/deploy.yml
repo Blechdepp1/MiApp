@@ -1,4 +1,8 @@
-name: Deploy auf GitHub Pages
+name: Prüfen und veröffentlichen
+
+# Jeder Push auf main: alles prüfen, dann den Testkanal /MiApp/vorschau/ aktualisieren.
+# Milenas App /MiApp/ wird immer aus der letzten Freigabe (Git-Tag v*) gebaut und ändert
+# sich deshalb erst, wenn eine neue Version freigegeben wurde (siehe docs/geraetetest.md).
 
 on:
   push:
@@ -15,24 +19,66 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  pruefen:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: 26
           cache: npm
       - run: npm ci
       - run: npm run lint
-      - run: npm test
-      - run: npm run build
+      - run: npm run typecheck
+      # Unit-Tests mit Abdeckungs-Untergrenzen (vite.config.ts)
+      - run: npm run test:coverage
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+
+  bauen:
+    needs: pruefen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci
+
+      - name: Testkanal bauen (aktueller Stand von main)
+        run: |
+          MIAPP_KANAL=vorschau npm run build
+          mv dist "$RUNNER_TEMP/vorschau"
+
+      - name: Live-App bauen (letzte Freigabe)
+        run: |
+          FREIGABE=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          if [ -z "$FREIGABE" ]; then
+            echo "Noch keine Freigabe – Live-App aus main"
+            npm run build
+            mv dist "$RUNNER_TEMP/seite"
+          else
+            echo "Live-App aus $FREIGABE"
+            git worktree add "$RUNNER_TEMP/live" "$FREIGABE"
+            cd "$RUNNER_TEMP/live"
+            npm ci
+            npm run build
+            mv dist "$RUNNER_TEMP/seite"
+          fi
+          mv "$RUNNER_TEMP/vorschau" "$RUNNER_TEMP/seite/vorschau"
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: ${{ runner.temp }}/seite
 
   deploy:
-    needs: build
+    needs: bauen
     runs-on: ubuntu-latest
     environment:
       name: github-pages

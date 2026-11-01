@@ -22,7 +22,7 @@ describe('JSONL', () => {
       erstelleEreignis({ typ: 'eingeloest', belohnungId: 'kino', preis: 1300 }, 'kind'),
     ];
     expect(ausJsonl(zuJsonl(e))).toEqual(e);
-    expect(zuJsonl([])).toBe('');
+    expect(zuJsonl([])).toBe('{"format":1}\n');
   });
 
   it('überspringt kaputte und unbekannte Zeilen', () => {
@@ -122,6 +122,19 @@ describe('gleicheAb', () => {
     const neuesKind = await geraet('kind-neu', seite);
     expect((await neuesKind.abgleichen()).neu).toBe(1);
     expect(gesamtPunkte(await neuesKind.protokoll.alle())).toBe(20);
+  });
+
+  it('liest Dateien einer neueren App-Version erst nach dem Update', async () => {
+    const seite = dropboxAttrappe();
+    const fremd = erstelleEreignis(RUNDE, 'neu-1');
+    seite.dateien.set(eigeneDatei('neu-1'), {
+      inhalt: `{"format":99}\n${JSON.stringify(fremd)}\n`,
+      rev: 'r1',
+    });
+    const alt = await geraet('alt-1', seite);
+    expect((await alt.abgleichen()).neu).toBe(0);
+    expect(await alt.protokoll.alle()).toEqual([]);
+    expect((await alt.stand.laden())?.revs).toEqual({});
   });
 
   it('kommt mit einem leeren App-Ordner zurecht', async () => {

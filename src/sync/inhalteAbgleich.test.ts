@@ -65,6 +65,24 @@ describe('gleicheInhalteAb', () => {
     expect(await eltern.abgleichen()).toEqual({ uebernommen: 0, hochgeladen: 0 });
   });
 
+  it('überschreibt keine Datei, die eine neuere App-Version geschrieben hat', async () => {
+    const seite = dropboxAttrappe();
+    const neuer = JSON.stringify({ format: 99, geaendert: '2026-11-01T09:00:00Z', daten: [] });
+    seite.dateien.set(inhaltDatei('belohnungen'), { inhalt: neuer, rev: 'r1' });
+    const eltern = await geraet('eltern', seite, [belohnungen([KINO], '2026-11-01T10:00:00Z')]);
+    expect(await eltern.abgleichen()).toEqual({ uebernommen: 0, hochgeladen: 0 });
+    expect(seite.dateien.get(inhaltDatei('belohnungen'))!.inhalt).toBe(neuer);
+  });
+
+  it('schreibt das Datenformat in jede Datei', async () => {
+    const seite = dropboxAttrappe();
+    const eltern = await geraet('eltern', seite, [belohnungen([KINO], '2026-11-01T10:00:00Z')]);
+    await eltern.abgleichen();
+    expect(JSON.parse(seite.dateien.get(inhaltDatei('belohnungen'))!.inhalt)).toMatchObject({
+      format: 1,
+    });
+  });
+
   it('ignoriert ungültige oder unbekannte Dateien', async () => {
     const seite = dropboxAttrappe();
     const papa = await geraet('eltern', seite);

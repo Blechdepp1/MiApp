@@ -6,13 +6,14 @@ import { dropboxAttrappe } from './dropboxAttrappe.ts';
 const REDIRECT = 'https://blechdepp1.github.io/MiApp/';
 const STUNDE = 3_600_000;
 
-function aufbau(start = 1_000_000) {
+function aufbau(start = 1_000_000, ordner?: string) {
   const dropboxSeite = dropboxAttrappe();
   const speicher = tokenSpeicherImArbeitsspeicher();
   let uhr = start;
   const dropbox = erstelleDropbox({
     speicher,
     redirectUri: REDIRECT,
+    ordner,
     abrufen: dropboxSeite.abrufen as unknown as typeof fetch,
     jetzt: () => uhr,
   });
@@ -125,6 +126,17 @@ describe('liste', () => {
     const a = aufbau();
     await verbinde(a);
     expect(await a.dropbox.liste('/gibts-nicht')).toEqual([]);
+  });
+
+  it('legt im Testkanal alles in einen eigenen Unterordner', async () => {
+    const a = aufbau(1_000_000, '/vorschau');
+    await verbinde(a);
+    await a.dropbox.hochladen('/ordner/a.jsonl', 'a');
+    expect([...a.dropboxSeite.dateien.keys()]).toEqual(['/vorschau/ordner/a.jsonl']);
+    expect(await a.dropbox.herunterladen('/ordner/a.jsonl')).toBe('a');
+    expect(await a.dropbox.liste('/ordner')).toEqual([
+      { name: 'a.jsonl', pfad: '/ordner/a.jsonl', rev: expect.any(String) },
+    ]);
   });
 
   it('meldet andere Fehler', async () => {

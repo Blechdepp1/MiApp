@@ -2,6 +2,7 @@ import { INHALTE, type InhaltName } from '../belohnung/inhalte.ts';
 import type { InhaltEintrag, InhalteSpeicher } from '../daten/inhalte.ts';
 import type { GespeicherterWert } from '../daten/schluesselWert.ts';
 import type { Dropbox } from './dropbox.ts';
+import { DATENFORMAT, istZuNeu } from './format.ts';
 
 // Inhalte liegen als /inhalte/<name>.json. Nur Eltern-Geräte schreiben sie, alle lesen sie.
 // Haben zwei Eltern-Geräte geändert, gewinnt der neueste Stand.
@@ -51,10 +52,16 @@ export async function gleicheInhalteAb({
 
   // 1. Neuere Inhalte aus Dropbox übernehmen
   let uebernommen = 0;
+  // Von einer neueren App-Version geschrieben: nicht lesen und nicht überschreiben
+  const gesperrt = new Set<string>();
   for (const datei of await dropbox.liste(INHALT_ORDNER)) {
     const name = datei.name.replace(/\.json$/, '');
     if (!istName(name) || revs[datei.pfad] === datei.rev) continue;
     const text = await dropbox.herunterladen(datei.pfad);
+    if (text !== undefined && istZuNeu(text)) {
+      gesperrt.add(name);
+      continue;
+    }
     revs[datei.pfad] = datei.rev;
     const fern = text === undefined ? undefined : liesInhalt(name, text);
     if (!fern) continue;
@@ -72,10 +79,14 @@ export async function gleicheInhalteAb({
   let hochgeladen = 0;
   if (darfSchreiben) {
     for (const eintrag of await inhalte.alle()) {
-      if (bekannt[eintrag.name] === eintrag.geaendert) continue;
+      if (bekannt[eintrag.name] === eintrag.geaendert || gesperrt.has(eintrag.name)) continue;
       await dropbox.hochladen(
         inhaltDatei(eintrag.name),
-        JSON.stringify({ geaendert: eintrag.geaendert, daten: eintrag.daten }, null, 2),
+        JSON.stringify(
+          { format: DATENFORMAT, geaendert: eintrag.geaendert, daten: eintrag.daten },
+          null,
+          2,
+        ),
       );
       bekannt[eintrag.name] = eintrag.geaendert;
       hochgeladen++;

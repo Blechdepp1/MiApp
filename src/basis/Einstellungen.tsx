@@ -3,6 +3,7 @@ import { TEMPO_MAX, TEMPO_MIN, type Einstellungen as Werte } from './einstellung
 import { useEinstellungen } from './EinstellungenKontext.tsx';
 import { FARBEN } from './thema.ts';
 import { VorleseKnopf } from './VorleseKnopf.tsx';
+import { Version } from './Version.tsx';
 import './Einstellungen.css';
 
 type Option<T extends string> = { wert: T; text: string; stil?: CSSProperties };
@@ -92,6 +93,8 @@ export function Einstellungen() {
           <span aria-hidden="true">🐇</span>
         </div>
       </div>
+
+      <Version />
     </section>
   );
 }

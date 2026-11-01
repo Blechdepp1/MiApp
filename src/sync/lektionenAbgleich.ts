@@ -2,6 +2,7 @@ import type { GespeicherterWert } from '../daten/schluesselWert.ts';
 import { pruefeLektion, type Lektion } from '../lektionen/lektion.ts';
 import type { LektionenSpeicher } from '../lektionen/speicher.ts';
 import type { Dropbox } from './dropbox.ts';
+import { DATENFORMAT, istZuNeu } from './format.ts';
 
 // Jede Lektion ist eine eigene Datei /inhalte/lektionen/<id>.json, damit zwei Eltern-Geräte
 // sich beim Anlegen nicht überschreiben. Nur Eltern-Geräte schreiben; bei Änderungen an
@@ -21,7 +22,11 @@ export type LektionenStand = {
 export function liesLektion(text: string): Lektion | undefined {
   try {
     const wert: unknown = JSON.parse(text);
-    return pruefeLektion(wert) === null ? (wert as Lektion) : undefined;
+    if (pruefeLektion(wert) !== null) return undefined;
+    // Das Format gehört zur Datei, nicht zur Lektion
+    const lektion = { ...(wert as Lektion & { format?: number }) };
+    delete lektion.format;
+    return lektion;
   } catch {
     return undefined;
   }
@@ -43,9 +48,15 @@ export async function gleicheLektionenAb({
   const bekannt = { ...bisher.bekannt };
 
   let uebernommen = 0;
+  // Von einer neueren App-Version geschrieben: nicht lesen und nicht überschreiben
+  const gesperrt = new Set<string>();
   for (const datei of await dropbox.liste(LEKTION_ORDNER)) {
     if (!datei.name.endsWith('.json') || revs[datei.pfad] === datei.rev) continue;
     const text = await dropbox.herunterladen(datei.pfad);
+    if (text !== undefined && istZuNeu(text)) {
+      gesperrt.add(datei.pfad.toLowerCase());
+      continue;
+    }
     revs[datei.pfad] = datei.rev;
     const fern = text === undefined ? undefined : liesLektion(text);
     // Eine Datei darf nur „ihre“ Lektion enthalten
@@ -63,7 +74,11 @@ export async function gleicheLektionenAb({
   if (darfSchreiben) {
     for (const lektion of await lektionen.alle()) {
       if (bekannt[lektion.id] === lektion.geaendert) continue;
-      await dropbox.hochladen(lektionDatei(lektion.id), JSON.stringify(lektion, null, 2));
+      if (gesperrt.has(lektionDatei(lektion.id).toLowerCase())) continue;
+      await dropbox.hochladen(
+        lektionDatei(lektion.id),
+        JSON.stringify({ format: DATENFORMAT, ...lektion }, null, 2),
+      );
       bekannt[lektion.id] = lektion.geaendert;
       hochgeladen++;
     }

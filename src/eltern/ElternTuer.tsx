@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { KANAL } from '../basis/kanal.ts';
 import { useGeraet } from './GeraetKontext.tsx';
 import { MAX_FEHLVERSUCHE, pruefePin, SPERRE_MS } from './pin.ts';
 import { PinEingabe } from './PinEingabe.tsx';
@@ -16,7 +17,7 @@ export function setzeSperreZurueck() {
 // Android beendet die App oft im Hintergrund, während die Kamera offen ist. Damit die PIN
 // danach nicht erneut gefragt wird, merkt sich der Tab die Freigabe kurz (nur sessionStorage).
 export const FREIGABE_MS = 10 * 60 * 1000;
-const FREIGABE_SCHLUESSEL = 'miapp-eltern-offen';
+const FREIGABE_SCHLUESSEL = `${KANAL.speicherPraefix}-eltern-offen`;
 
 function freigabeGilt(jetzt: number) {
   try {

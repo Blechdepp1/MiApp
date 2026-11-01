@@ -41,6 +41,8 @@ export class DropboxFehler extends Error {
 type Optionen = {
   speicher: TokenSpeicher;
   redirectUri: string;
+  // Unterordner im App-Ordner, z. B. „/vorschau“ für den Testkanal; Pfade bleiben für Aufrufer gleich
+  ordner?: string;
   appKey?: string;
   abrufen?: typeof fetch;
   jetzt?: () => number;
@@ -57,6 +59,7 @@ function headerJson(wert: unknown): string {
 export function erstelleDropbox({
   speicher,
   redirectUri,
+  ordner = '',
   appKey = APP_KEY,
   abrufen = (...args) => fetch(...args),
   jetzt = Date.now,
@@ -110,6 +113,12 @@ export function erstelleDropbox({
     }
   }
 
+  const voll = (pfad: string) => ordner + pfad;
+  const relativ = (pfad: string) =>
+    ordner && pfad.toLowerCase().startsWith(ordner.toLowerCase() + '/')
+      ? pfad.slice(ordner.length)
+      : pfad;
+
   return {
     async verbunden(): Promise<boolean> {
       return (await speicher.ladeTokens()) !== undefined;
@@ -162,7 +171,7 @@ export function erstelleDropbox({
         method: 'POST',
         headers: {
           'Content-Type': 'application/octet-stream',
-          'Dropbox-API-Arg': headerJson({ path: pfad, mode: 'overwrite', mute: true }),
+          'Dropbox-API-Arg': headerJson({ path: voll(pfad), mode: 'overwrite', mute: true }),
         },
         body: new TextEncoder().encode(inhalt),
       });
@@ -173,7 +182,7 @@ export function erstelleDropbox({
     async herunterladen(pfad: string): Promise<string | undefined> {
       const antwort = await mitAnmeldung(`${INHALT}/files/download`, {
         method: 'POST',
-        headers: { 'Dropbox-API-Arg': headerJson({ path: pfad }) },
+        headers: { 'Dropbox-API-Arg': headerJson({ path: voll(pfad) }) },
       });
       if (antwort.status === 409) return undefined;
       if (!antwort.ok) throw new DropboxFehler('Herunterladen fehlgeschlagen', antwort.status);
@@ -181,10 +190,10 @@ export function erstelleDropbox({
     },
 
     // Dateien eines Ordners mit Revision (ändert sich bei jeder neuen Version); leer, wenn es ihn nicht gibt
-    async liste(ordner: string): Promise<DropboxDatei[]> {
+    async liste(pfad: string): Promise<DropboxDatei[]> {
       const dateien: DropboxDatei[] = [];
       let url = `${API}/files/list_folder`;
-      let koerper: object = { path: ordner };
+      let koerper: object = { path: voll(pfad) };
       for (;;) {
         const antwort = await mitAnmeldung(url, {
           method: 'POST',
@@ -196,7 +205,7 @@ export function erstelleDropbox({
         const seite = (await antwort.json()) as ListFolderAntwort;
         for (const e of seite.entries) {
           if (e['.tag'] === 'file')
-            dateien.push({ name: e.name, pfad: e.path_display, rev: e.rev });
+            dateien.push({ name: e.name, pfad: relativ(e.path_display), rev: e.rev });
         }
         if (!seite.has_more) return dateien;
         url = `${API}/files/list_folder/continue`;

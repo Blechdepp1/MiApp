@@ -1,3 +1,4 @@
+import { KANAL } from '../basis/kanal.ts';
 import Dexie, { type EntityTable } from 'dexie';
 import type { Einstellungen } from '../basis/einstellungen.ts';
 import type { LernEreignis } from './ereignisse.ts';
@@ -17,7 +18,7 @@ class MiAppDb extends Dexie {
   lektionen!: EntityTable<Lektion, 'id'>;
 
   constructor() {
-    super('miapp');
+    super(KANAL.datenbank);
     this.version(1).stores({
       einstellungen: 'id',
     });

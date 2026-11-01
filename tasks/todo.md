@@ -286,22 +286,24 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 
 ## Phase 5: Betrieb und Rückmeldungen (SPEC 10a)
 
-### Aufgabe 20: Versionierung
+### Aufgabe 20: Versionierung ✅ (Gerätetest offen)
 **Beschreibung:** Versionsnummer nach SemVer aus `package.json` zur Build-Zeit in die App; Anzeige in Einstellungen und Eltern-Bereich mit „Was ist neu“ (aus `CHANGELOG.md`, Abschnitt der aktuellen Version). Git-Tag und GitHub-Release je Version. Feld `format` in allen Dropbox-Dateien; unbekannte neuere Formate werden beim Abgleich übersprungen statt überschrieben.
 **Akzeptanz:**
-- [ ] Die App zeigt „Version 1.x.y“ und „Was ist neu“.
-- [ ] `CHANGELOG.md` beschreibt jede Version in einfachen Worten; zu jeder Version gibt es einen Tag.
-- [ ] Ein Gerät mit älterer App-Version überschreibt keine Datei in neuerem Format (Unit-Test).
+- [x] Die App zeigt „Version x.y.z“ und „Was ist neu“ (Einstellungen und Eltern-Bereich).
+- [x] `CHANGELOG.md` beschreibt jede Version in einfachen Worten; zu jeder Version gibt es einen Tag (`npm run freigeben`).
+- [x] Ein Gerät mit älterer App-Version überschreibt keine Datei in neuerem Format (Unit-Test).
+**Umsetzung:** Start mit 0.9.0 (1.0.0 nach der Abnahme in Aufgabe 19). Ereignis-Dateien beginnen mit `{"format":1}`, Inhalte und Lektionen haben ein Feld `format`.
 **Abhängig von:** –
 **Dateien:** `vite.config.ts`, `CHANGELOG.md`, `src/basis/Version.tsx`, `src/sync/*Abgleich.ts`
 **Umfang:** M
 
-### Aufgabe 21: Qualitätssicherung und Testkanal
+### Aufgabe 21: Qualitätssicherung und Testkanal ✅ (Gerätetest offen)
 **Beschreibung:** GitHub Action ergänzen: E2E-Tests (Playwright) und Abdeckungsschwelle. Zwei Ziele auf GitHub Pages: `main` → `/MiApp/vorschau/` (Testkanal), Freigabe per Tag `v*` → `/MiApp/` (Milena). Gerätetest-Checkliste `docs/geraetetest.md`.
 **Akzeptanz:**
-- [ ] Ein Push auf `main` aktualisiert nur den Testkanal; Milenas App ändert sich erst nach einer Freigabe.
-- [ ] Rote E2E-Tests oder zu wenig Abdeckung verhindern jede Veröffentlichung.
-- [ ] Testkanal und Live-App haben getrennte Daten auf dem Gerät (eigene Installation).
+- [x] Ein Push auf `main` aktualisiert nur den Testkanal; Milenas App ändert sich erst nach einer Freigabe.
+- [x] Rote E2E-Tests oder zu wenig Abdeckung verhindern jede Veröffentlichung.
+- [x] Testkanal und Live-App haben getrennte Daten auf dem Gerät (eigene Installation, eigene Datenbank, Dropbox-Unterordner `vorschau/`).
+**Umsetzung:** Live-App wird aus dem letzten Tag `v*` gebaut, der Testkanal aus `main`; Freigabe mit `npm run freigeben` (Tag, GitHub-Release, Veröffentlichung). Lokal geprüft: Die Live-App fängt Aufrufe von `/vorschau/` nicht ab. Offen: Testkanal auf dem Eltern-Handy installieren; für Dropbox im Testkanal die Redirect-URI `…/MiApp/vorschau/` in der App Console eintragen.
 **Abhängig von:** 20
 **Dateien:** `.github/workflows/deploy.yml`, `vite.config.ts`, `docs/geraetetest.md`
 **Umfang:** M

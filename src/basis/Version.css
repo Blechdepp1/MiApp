@@ -1,0 +1,33 @@
+/* Version und „Was ist neu?“ (Einstellungen und Eltern-Bereich) */
+.version {
+  display: grid;
+  gap: 0.5rem;
+  color: var(--farbe-text-leise);
+}
+
+.version p {
+  margin: 0;
+}
+
+.version summary {
+  min-height: var(--touch);
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  color: var(--farbe-text);
+  cursor: pointer;
+}
+
+.version-neu {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: var(--farbe-text);
+}
+
+.version-neu ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.35rem;
+}

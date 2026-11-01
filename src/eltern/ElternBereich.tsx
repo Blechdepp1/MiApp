@@ -1,4 +1,5 @@
 import { Seite } from '../basis/Seite.tsx';
+import { Version } from '../basis/Version.tsx';
 import type { Dropbox } from '../sync/dropbox.ts';
 import { useSync } from '../sync/SyncKontext.tsx';
 import { SyncStatus } from '../sync/SyncStatus.tsx';
@@ -28,6 +29,7 @@ export function ElternBereich({ dropbox }: { dropbox: Dropbox }) {
         <BelohnungenVerwalten />
         <LevelVerwalten />
         <KiEinstellungen />
+        <Version />
       </ElternTuer>
     </Seite>
   );
