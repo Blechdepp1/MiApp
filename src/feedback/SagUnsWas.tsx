@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { zielAusHash } from '../basis/navigation.ts';
 import { VERSION_TEXT } from '../basis/version.ts';
+import { Diktat } from '../basis/Diktat.tsx';
+import { insBildHolen } from '../basis/sichtbarerBereich.ts';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 import { useProtokoll } from '../daten/ProtokollKontext.tsx';
 import type { Stimmung } from '../daten/ereignisse.ts';
@@ -9,7 +11,7 @@ import './SagUnsWas.css';
 
 const FRAGE = 'Wie gefällt dir MiApp gerade?';
 const SATZ =
-  'Willst du uns noch etwas sagen? Du musst nicht tippen: Tipp auf das Mikrofon auf der Tastatur und sprich.';
+  'Willst du uns noch etwas sagen? Du musst nicht tippen: Tipp auf Sprechen und sag es einfach.';
 const DANKE = 'Danke! Wir lesen das ganz bestimmt.';
 
 // „Sag uns was“: Smiley antippen, optional einen Satz diktieren – ohne tippen zu müssen
@@ -94,13 +96,15 @@ function SagUnsWasDialog({ onSchliessen }: { onSchliessen: () => void }) {
             </div>
             <div className="sag-uns-was-zeile">
               <VorleseKnopf text={SATZ} />
-              <label htmlFor="sag-uns-was-text">Willst du noch etwas sagen? 🎤</label>
+              <label htmlFor="sag-uns-was-text">Willst du noch etwas sagen?</label>
             </div>
+            <Diktat onText={(t) => setText((alt) => (alt ? `${alt} ${t}` : t))} />
             <textarea
               id="sag-uns-was-text"
               rows={3}
               value={text}
               onChange={(e) => setText(e.target.value)}
+              onFocus={(e) => insBildHolen(e.currentTarget)}
             />
             <button
               type="button"

@@ -297,6 +297,10 @@
 .lektion-vollbild {
   position: fixed;
   inset: 0;
+  /* Nur der sichtbare Bereich über der Handy-Tastatur (siehe sichtbarerBereich.ts) */
+  top: var(--sichtbar-oben, 0);
+  bottom: auto;
+  height: var(--sichtbar-hoehe, 100%);
   z-index: 5;
   overflow-y: auto;
   display: grid;
@@ -375,6 +379,10 @@
 .lerninhalte {
   position: fixed;
   inset: 0;
+  /* Nur der sichtbare Bereich über der Handy-Tastatur (siehe sichtbarerBereich.ts) */
+  top: var(--sichtbar-oben, 0);
+  bottom: auto;
+  height: var(--sichtbar-hoehe, 100%);
   z-index: 5;
   overflow-y: auto;
   display: grid;

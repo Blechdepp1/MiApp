@@ -1,0 +1,28 @@
+.diktat {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.diktat .diktat-knopf {
+  justify-self: start;
+  min-height: var(--touch);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius);
+  border: 3px solid var(--farbe-akzent);
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.diktat .diktat-aktiv {
+  border-color: var(--farbe-belohnung);
+  background: var(--farbe-belohnung);
+  color: var(--farbe-auf-belohnung);
+}
+
+.diktat-status {
+  margin: 0;
+  font-weight: 700;
+}

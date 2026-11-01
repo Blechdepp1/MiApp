@@ -1,5 +1,7 @@
 import { useId, useState, type ReactNode } from 'react';
+import { Diktat } from '../basis/Diktat.tsx';
 import { Seite } from '../basis/Seite.tsx';
+import { insBildHolen } from '../basis/sichtbarerBereich.ts';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 import { tagVon } from '../belohnung/logik.ts';
 import { TEST_PUNKTE } from '../belohnung/werte.ts';
@@ -235,14 +237,16 @@ function TestEintragen({ onFertig }: { onFertig: (meldung?: string) => void }) {
 
       <Feld
         id={`${id}-thema`}
-        titel="Worum geht es? (freiwillig) 🎤"
-        vorlesen="Worum geht es? Das musst du nicht ausfüllen. Du kannst auch das Mikrofon auf der Tastatur benutzen."
+        titel="Worum geht es? (freiwillig)"
+        vorlesen="Worum geht es? Das musst du nicht ausfüllen. Du kannst auch auf Sprechen tippen und es sagen."
       >
+        <Diktat onText={(t) => setThema((alt) => (alt ? `${alt} ${t}` : t).slice(0, 80))} />
         <input
           id={`${id}-thema`}
           value={thema}
           maxLength={80}
           onChange={(e) => setThema(e.target.value)}
+          onFocus={(e) => insBildHolen(e.currentTarget)}
         />
       </Feld>
 

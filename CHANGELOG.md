@@ -10,6 +10,7 @@ Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei F
 - Bist du besser als beim letzten Mal im selben Fach, gibt es einen Extra-Bonus.
 - Steht ein Englisch-Test mit Lektion an, übst du deren Wörter vorher öfter.
 - „💬 Sag uns was“ auf der Startseite: Smiley antippen und sagen, was dir gefällt oder nicht.
+- Mit „🎤 Sprechen“ kannst du deinen Satz einfach sagen, statt ihn zu tippen.
 
 ## 0.10.0 – 01.11.2026
 
