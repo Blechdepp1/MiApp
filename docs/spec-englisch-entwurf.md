@@ -203,7 +203,8 @@ Nichts in der App **widerspricht** den LRS-Grundsätzen oder dem Forschungsstand
 - Milena hat einen **Nachteilsausgleich**. Schule: **Realschule in Nordrhein-Westfalen**. Ob ihre Rechtschreibung in Englisch bewertet wird (Notenschutz), ist noch offen.
 - Lehrbuch: **Lighthouse Advanced 2** (Cornelsen, Klasse 6), dazu das passende **Workbook**. Übungen aus dem Workbook (Lückensätze, Verbformen) eignen sich als Fotovorlage für spätere Übungsarten (V4, V9).
 - Unregelmäßige Verben: Das Vokabelheft (Foto vom 01.11.2026) enthält gerade eine Liste mit Vergangenheitsformen (*began, blew, broke, brought, built, bought, caught, chose, came, cost, cut, did*). Sie sind also offenbar gerade dran – V4 wird damit wichtiger.
-- Abfrage durch die Lehrkraft und lautes Sprechen: fragen die Eltern nach.
+- **Abfrage durch die Lehrkraft:** Sie gibt das deutsche Wort vor, die Kinder schreiben es auf Englisch (schriftlich Deutsch → Englisch). Die App sollte vor Tests deshalb vor allem so üben (prüfungsnahes Üben).
+- Lautes Sprechen: fragen die Eltern nach.
 - LRS-Förderung gibt es in der Schule (keine Abstimmung nötig), eine Therapie derzeit nicht.
 - Folgerung bis zur Klärung: Schreiben bleibt Übungsform (es hilft beim Lernen), „fast richtig“ stuft weiter hoch, die Sprechkarte (V6) bleibt vorgemerkt.
 
