@@ -20,6 +20,7 @@ async function eingerichtet(): Promise<GeraetSpeicher> {
 
 // Rendert die App und wartet, bis das Gerät geladen ist
 async function zeige(geraet?: GeraetSpeicher) {
+  window.history.replaceState(null, '', '#/');
   render(
     <App
       speicher={speicherImArbeitsspeicher()}
@@ -53,7 +54,7 @@ describe('App', () => {
   it.each(ZIELE)('Seite „%s“ hat einen vorlesbaren Titel', async (ziel) => {
     await zeige();
     gehe(ziel);
-    const titel = screen.getByRole('heading', { level: 1 });
+    const titel = await screen.findByRole('heading', { level: 1 });
     expect(
       within(titel.parentElement!).getByRole('button', { name: 'Vorlesen' }),
     ).toBeInTheDocument();
@@ -64,7 +65,10 @@ describe('App', () => {
     async (ziel) => {
       await zeige();
       gehe(ziel);
-      expect(screen.getByRole('link', { name: /Zurück/ })).toHaveAttribute('href', pfad('start'));
+      expect(await screen.findByRole('link', { name: /Zurück/ })).toHaveAttribute(
+        'href',
+        pfad('start'),
+      );
     },
   );
 
@@ -75,13 +79,15 @@ describe('App', () => {
       pfad('einstellungen'),
     );
     gehe('einstellungen');
-    expect(screen.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Einstellungen' }),
+    ).toBeInTheDocument();
   });
 
   it('öffnet den Eltern-Bereich auch per Adresse nur mit PIN', async () => {
     await zeige();
     gehe('eltern');
-    expect(screen.getByRole('heading', { name: 'Eltern-PIN eingeben' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Eltern-PIN eingeben' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Dropbox' })).toBeNull();
   });
 });
