@@ -59,10 +59,19 @@ describe('App', () => {
     expect(screen.getByRole('link', { name: 'Eltern-Bereich' })).toBeInTheDocument();
   });
 
+  const TITEL: Record<Ziel, RegExp> = {
+    start: /^Hallo/,
+    vokabeln: /^Vokabeln$/,
+    belohnungen: /^Belohnungen$/,
+    einstellungen: /^Einstellungen$/,
+    eltern: /^Eltern-Bereich$/,
+  };
+
   it.each(ZIELE)('Seite „%s“ hat einen vorlesbaren Titel', async (ziel) => {
     await zeige();
     gehe(ziel);
-    const titel = await screen.findByRole('heading', { level: 1 });
+    // Auf die Überschrift genau dieser Seite warten, nicht die der vorherigen
+    const titel = await screen.findByRole('heading', { level: 1, name: TITEL[ziel] });
     expect(
       within(titel.parentElement!).getByRole('button', { name: 'Vorlesen' }),
     ).toBeInTheDocument();
