@@ -25,7 +25,7 @@ const LISTE: Vokabelliste = {
 function zeige(
   ereignisse: LernEreignis[] = [],
   protokoll: Protokoll = protokollImArbeitsspeicher(),
-  sprich = vi.fn(async () => 'ok' as const),
+  sprich = vi.fn(async () => 'fertig' as const),
 ) {
   const nochEinmal = vi.fn();
   const ansicht = render(
@@ -80,7 +80,7 @@ describe('Runde', () => {
   });
 
   it('spricht nicht vor, wenn es in den Einstellungen aus ist', async () => {
-    const sprich = vi.fn(async () => 'ok' as const);
+    const sprich = vi.fn(async () => 'fertig' as const);
     const { container } = render(
       <EinstellungenProvider speicher={speicherImArbeitsspeicher({ wortVorsagen: 'aus' })}>
         <ProtokollProvider protokoll={protokollImArbeitsspeicher()}>
