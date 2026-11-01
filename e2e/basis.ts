@@ -19,8 +19,39 @@ export async function einrichten(page: Page) {
   await page.goto('about:blank');
 }
 
+// Beim ersten Start merkt sich die App das aktuelle Level, ohne zu feiern. Erst danach dürfen
+// Punkte dazukommen, sonst gilt das neue Level als „schon gesehen“ (Wettlauf, v. a. im CI).
+async function warteAufGesehenesLevel(page: Page) {
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          new Promise<boolean>((fertig) => {
+            const anfrage = indexedDB.open('miapp');
+            anfrage.onsuccess = () => {
+              const db = anfrage.result;
+              if (!db.objectStoreNames.contains('schluessel')) {
+                db.close();
+                return fertig(false);
+              }
+              const get = db
+                .transaction('schluessel')
+                .objectStore('schluessel')
+                .get('gesehenes-level');
+              get.onsuccess = () => {
+                db.close();
+                fertig(get.result !== undefined);
+              };
+            };
+          }),
+      ),
+    )
+    .toBe(true);
+}
+
 // Legt eine frühere Runde mit so vielen Punkten an (gerade Zahl ≥ 10) und lädt neu
 export async function setzePunkte(page: Page, punkte: number) {
+  await warteAufGesehenesLevel(page);
   await page.evaluate(
     (richtig) =>
       new Promise<void>((fertig) => {
