@@ -15,3 +15,7 @@ export function istRueckkehrVonDropbox(suche = window.location.search): boolean 
   const p = new URLSearchParams(suche);
   return p.has('code') || p.has('error');
 }
+
+// Testkanal: liest die Daten von Milenas App (App-Ordner ohne Unterordner), schreibt dort nie
+export const dropboxLive: Pick<typeof dropbox, 'verbunden' | 'liste' | 'herunterladen'> =
+  erstelleDropbox({ speicher: dexieTokenSpeicher, redirectUri: REDIRECT_URI });

@@ -1,7 +1,17 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { erstelleEreignis } from '../daten/ereignisse.ts';
-import { fuerVorschau, zusammenfassung, type LiveDaten } from './liveKopie.ts';
+import { zuJsonl, eigeneDatei } from '../sync/abgleich.ts';
+import { dropboxAttrappe, verbundenesDropbox } from '../sync/dropboxAttrappe.ts';
+import { inhaltDatei } from '../sync/inhalteAbgleich.ts';
+import { lektionDatei } from '../sync/lektionenAbgleich.ts';
+import {
+  fuerVorschau,
+  istLeer,
+  leseLiveDatenAusDropbox,
+  zusammenfassung,
+  type LiveDaten,
+} from './liveKopie.ts';
 import type { Lektion } from '../lektionen/lektion.ts';
 import { LiveDatenUebernehmen } from './LiveDatenUebernehmen.tsx';
 
@@ -14,13 +24,19 @@ const LEKTION: Lektion = {
   inhalt: { art: 'vokabeln', woerter: [{ id: 'w1', en: 'began', de: 'anfangen' }] },
 };
 
+const dropboxAttrappeOhneVerbindung = {
+  verbunden: async () => false,
+  liste: async () => [],
+  herunterladen: async () => undefined,
+};
+
 const LIVE: LiveDaten = {
+  quelle: 'Dropbox-Ordner Apps/MiApp',
   lektionen: [LEKTION, { ...LEKTION, id: 'alt', geloescht: true }],
   inhalte: [{ name: 'belohnungen', daten: [], geaendert: '2026-10-31T10:00:00Z' }],
   ereignisse: [
     erstelleEreignis({ typ: 'runde-beendet', richtig: 5, mitHilfe: 0, verbessert: 0 }, 'kind'),
   ],
-  gesehenesLevel: 3,
 };
 
 describe('Live-Daten für den Testkanal', () => {
@@ -32,7 +48,36 @@ describe('Live-Daten für den Testkanal', () => {
     ]);
     expect(kopie.inhalte[0]!.geaendert).toBe('2026-11-02T08:00:00Z');
     expect(kopie.ereignisse).toBe(LIVE.ereignisse);
-    expect(kopie.gesehenesLevel).toBe(3);
+    // 20 Punkte: Level 1 ohne Sterne gilt als schon gefeiert
+    expect(kopie.gesehenesLevel).toBe(1000);
+  });
+
+  it('liest die Live-Daten aus dem Dropbox-Ordner der Live-App', async () => {
+    const seite = dropboxAttrappe();
+    const live = await verbundenesDropbox(seite);
+    await live.hochladen(lektionDatei('u5'), JSON.stringify({ format: 1, ...LEKTION }));
+    await live.hochladen(
+      lektionDatei('neu'),
+      JSON.stringify({ format: 99, ...LEKTION, id: 'neu' }),
+    );
+    await live.hochladen(
+      inhaltDatei('belohnungen'),
+      JSON.stringify({ format: 1, geaendert: '2026-10-31T10:00:00Z', daten: [] }),
+    );
+    await live.hochladen('/inhalte/unbekannt.json', '{}');
+    await live.hochladen(eigeneDatei('kind-1'), zuJsonl(LIVE.ereignisse));
+    // Testdaten im Unterordner gehören nicht dazu
+    await live.hochladen('/vorschau/inhalte/lektionen/test.json', JSON.stringify(LEKTION));
+
+    const daten = (await leseLiveDatenAusDropbox(live))!;
+    expect(daten.lektionen.map((l) => l.id)).toEqual(['u5']);
+    expect(daten.inhalte.map((i) => i.name)).toEqual(['belohnungen']);
+    expect(daten.ereignisse).toEqual(LIVE.ereignisse);
+    expect(istLeer(daten)).toBe(false);
+  });
+
+  it('liest ohne Dropbox-Verbindung nichts', async () => {
+    expect(await leseLiveDatenAusDropbox({ ...dropboxAttrappeOhneVerbindung })).toBeNull();
   });
 
   it('fasst zusammen, was übernommen wird', () => {
@@ -51,8 +96,9 @@ describe('LiveDatenUebernehmen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Daten übernehmen' }));
     await vi.waitFor(() => expect(neuLaden).toHaveBeenCalled());
     expect(frage.mock.calls[0]![0]).toContain('1 Lektionen');
+    expect(frage.mock.calls[0]![0]).toContain('Aus Dropbox-Ordner Apps/MiApp übernehmen');
     expect(schreiben).toHaveBeenCalledWith(
-      expect.objectContaining({ lektionen: expect.any(Array), gesehenesLevel: 3 }),
+      expect.objectContaining({ lektionen: expect.any(Array), gesehenesLevel: 1000 }),
     );
   });
 
@@ -65,10 +111,25 @@ describe('LiveDatenUebernehmen', () => {
     expect(schreiben).not.toHaveBeenCalled();
   });
 
-  it('erklärt, wenn es auf dem Gerät keine Live-Daten gibt', async () => {
+  it('erklärt, wenn es keine Live-Daten gibt, und schlägt Dropbox vor', async () => {
     render(<LiveDatenUebernehmen lesen={async () => null} />);
     await userEvent.click(screen.getByRole('button', { name: 'Daten übernehmen' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent('keine Daten aus Milenas App');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Keine Daten aus Milenas App');
+    expect(screen.getByRole('alert')).toHaveTextContent('mit Dropbox verbinden');
+  });
+
+  it('übernimmt keine leeren Daten', async () => {
+    const schreiben = vi.fn(async () => {});
+    const leer: LiveDaten = {
+      quelle: 'Milenas App auf diesem Gerät',
+      lektionen: [],
+      inhalte: [],
+      ereignisse: [],
+    };
+    render(<LiveDatenUebernehmen lesen={async () => leer} schreiben={schreiben} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Daten übernehmen' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('(Milenas App auf diesem Gerät)');
+    expect(schreiben).not.toHaveBeenCalled();
   });
 
   it('meldet Fehler beim Lesen', async () => {

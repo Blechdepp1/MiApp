@@ -1,19 +1,66 @@
-import type { Lektion } from '../lektionen/lektion.ts';
+import { INHALTE, type InhaltName } from '../belohnung/inhalte.ts';
+import { gesamtPunkte, level, rang } from '../belohnung/logik.ts';
+import { LEVEL_START, type Levelstufe } from '../belohnung/werte.ts';
 import { db } from '../daten/db.ts';
 import type { LernEreignis } from '../daten/ereignisse.ts';
 import type { InhaltEintrag } from '../daten/inhalte.ts';
+import type { Lektion } from '../lektionen/lektion.ts';
+import { ausJsonl, EREIGNIS_ORDNER } from '../sync/abgleich.ts';
+import type { Dropbox } from '../sync/dropbox.ts';
+import { istZuNeu } from '../sync/format.ts';
+import { INHALT_ORDNER, liesInhalt } from '../sync/inhalteAbgleich.ts';
+import { LEKTION_ORDNER, liesLektion } from '../sync/lektionenAbgleich.ts';
 
-// Testkanal: Lektionen, Belohnungen, Level und Punkte aus Milenas App auf demselben Gerät
-// übernehmen. Beide liegen unter derselben Adresse, der Testkanal darf die Datenbank der
-// Live-App also lesen. Geschrieben wird nur in die eigene; Schlüssel, PIN, Dropbox-Zugang
-// und KI-Schlüssel werden nicht kopiert.
+// Testkanal: Lektionen, Belohnungen, Level und Punkte aus Milenas App übernehmen – aus dem
+// Dropbox-Ordner der Live-App (Apps/MiApp) oder, ohne Dropbox, aus der Datenbank der Live-App
+// auf demselben Gerät. Beides wird nur gelesen. Geschrieben wird nur in den Testkanal;
+// Schlüssel, PIN, Dropbox-Zugang und KI-Schlüssel werden nicht kopiert.
 
 export type LiveDaten = {
+  // Woher die Daten stammen, für die Rückfrage
+  quelle: string;
   lektionen: Lektion[];
   inhalte: InhaltEintrag[];
   ereignisse: LernEreignis[];
   gesehenesLevel?: number;
 };
+
+// Nur lesende Funktionen: Der Testkanal darf im Ordner der Live-App nichts schreiben
+export type LiveDropbox = Pick<Dropbox, 'verbunden' | 'liste' | 'herunterladen'>;
+
+// null, wenn der Testkanal nicht mit Dropbox verbunden ist
+export async function leseLiveDatenAusDropbox(dropbox: LiveDropbox): Promise<LiveDaten | null> {
+  if (!(await dropbox.verbunden())) return null;
+  const lies = async (pfad: string) => {
+    const text = await dropbox.herunterladen(pfad);
+    return text === undefined || istZuNeu(text) ? undefined : text;
+  };
+
+  const inhalte: InhaltEintrag[] = [];
+  for (const datei of await dropbox.liste(INHALT_ORDNER)) {
+    const name = datei.name.replace(/\.json$/, '');
+    if (!Object.hasOwn(INHALTE, name)) continue;
+    const text = await lies(datei.pfad);
+    const eintrag = text === undefined ? undefined : liesInhalt(name as InhaltName, text);
+    if (eintrag) inhalte.push(eintrag);
+  }
+
+  const lektionen: Lektion[] = [];
+  for (const datei of await dropbox.liste(LEKTION_ORDNER)) {
+    if (!datei.name.endsWith('.json')) continue;
+    const text = await lies(datei.pfad);
+    const lektion = text === undefined ? undefined : liesLektion(text);
+    if (lektion) lektionen.push(lektion);
+  }
+
+  const ereignisse: LernEreignis[] = [];
+  for (const datei of await dropbox.liste(EREIGNIS_ORDNER)) {
+    const text = await lies(datei.pfad);
+    if (text !== undefined) ereignisse.push(...ausJsonl(text));
+  }
+
+  return { quelle: 'Dropbox-Ordner Apps/MiApp', lektionen, inhalte, ereignisse };
+}
 
 export const LIVE_DATENBANK = 'miapp';
 
@@ -35,13 +82,11 @@ export async function leseLiveDaten(name = LIVE_DATENBANK): Promise<LiveDaten | 
       live.objectStoreNames.contains(tabelle)
         ? anfrage(live.transaction(tabelle).objectStore(tabelle).getAll() as IDBRequest<T[]>)
         : [];
-    const schluessel = await lies<{ id: string; wert: unknown }>('schluessel');
-    const gesehen = schluessel.find((s) => s.id === 'gesehenes-level')?.wert;
     return {
+      quelle: 'Milenas App auf diesem Gerät',
       lektionen: await lies<Lektion>('lektionen'),
       inhalte: await lies<InhaltEintrag>('inhalte'),
       ereignisse: await lies<LernEreignis>('ereignisse'),
-      ...(typeof gesehen === 'number' && { gesehenesLevel: gesehen }),
     };
   } finally {
     live.close();
@@ -49,13 +94,20 @@ export async function leseLiveDaten(name = LIVE_DATENBANK): Promise<LiveDaten | 
 }
 
 // Lektionen und Inhalte bekommen einen frischen Zeitstempel, damit sie beim Abgleich mit dem
-// Dropbox-Ordner des Testkanals gewinnen und ältere Testdaten dort ersetzen
+// Dropbox-Ordner des Testkanals gewinnen und ältere Testdaten dort ersetzen. Das erreichte
+// Level gilt als schon gesehen, sonst käme gleich eine Level-Feier.
 export function fuerVorschau(live: LiveDaten, jetzt: string): LiveDaten {
+  const stufen = live.inhalte.find((i) => i.name === 'level')?.daten ?? LEVEL_START;
   return {
     ...live,
     lektionen: live.lektionen.map((l) => ({ ...l, geaendert: jetzt })),
     inhalte: live.inhalte.map((i) => ({ ...i, geaendert: jetzt })),
+    gesehenesLevel: rang(level(gesamtPunkte(live.ereignisse), stufen as Levelstufe[])),
   };
+}
+
+export function istLeer(live: LiveDaten): boolean {
+  return live.lektionen.length + live.inhalte.length + live.ereignisse.length === 0;
 }
 
 export function zusammenfassung(live: LiveDaten): string {

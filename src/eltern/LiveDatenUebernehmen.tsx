@@ -1,17 +1,25 @@
 import { useState } from 'react';
+import { dropboxLive } from '../sync/verbindung.ts';
 import {
   fuerVorschau,
+  istLeer,
   leseLiveDaten,
+  leseLiveDatenAusDropbox,
   schreibeInVorschau,
   zusammenfassung,
   type LiveDaten,
 } from './liveKopie.ts';
 
+// Erst aus Dropbox (geht auf jedem Gerät), sonst aus Milenas App auf diesem Gerät
+async function standardLesen(): Promise<LiveDaten | null> {
+  return (await leseLiveDatenAusDropbox(dropboxLive)) ?? (await leseLiveDaten());
+}
+
 type Zustand = { art: 'bereit' } | { art: 'arbeitet' } | { art: 'fehler'; text: string };
 
 // Nur im Testkanal: Inhalte aus Milenas App auf diesem Gerät übernehmen
 export function LiveDatenUebernehmen({
-  lesen = leseLiveDaten,
+  lesen = standardLesen,
   schreiben = schreibeInVorschau,
   neuLaden = () => window.location.reload(),
 }: {
@@ -25,14 +33,14 @@ export function LiveDatenUebernehmen({
     setZustand({ art: 'arbeitet' });
     try {
       const live = await lesen();
-      if (!live) {
+      if (!live || istLeer(live)) {
         setZustand({
           art: 'fehler',
-          text: 'Auf diesem Gerät gibt es keine Daten aus Milenas App. Öffnet sie hier einmal und gleicht mit Dropbox ab.',
+          text: `Keine Daten aus Milenas App gefunden${live ? ` (${live.quelle})` : ''}. Am einfachsten: den Testkanal oben mit Dropbox verbinden, dann kommen die Daten von dort.`,
         });
         return;
       }
-      const frage = `Übernehmen: ${zusammenfassung(live)}.\n\nDas ersetzt Lektionen, Belohnungen, Level und Punkte im Testkanal. Milenas App bleibt unverändert.`;
+      const frage = `Aus ${live.quelle} übernehmen: ${zusammenfassung(live)}.\n\nDas ersetzt Lektionen, Belohnungen, Level und Punkte im Testkanal. Milenas App bleibt unverändert.`;
       if (!window.confirm(frage)) {
         setZustand({ art: 'bereit' });
         return;
@@ -51,8 +59,9 @@ export function LiveDatenUebernehmen({
     <section className="verbinden">
       <h2>🧪 Daten aus Milenas App</h2>
       <p>
-        Übernimmt Lektionen, Belohnungen, Level und Punkte aus Milenas App auf diesem Gerät in den
-        Testkanal. Milenas App wird dabei nur gelesen, nicht verändert.
+        Übernimmt Lektionen, Belohnungen, Level und Punkte aus Milenas App in den Testkanal – aus
+        Dropbox, wenn der Testkanal verbunden ist, sonst von diesem Gerät. Milenas App wird dabei
+        nur gelesen, nicht verändert.
       </p>
       {zustand.art === 'fehler' && (
         <p className="verbinden-fehler" role="alert">
