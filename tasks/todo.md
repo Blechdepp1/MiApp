@@ -297,13 +297,13 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `vite.config.ts`, `CHANGELOG.md`, `src/basis/Version.tsx`, `src/sync/*Abgleich.ts`
 **Umfang:** M
 
-### Aufgabe 21: Qualitätssicherung und Testkanal ✅ (Gerätetest offen)
+### Aufgabe 21: Qualitätssicherung und Testkanal ✅ (Testkanal auf dem Handy geprüft)
 **Beschreibung:** GitHub Action ergänzen: E2E-Tests (Playwright) und Abdeckungsschwelle. Zwei Ziele auf GitHub Pages: `main` → `/MiApp/vorschau/` (Testkanal), Freigabe per Tag `v*` → `/MiApp/` (Milena). Gerätetest-Checkliste `docs/geraetetest.md`.
 **Akzeptanz:**
 - [x] Ein Push auf `main` aktualisiert nur den Testkanal; Milenas App ändert sich erst nach einer Freigabe.
 - [x] Rote E2E-Tests oder zu wenig Abdeckung verhindern jede Veröffentlichung.
 - [x] Testkanal und Live-App haben getrennte Daten auf dem Gerät (eigene Installation, eigene Datenbank, Dropbox-Unterordner `vorschau/`).
-**Umsetzung:** Live-App wird aus dem letzten Tag `v*` gebaut, der Testkanal aus `main`; Freigabe mit `npm run freigeben` (Tag, GitHub-Release, Veröffentlichung). Lokal geprüft: Die Live-App fängt Aufrufe von `/vorschau/` nicht ab. Offen: Testkanal auf dem Eltern-Handy installieren; für Dropbox im Testkanal die Redirect-URI `…/MiApp/vorschau/` in der App Console eintragen.
+**Umsetzung:** Live-App wird aus dem letzten Tag `v*` gebaut, der Testkanal aus `main`; Freigabe mit `npm run freigeben` (Tag, GitHub-Release, Veröffentlichung). Lokal geprüft: Die Live-App fängt Aufrufe von `/vorschau/` nicht ab. Erste Freigabe v0.9.0 am 01.11.2026; Testkanal mit Band „🧪 Testversion“ auf dem Handy geprüft. Offen: für Dropbox im Testkanal die Redirect-URI `…/MiApp/vorschau/` in der App Console eintragen.
 **Abhängig von:** 20
 **Dateien:** `.github/workflows/deploy.yml`, `vite.config.ts`, `docs/geraetetest.md`
 **Umfang:** M
