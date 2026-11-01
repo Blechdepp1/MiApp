@@ -227,6 +227,32 @@ export function gesamtPunkte(ereignisse: LernEreignis[]): number {
 - [ ] Eine Belohnung lässt sich einlösen, und die Eltern können sie bestätigen.
 - [ ] Alle automatischen Tests sind grün, die Abdeckung der Fachlogik liegt bei mindestens 90 %.
 
+## 10a. Erweiterungen nach Rückmeldung der Eltern (01.11.2026)
+
+### Qualitätssicherung
+- **Definition of Done** für jede Änderung: Typecheck, Lint, alle Unit- und E2E-Tests grün – **auch in GitHub Actions** (bisher laufen dort nur die Unit-Tests). Die Abdeckungsschwelle (90 % Fachlogik) wird im CI erzwungen.
+- **Testkanal:** Jede neue Version landet zuerst unter `…/MiApp/vorschau/` (eigene Installation für die Eltern, eigene Daten). Erst nach dem OK der Eltern wird sie für Milena veröffentlicht. So gibt es keine Überraschungen mitten in der Lernwoche.
+- **Gerätetest-Checkliste** (`docs/geraetetest.md`): kurze Liste, was die Eltern vor einer Freigabe auf dem Handy prüfen (Vorlesen, eine Runde, Abgleich, Einlösen …).
+
+### Versionierung
+- Versionsnummern nach **SemVer** (`1.0.0`): neue Funktion = mittlere Zahl, Fehlerbehebung = letzte Zahl.
+- Die Version steht in der App (Einstellungen und Eltern-Bereich), dazu **„Was ist neu“** in einfachen Worten.
+- `CHANGELOG.md` im Repo, Git-Tags und GitHub-Releases je Version.
+- Dateien in Dropbox bekommen ein Feld `format` (Datenformat-Version), damit ältere und neuere App-Versionen sich beim Abgleich nicht in die Quere kommen.
+
+### Feedback und Fehler von Milena
+- Knopf **„💬 Sag uns was“** in der App: Smiley antippen (😀 😐 😟), optional einen Satz **per Mikrofon diktieren** (Spracheingabe der Android-Tastatur, kein Tippen nötig).
+- Automatisch dabei: App-Version, aktuelle Seite, Gerät, Zeitpunkt – kein Screenshot, keine persönlichen Daten.
+- **Technische Fehler** werden zusätzlich automatisch mitgeschrieben (ohne externen Dienst, keine Tracker).
+- Alles landet in Dropbox unter `feedback/` und ist im Eltern-Bereich als Liste sichtbar („erledigt“ markierbar). Auf Wunsch übertrage ich Meldungen in GitHub-Issues und arbeite sie ab.
+
+### Klassenarbeiten und Tests eintragen (mit Bonus)
+- Neue Kachel **„📝 Tests“**: Milena trägt ein Fach (Englisch, Deutsch, Mathe, Andere), die Art (Klassenarbeit, Test, Vokabeltest), das Datum und optional das Thema ein. Bei Englisch kann sie die passende Lektion wählen; deren Wörter bekommen dann Vorrang.
+- Nach dem Datum fragt die App freundlich: „Wie lief dein Test?“ Sie trägt die Note ein (oder „weiß ich noch nicht“).
+- **Bonus für Einsatz, nicht für Noten:** Punkte fürs Eintragen und fürs Nachtragen des Ergebnisses – unabhängig von der Note – plus ein **Extra-Bonus bei Verbesserung** im selben Fach. Werte zentral in `belohnung/werte.ts`.
+- Ergebnisse müssen die **Eltern bestätigen** (wie beim Einlösen), erst dann zählen Ergebnis- und Verbesserungsbonus.
+- Im Eltern-Bereich gibt es eine **Übersicht** aller Tests mit Datum, Fach und Note.
+
 ## 11. Offene Fragen
 
 1. ~~Hosting~~ → **entschieden: GitHub Pages.** Der Code enthält keine Geheimnisse, deshalb darf die Seite öffentlich sein.

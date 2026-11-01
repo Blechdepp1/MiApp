@@ -54,6 +54,16 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 
 **Checkpoint D:** Alle Abnahmekriterien aus SPEC.md Abschnitt 10 sind erfüllt, und Version 1 ist fertig.
 
+### Phase 5: Betrieb und Rückmeldungen (SPEC 10a)
+- [ ] 20. Versionierung: Versionsnummer + „Was ist neu“ in der App, CHANGELOG, Tags, Datenformat-Version
+- [ ] 21. Qualitätssicherung: E2E und Abdeckung im CI, Testkanal `/vorschau/`, Gerätetest-Checkliste
+- [ ] 22. Feedback „Sag uns was“ (Smiley + Spracheingabe) und automatische Fehlermeldungen
+- [ ] 23. Klassenarbeiten/Tests eintragen, Ergebnis nachtragen, Bonus für Einsatz, Eltern bestätigen
+
+**Checkpoint E:** Neue Versionen gehen erst in den Testkanal; Milena kann Feedback geben und Tests eintragen.
+
+Empfohlene Reihenfolge: 20 und 21 vor der Abnahme (Aufgabe 19), damit Version 1 schon sauber versioniert und über den Testkanal freigegeben wird.
+
 ### Nach Version 1 (jeweils mit eigenem Spec)
 - `rechtschreibung-de` – Lernwörter aus Deutsch-Lektionen, Fehlerschwerpunkte
 - `lesen-de` – Lesetexte aus Lektionen mit Verständnisfragen

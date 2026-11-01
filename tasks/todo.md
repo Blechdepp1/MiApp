@@ -267,4 +267,52 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 
 ### ✅ Checkpoint D: Version 1 fertig
 - [ ] Alle Abnahmekriterien aus SPEC Abschnitt 10 erfüllt
-- [ ] Planung der nächsten Module (`rechtschreibung-de`, `lesen-de`)
+- [ ] Planung der nächsten Module (`rechtschreibung-de`, `lesen-de`, `mathe`)
+
+---
+
+## Phase 5: Betrieb und Rückmeldungen (SPEC 10a)
+
+### Aufgabe 20: Versionierung
+**Beschreibung:** Versionsnummer nach SemVer aus `package.json` zur Build-Zeit in die App; Anzeige in Einstellungen und Eltern-Bereich mit „Was ist neu“ (aus `CHANGELOG.md`, Abschnitt der aktuellen Version). Git-Tag und GitHub-Release je Version. Feld `format` in allen Dropbox-Dateien; unbekannte neuere Formate werden beim Abgleich übersprungen statt überschrieben.
+**Akzeptanz:**
+- [ ] Die App zeigt „Version 1.x.y“ und „Was ist neu“.
+- [ ] `CHANGELOG.md` beschreibt jede Version in einfachen Worten; zu jeder Version gibt es einen Tag.
+- [ ] Ein Gerät mit älterer App-Version überschreibt keine Datei in neuerem Format (Unit-Test).
+**Abhängig von:** –
+**Dateien:** `vite.config.ts`, `CHANGELOG.md`, `src/basis/Version.tsx`, `src/sync/*Abgleich.ts`
+**Umfang:** M
+
+### Aufgabe 21: Qualitätssicherung und Testkanal
+**Beschreibung:** GitHub Action ergänzen: E2E-Tests (Playwright) und Abdeckungsschwelle. Zwei Ziele auf GitHub Pages: `main` → `/MiApp/vorschau/` (Testkanal), Freigabe per Tag `v*` → `/MiApp/` (Milena). Gerätetest-Checkliste `docs/geraetetest.md`.
+**Akzeptanz:**
+- [ ] Ein Push auf `main` aktualisiert nur den Testkanal; Milenas App ändert sich erst nach einer Freigabe.
+- [ ] Rote E2E-Tests oder zu wenig Abdeckung verhindern jede Veröffentlichung.
+- [ ] Testkanal und Live-App haben getrennte Daten auf dem Gerät (eigene Installation).
+**Abhängig von:** 20
+**Dateien:** `.github/workflows/deploy.yml`, `vite.config.ts`, `docs/geraetetest.md`
+**Umfang:** M
+
+### Aufgabe 22: Feedback „Sag uns was“
+**Beschreibung:** Knopf auf der Startseite: Smiley (😀 😐 😟) + optionaler Satz (Textfeld, für Spracheingabe der Android-Tastatur ausgelegt), alles vorlesbar. Kontext automatisch (Version, Seite, Gerät, Zeit). Technische Fehler (`window.onerror`, `unhandledrejection`) werden lokal gesammelt und mitgeschickt. Ablage in Dropbox `feedback/<geraete-id>.jsonl` (ein Schreiber pro Datei); Liste im Eltern-Bereich mit „erledigt“.
+**Akzeptanz:**
+- [ ] Milena kann in unter 30 Sekunden ein Feedback abschicken, ohne tippen zu müssen.
+- [ ] Feedback erscheint nach dem Abgleich im Eltern-Bereich des anderen Geräts.
+- [ ] Ein absichtlich ausgelöster Fehler landet als technische Meldung in der Liste.
+**Abhängig von:** 13, 20
+**Dateien:** `src/feedback/*`, `src/sync/feedbackAbgleich.ts`, `src/eltern/FeedbackListe.tsx`
+**Umfang:** M
+
+### Aufgabe 23: Klassenarbeiten und Tests eintragen
+**Beschreibung:** Kachel „📝 Tests“: eintragen (Fach, Art, Datum, Thema, bei Englisch optional Lektion → Vorrang), nach dem Datum „Wie lief dein Test?“ mit Note oder „weiß ich noch nicht“. Ereignisse `test-eingetragen`, `test-ergebnis`, `test-bestaetigt`. Bonus für Einsatz: Eintragen sofort, Ergebnis- und Verbesserungsbonus nach Bestätigung durch die Eltern. Übersicht im Eltern-Bereich.
+**Akzeptanz:**
+- [ ] Punkte gibt es fürs Eintragen und Nachtragen unabhängig von der Note; Verbesserung im selben Fach gibt Extra-Bonus (Unit-Tests).
+- [ ] Ergebnis-Bonus zählt erst nach Bestätigung der Eltern.
+- [ ] Eine eingetragene Englisch-Arbeit mit Lektion gibt deren Wörtern Vorrang.
+**Abhängig von:** 15, 17a
+**Dateien:** `src/tests/*`, `src/belohnung/werte.ts`, `src/belohnung/logik.ts`, `src/eltern/TestUebersicht.tsx`
+**Umfang:** L (ggf. in 23a Eintragen/Bonus und 23b Übersicht teilen)
+
+### ✅ Checkpoint E
+- [ ] Neue Versionen gehen zuerst in den Testkanal
+- [ ] Milena kann Feedback geben und Tests eintragen; Bonus und Bestätigung funktionieren
