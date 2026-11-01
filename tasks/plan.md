@@ -46,7 +46,7 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 **Checkpoint C:** Kind- und Eltern-Handy zeigen dieselben Punkte, und eine Belohnung lässt sich einlösen und bestätigen.
 
 ### Phase 4: Eltern-Bereich mit KI
-- [ ] 16. KI-Schlüssel hinterlegen
+- [x] 16. KI-Schlüssel hinterlegen
 - [ ] 17a. Lektionen: Format, Speicherung, Abgleich (vorbereitet für Deutsch und Mathe)
 - [ ] 17b. Lektion aus Fotos (Englisch)
 - [ ] 18. Wochenübersicht für Eltern

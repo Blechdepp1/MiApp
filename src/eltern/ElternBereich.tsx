@@ -6,6 +6,7 @@ import { DropboxVerbinden } from '../sync/Verbinden.tsx';
 import { BelohnungenVerwalten } from './BelohnungenVerwalten.tsx';
 import { Einloesungen } from './Einloesungen.tsx';
 import { ElternTuer } from './ElternTuer.tsx';
+import { KiEinstellungen } from './KiEinstellungen.tsx';
 import { LevelVerwalten } from './LevelVerwalten.tsx';
 import { useGeraet } from './GeraetKontext.tsx';
 
@@ -24,6 +25,7 @@ export function ElternBereich({ dropbox }: { dropbox: Dropbox }) {
         <SyncStatus />
         <BelohnungenVerwalten />
         <LevelVerwalten />
+        <KiEinstellungen />
       </ElternTuer>
     </Seite>
   );

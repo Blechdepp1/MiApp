@@ -209,12 +209,13 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 
 ## Phase 4: Eltern-Bereich mit KI
 
-### Aufgabe 16: KI-Schlüssel hinterlegen
+### Aufgabe 16: KI-Schlüssel hinterlegen ✅ (Gerätetest offen)
 **Beschreibung:** Im Eltern-Bereich den Anthropic-API-Schlüssel eingeben, mit einem kleinen Testaufruf prüfen und nur lokal speichern. Das geht nur auf Geräten mit der Rolle „Eltern“.
 **Akzeptanz:**
-- [ ] Der Schlüssel landet nie in Dropbox, im Repo oder in Logs.
-- [ ] Ein ungültiger Schlüssel gibt einen klaren Hinweis.
-- [ ] Der Schlüssel lässt sich wieder löschen.
+- [x] Der Schlüssel landet nie in Dropbox, im Repo oder in Logs (gerätegebundener Speicher, Test).
+- [x] Ein ungültiger Schlüssel gibt einen klaren Hinweis.
+- [x] Der Schlüssel lässt sich wieder löschen.
+**Umsetzung:** Offizielles SDK `@anthropic-ai/sdk` (freigegeben), nur bei Bedarf geladen; Modell `claude-opus-5-5` (freigegeben); Prüfung über die kostenlose Modell-Abfrage.
 **Prüfen:** Unit-Test: Sync-Dateien enthalten keinen Schlüssel; manuell mit deinem Schlüssel.
 **Abhängig von:** 12
 **Dateien:** `src/eltern/kiSchluessel.ts`, `src/eltern/KiEinstellungen.tsx`
