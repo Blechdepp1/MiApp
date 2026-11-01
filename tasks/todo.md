@@ -138,8 +138,15 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/belohnung/Fortschritt.tsx`, `src/belohnung/LevelFeier.tsx`, `src/basis/Startseite.tsx`
 **Umfang:** M
 
+### Zusätzlich nach Rückmeldung der Eltern (01.11.2026) ✅
+- [x] Kein Tageslimit: Extra-Runden zum Wiederholen, wenn nichts mehr fällig ist (vorgezogene richtige Antworten stufen nicht hoch).
+- [x] Zurück-Taste des Handys: flacher Verlauf, führt immer direkt zur Startseite und dort aus der App.
+- [x] Kindgerechte Nachfrage „Möchtest du wirklich aufhören?“ beim Verlassen einer angefangenen Runde (App-Zurück und Handy-Zurück).
+
 ### ✅ Checkpoint B
-- [ ] Alle Tests grün, Abdeckung der Fachlogik mindestens 90 %
+- [x] Alle Tests grün (198 Unit, 8 E2E), Abdeckung der Fachlogik mindestens 90 %
+- [x] Auf dem Android-Handy der Eltern geprüft: Runde, Fehler, Extra-Runden, Level 2 mit Feier, Zurück-Taste, Nachfrage
+- [ ] Noch auf dem Gerät prüfen: Schreibübung (frühestens am Tag nach den ersten Runden) – verdeckt die Tastatur etwas?
 - [ ] **Eure Tochter testet** einige Tage mit der Beispielliste
 - [ ] Rückmeldung einholen: Sind Punkte und Tempo motivierend? Ist alles verständlich? Werte bei Bedarf in `werte.ts` anpassen
 
