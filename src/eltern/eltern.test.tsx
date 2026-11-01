@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Einrichtung } from './Einrichtung.tsx';
-import { ElternTuer, setzeSperreZurueck } from './ElternTuer.tsx';
+import { ElternTuer, FREIGABE_MS, setzeSperreZurueck } from './ElternTuer.tsx';
 import { geraetImArbeitsspeicher, type GeraetSpeicher } from './geraet.ts';
 import { GeraetProvider } from './GeraetKontext.tsx';
 import { erzeugePruefwert, istGueltigePin, MAX_FEHLVERSUCHE, pruefePin } from './pin.ts';
@@ -73,7 +73,29 @@ describe('Einrichtung', () => {
 });
 
 describe('ElternTuer', () => {
-  beforeEach(() => setzeSperreZurueck());
+  beforeEach(() => {
+    setzeSperreZurueck();
+    sessionStorage.clear();
+  });
+
+  function zeigeOhneWarten(jetzt = () => Date.now()) {
+    const speicher = geraetImArbeitsspeicher({ rolle: 'kind', pin: { salz: '', hash: '' } });
+    render(
+      <GeraetProvider speicher={speicher}>
+        <ElternTuer jetzt={jetzt}>
+          <p>Geheimer Eltern-Inhalt</p>
+        </ElternTuer>
+      </GeraetProvider>,
+    );
+  }
+
+  // Android beendet die App im Hintergrund: kein Aufräumen, nur sessionStorage bleibt
+  async function simuliereNeustart(jetzt = () => Date.now()) {
+    const gemerkt = { ...sessionStorage };
+    cleanup();
+    Object.entries(gemerkt).forEach(([k, v]) => sessionStorage.setItem(k, v));
+    zeigeOhneWarten(jetzt);
+  }
 
   async function zeige(jetzt = () => Date.now()) {
     const speicher = geraetImArbeitsspeicher({
@@ -123,6 +145,31 @@ describe('ElternTuer', () => {
     cleanup();
     await zeige();
     expect(screen.getByRole('button', { name: '1' })).toBeDisabled();
+  });
+
+  it('bleibt nach einem Neustart der App kurz offen (Kamera auf Android)', async () => {
+    await zeige();
+    await tippePin('1234');
+    await screen.findByText('Geheimer Eltern-Inhalt');
+    await simuliereNeustart();
+    expect(await screen.findByText('Geheimer Eltern-Inhalt')).toBeInTheDocument();
+  });
+
+  it('fragt nach einem Neustart nach längerer Zeit wieder die PIN', async () => {
+    await zeige();
+    await tippePin('1234');
+    await screen.findByText('Geheimer Eltern-Inhalt');
+    await simuliereNeustart(() => Date.now() + FREIGABE_MS + 1);
+    expect(await screen.findByRole('heading', { name: 'Eltern-PIN eingeben' })).toBeInTheDocument();
+  });
+
+  it('ist nach dem Verlassen wieder zu', async () => {
+    await zeige();
+    await tippePin('1234');
+    await screen.findByText('Geheimer Eltern-Inhalt');
+    cleanup();
+    zeigeOhneWarten();
+    expect(await screen.findByRole('heading', { name: 'Eltern-PIN eingeben' })).toBeInTheDocument();
   });
 
   it('erklärt, was bei vergessener PIN zu tun ist', async () => {

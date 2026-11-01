@@ -13,6 +13,29 @@ export function setzeSperreZurueck() {
   gesperrtBis = 0;
 }
 
+// Android beendet die App oft im Hintergrund, während die Kamera offen ist. Damit die PIN
+// danach nicht erneut gefragt wird, merkt sich der Tab die Freigabe kurz (nur sessionStorage).
+export const FREIGABE_MS = 10 * 60 * 1000;
+const FREIGABE_SCHLUESSEL = 'miapp-eltern-offen';
+
+function freigabeGilt(jetzt: number) {
+  try {
+    const seit = Number(sessionStorage.getItem(FREIGABE_SCHLUESSEL));
+    return seit > 0 && jetzt - seit < FREIGABE_MS;
+  } catch {
+    return false;
+  }
+}
+
+function merkeFreigabe(wert: number | null) {
+  try {
+    if (wert === null) sessionStorage.removeItem(FREIGABE_SCHLUESSEL);
+    else sessionStorage.setItem(FREIGABE_SCHLUESSEL, String(wert));
+  } catch {
+    // ohne sessionStorage wird die PIN eben wieder gefragt
+  }
+}
+
 // Zeigt den Inhalt erst nach richtiger PIN; beim Verlassen der Seite ist wieder zu
 export function ElternTuer({
   children,
@@ -22,10 +45,21 @@ export function ElternTuer({
   jetzt?: () => number;
 }) {
   const { geraet } = useGeraet();
-  const [offen, setOffen] = useState(false);
+  const [offen, setOffen] = useState(() => freigabeGilt(jetzt()));
   const [fehler, setFehler] = useState<string | null>(null);
   const [gesperrt, setGesperrt] = useState(() => gesperrtBis > jetzt());
   const [vergessen, setVergessen] = useState(false);
+
+  // Solange der Bereich offen ist, gilt die Freigabe; wer ihn verlässt, schließt ihn wieder
+  useEffect(() => {
+    if (!offen) return;
+    merkeFreigabe(jetzt());
+    const timer = setInterval(() => merkeFreigabe(jetzt()), 60 * 1000);
+    return () => {
+      clearInterval(timer);
+      merkeFreigabe(null);
+    };
+  }, [offen, jetzt]);
 
   useEffect(() => {
     if (!gesperrt) return;

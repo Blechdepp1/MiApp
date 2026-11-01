@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { GespeicherterWert } from '../daten/schluesselWert.ts';
+import { dexieWert, type GespeicherterWert } from '../daten/schluesselWert.ts';
 import { istVokabelLektion, MAX_TITEL, pruefeLektion, type Lektion } from '../lektionen/lektion.ts';
 import { useLektionen, useLektionenSpeicher } from '../lektionen/LektionenKontext.tsx';
 import type { Vokabel } from '../vokabeln-en/typen.ts';
@@ -16,6 +16,11 @@ import { standardKiSchluessel } from './ki.ts';
 
 type Foto = { datei: File; vorschau: string };
 
+// Angefangene Lektion. Android beendet die App oft, während die Kamera offen ist;
+// danach geht es mit Titel, Datum und Fotos weiter, statt von vorn zu beginnen.
+export type Entwurf = { titel: string; klassenarbeit: string; fotos: File[] };
+const standardEntwurf = dexieWert<Entwurf | null>('lektion-entwurf');
+
 type Schritt =
   | { art: 'liste' }
   | { art: 'neu'; fehler?: string }
@@ -27,7 +32,9 @@ export function Lektionen({
   kiSchluessel = standardKiSchluessel,
   erkenne = erkenneVokabeln,
   leseBild = verkleinere,
+  entwurf = standardEntwurf,
 }: {
+  entwurf?: GespeicherterWert<Entwurf | null>;
   kiSchluessel?: GespeicherterWert<string>;
   erkenne?: (schluessel: string, bilder: Bild[]) => Promise<Erkennung>;
   leseBild?: (datei: File) => Promise<Bild>;
@@ -46,6 +53,39 @@ export function Lektionen({
     const vorschauen = offeneVorschauen.current;
     return () => vorschauen.forEach((url) => URL.revokeObjectURL(url));
   }, []);
+
+  // Entwurf einmal laden und danach bei jeder Änderung sichern
+  const abschnitt = useRef<HTMLElement>(null);
+  const [entwurfGeladen, setEntwurfGeladen] = useState(false);
+  useEffect(() => {
+    let aktiv = true;
+    entwurf
+      .laden()
+      .catch(() => null)
+      .then((e) => {
+        if (!aktiv) return;
+        if (e && (e.fotos.length > 0 || e.titel)) {
+          const neu = e.fotos.map((datei) => ({ datei, vorschau: URL.createObjectURL(datei) }));
+          neu.forEach((f) => offeneVorschauen.current.add(f.vorschau));
+          setTitel(e.titel);
+          setKlassenarbeit(e.klassenarbeit);
+          setFotos(neu);
+          setSchritt({ art: 'neu' });
+          abschnitt.current?.scrollIntoView?.({ block: 'start' });
+        }
+        setEntwurfGeladen(true);
+      });
+    return () => {
+      aktiv = false;
+    };
+  }, [entwurf]);
+
+  useEffect(() => {
+    if (!entwurfGeladen || schritt.art === 'vorschau') return;
+    const wert =
+      schritt.art === 'liste' ? null : { titel, klassenarbeit, fotos: fotos.map((f) => f.datei) };
+    entwurf.speichern(wert).catch(() => {});
+  }, [entwurf, entwurfGeladen, schritt.art, titel, klassenarbeit, fotos]);
 
   function fotoEntfernen(foto: Foto) {
     URL.revokeObjectURL(foto.vorschau);
@@ -114,7 +154,7 @@ export function Lektionen({
   }
 
   return (
-    <section className="verbinden verwalten">
+    <section className="verbinden verwalten" ref={abschnitt}>
       <h2>Lektionen</h2>
 
       {schritt.art === 'liste' && (

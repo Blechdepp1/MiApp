@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { wertImArbeitsspeicher } from '../daten/schluesselWert.ts';
 import { LektionenProvider } from '../lektionen/LektionenKontext.tsx';
@@ -14,7 +14,7 @@ import {
 import { geraetImArbeitsspeicher, type Rolle } from './geraet.ts';
 import { GeraetProvider } from './GeraetKontext.tsx';
 import type { KiClientFabrik } from './ki.ts';
-import { Lektionen } from './Lektionen.tsx';
+import { Lektionen, type Entwurf } from './Lektionen.tsx';
 import { erzeugePruefwert } from './pin.ts';
 
 const BILD: Bild = { base64: 'abc', medienTyp: 'image/jpeg' };
@@ -127,6 +127,7 @@ describe('Lektionen (Ansicht)', () => {
     erkenne = vi.fn(async () => ERKANNT),
     schluessel = 'sk-ant-test' as string | undefined,
     lektionen = lektionenImArbeitsspeicher() as LektionenSpeicher,
+    entwurf = wertImArbeitsspeicher<Entwurf | null>(),
   } = {}) {
     const leseBild = vi.fn(async () => BILD);
     render(
@@ -138,12 +139,13 @@ describe('Lektionen (Ansicht)', () => {
             kiSchluessel={wertImArbeitsspeicher(schluessel)}
             erkenne={erkenne}
             leseBild={leseBild}
+            entwurf={entwurf}
           />
         </GeraetProvider>
       </LektionenProvider>,
     );
     await screen.findByRole('heading', { name: 'Lektionen' });
-    return { lektionen, erkenne, leseBild };
+    return { lektionen, erkenne, leseBild, entwurf };
   }
 
   async function fotoHochladen() {
@@ -228,6 +230,24 @@ describe('Lektionen (Ansicht)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Keine Verbindung');
     expect(screen.getByAltText('Foto 1')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Fotos auswerten' })).toBeEnabled();
+  });
+
+  it('setzt eine angefangene Lektion nach einem Neustart fort', async () => {
+    const entwurf = wertImArbeitsspeicher<Entwurf | null>();
+    await zeige({ entwurf });
+    await userEvent.click(await screen.findByRole('button', { name: '📷 Neue Lektion aus Fotos' }));
+    await userEvent.type(screen.getByLabelText('Titel'), 'Unit 4');
+    await fotoHochladen();
+    await vi.waitFor(async () => expect((await entwurf.laden())?.fotos).toHaveLength(1));
+
+    // Android hat die App beendet, während die Kamera offen war
+    cleanup();
+    await zeige({ entwurf });
+    expect(await screen.findByLabelText('Titel')).toHaveValue('Unit 4');
+    expect(screen.getByAltText('Foto 1')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Abbrechen' }));
+    await vi.waitFor(async () => expect(await entwurf.laden()).toBeNull());
   });
 
   it('weist auf den fehlenden KI-Schlüssel hin', async () => {
