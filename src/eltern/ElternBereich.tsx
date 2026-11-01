@@ -1,11 +1,14 @@
 import { Seite } from '../basis/Seite.tsx';
 import type { Dropbox } from '../sync/dropbox.ts';
+import { useSync } from '../sync/SyncKontext.tsx';
+import { SyncStatus } from '../sync/SyncStatus.tsx';
 import { DropboxVerbinden } from '../sync/Verbinden.tsx';
 import { ElternTuer } from './ElternTuer.tsx';
 import { useGeraet } from './GeraetKontext.tsx';
 
 export function ElternBereich({ dropbox }: { dropbox: Dropbox }) {
   const { geraet } = useGeraet();
+  const { abgleichen } = useSync();
   return (
     <Seite titel="Eltern-Bereich">
       <ElternTuer>
@@ -13,7 +16,8 @@ export function ElternBereich({ dropbox }: { dropbox: Dropbox }) {
           Dieses Gerät gehört:{' '}
           <strong>{geraet?.rolle === 'eltern' ? 'den Eltern' : 'dem Kind'}</strong>
         </p>
-        <DropboxVerbinden dropbox={dropbox} />
+        <DropboxVerbinden dropbox={dropbox} onAenderung={abgleichen} />
+        <SyncStatus />
       </ElternTuer>
     </Seite>
   );

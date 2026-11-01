@@ -5,6 +5,8 @@ import { protokollImArbeitsspeicher } from './daten/protokoll.ts';
 import { wertImArbeitsspeicher } from './daten/schluesselWert.ts';
 import { geraetImArbeitsspeicher, type GeraetSpeicher } from './eltern/geraet.ts';
 import { erzeugePruefwert } from './eltern/pin.ts';
+import { erstelleDropbox } from './sync/dropbox.ts';
+import { tokenSpeicherImArbeitsspeicher } from './sync/tokenSpeicher.ts';
 import { App } from './App.tsx';
 
 function gehe(ziel: Ziel) {
@@ -27,6 +29,12 @@ async function zeige(geraet?: GeraetSpeicher) {
       protokoll={protokollImArbeitsspeicher()}
       gesehenesLevel={wertImArbeitsspeicher<number>()}
       geraet={geraet ?? (await eingerichtet())}
+      dropbox={erstelleDropbox({
+        speicher: tokenSpeicherImArbeitsspeicher(),
+        redirectUri: 'https://blechdepp1.github.io/MiApp/',
+        abrufen: vi.fn(),
+      })}
+      abgleichStand={wertImArbeitsspeicher()}
     />,
   );
   await screen.findAllByRole('heading', { level: 1 });

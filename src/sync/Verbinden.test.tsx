@@ -30,6 +30,7 @@ function attrappe(verbunden: boolean): DropboxAttrappe {
       datei = inhalt;
     }),
     herunterladen: vi.fn(async () => datei),
+    liste: vi.fn(async () => []),
     trennen: vi.fn(async () => {
       istVerbunden = false;
     }),

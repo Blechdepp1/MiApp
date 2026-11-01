@@ -14,7 +14,9 @@ import { Einrichtung } from './eltern/Einrichtung.tsx';
 import { ElternBereich } from './eltern/ElternBereich.tsx';
 import { dexieGeraetSpeicher, type GeraetSpeicher } from './eltern/geraet.ts';
 import { GeraetProvider, useGeraet } from './eltern/GeraetKontext.tsx';
+import type { AbgleichStand } from './sync/abgleich.ts';
 import type { Dropbox } from './sync/dropbox.ts';
+import { SyncProvider } from './sync/SyncKontext.tsx';
 import { dropbox as standardDropbox } from './sync/verbindung.ts';
 import { VokabelSeite } from './vokabeln-en/VokabelSeite.tsx';
 import './basis/thema.css';
@@ -26,7 +28,9 @@ export function App({
   dropbox = standardDropbox,
   gesehenesLevel,
   geraet = dexieGeraetSpeicher,
+  abgleichStand,
 }: {
+  abgleichStand?: GespeicherterWert<AbgleichStand>;
   speicher?: EinstellungsSpeicher;
   protokoll?: Protokoll;
   dropbox?: Dropbox;
@@ -36,14 +40,16 @@ export function App({
   return (
     <EinstellungenProvider speicher={speicher}>
       <ProtokollProvider protokoll={protokoll}>
-        <GeraetProvider speicher={geraet}>
-          <Eingerichtet>
-            <main>
-              <Inhalt dropbox={dropbox} />
-            </main>
-            <LevelFeier gesehen={gesehenesLevel} />
-          </Eingerichtet>
-        </GeraetProvider>
+        <SyncProvider dropbox={dropbox} stand={abgleichStand}>
+          <GeraetProvider speicher={geraet}>
+            <Eingerichtet>
+              <main>
+                <Inhalt dropbox={dropbox} />
+              </main>
+              <LevelFeier gesehen={gesehenesLevel} />
+            </Eingerichtet>
+          </GeraetProvider>
+        </SyncProvider>
       </ProtokollProvider>
     </EinstellungenProvider>
   );

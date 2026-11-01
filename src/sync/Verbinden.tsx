@@ -32,11 +32,14 @@ export function DropboxVerbinden({
   adresse,
   navigieren = standardNavigieren,
   adresseBereinigen = standardBereinigen,
+  onAenderung,
 }: {
   dropbox: Dropbox;
   adresse?: string;
   navigieren?: (url: string) => void;
   adresseBereinigen?: () => void;
+  // Wird nach Verbinden und Trennen aufgerufen (z. B. um sofort abzugleichen)
+  onAenderung?: () => void;
 }) {
   const [zustand, setZustand] = useState<Zustand>({ art: 'pruefen' });
   const [startAdresse] = useState(() => adresse ?? window.location.href);
@@ -68,6 +71,12 @@ export function DropboxVerbinden({
     };
   }, [dropbox, startAdresse, adresseBereinigen]);
 
+  // Direkt nach dem Verbinden einmal abgleichen lassen
+  const geradeVerbunden = zustand.art === 'verbunden' && zustand.meldung === 'Verbunden ✓';
+  useEffect(() => {
+    if (geradeVerbunden) onAenderung?.();
+  }, [geradeVerbunden, onAenderung]);
+
   async function verbinden() {
     setZustand({ art: 'arbeitet' });
     navigieren(await dropbox.anmeldeAdresse());
@@ -97,6 +106,7 @@ export function DropboxVerbinden({
     setZustand({ art: 'arbeitet' });
     await dropbox.trennen();
     setZustand({ art: 'getrennt' });
+    onAenderung?.();
   }
 
   return (

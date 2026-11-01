@@ -154,7 +154,7 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 
 ## Phase 3: Sync und Belohnungen
 
-### Aufgabe 12: Geräte-Rolle und Eltern-PIN ✅ (Gerätetest offen)
+### Aufgabe 12: Geräte-Rolle und Eltern-PIN ✅
 **Beschreibung:** Bei der Ersteinrichtung „Das ist das Gerät von: Kind / Eltern“ wählen. Auf jedem Gerät eine 4-stellige PIN festlegen, die lokal gehasht gespeichert wird. Das Eltern-Schloss auf der Startseite öffnet den Eltern-Bereich nur mit PIN.
 **Akzeptanz:**
 - [x] Ohne PIN ist der Eltern-Bereich nicht erreichbar, auch nicht per URL (Unit- und E2E-Test).
@@ -165,12 +165,13 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/eltern/rolle.ts`, `src/eltern/Pin.tsx`, `src/eltern/ElternBereich.tsx`
 **Umfang:** S
 
-### Aufgabe 13: Dropbox-Sync von Ereignissen und Inhalten
+### Aufgabe 13: Dropbox-Sync von Ereignissen und Inhalten ✅ Ereignisse (Gerätetest offen) · Inhalte → Aufgabe 14
 **Beschreibung:** Jedes Gerät hängt seine Ereignisse an `ereignisse/<geraete-id>.jsonl` an und lädt die Protokolle der anderen. Nur das Eltern-Gerät schreibt `inhalte/*.json`. Die Protokolle werden ohne Duplikate zusammengeführt (Ereignis-IDs). Abgeglichen wird beim Start, nach jeder Runde, bei wiederkehrendem Netz und alle 30 Sekunden im Vordergrund.
 **Akzeptanz:**
-- [ ] Zwei Geräte, eins offline, üben beide: Nach dem Abgleich zeigen beide dieselben Punkte, und kein Ereignis fehlt oder ist doppelt.
-- [ ] Das Kind-Gerät schreibt nie nach `inhalte/`.
-- [ ] Die Merge-Logik hat mindestens 90 % Testabdeckung.
+- [x] Zwei Geräte, eins offline, üben beide: Nach dem Abgleich zeigen beide dieselben Punkte, und kein Ereignis fehlt oder ist doppelt (Unit-Test mit zwei simulierten Geräten; echter Test mit zwei Handys offen).
+- [ ] Das Kind-Gerät schreibt nie nach `inhalte/` (kommt mit den ersten Inhalten in Aufgabe 14).
+- [x] Die Merge-Logik hat mindestens 90 % Testabdeckung (`abgleich.ts`: 100 % Zeilen).
+**Umsetzung:** Eigene Datei wird nur neu hochgeladen, wenn eigene Ereignisse dazugekommen sind oder sie fehlt; fremde Dateien nur bei geänderter Revision geladen. Kaputte Zeilen werden übersprungen. Status und „Jetzt abgleichen“ im Eltern-Bereich.
 **Prüfen:** Unit-Tests des Merges mit gemocktem Dropbox; manuell zwei Geräte, eins im Flugmodus.
 **Abhängig von:** 6, 7, 12
 **Dateien:** `src/sync/abgleich.ts`, `src/sync/abgleich.test.ts`, `src/sync/useSync.ts`, `src/daten/db.ts`

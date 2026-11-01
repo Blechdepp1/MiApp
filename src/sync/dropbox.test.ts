@@ -1,70 +1,13 @@
 import { codeChallenge } from './pkce.ts';
 import { DropboxFehler, erstelleDropbox, type Tokens } from './dropbox.ts';
 import { tokenSpeicherImArbeitsspeicher } from './tokenSpeicher.ts';
+import { dropboxAttrappe } from './dropboxAttrappe.ts';
 
 const REDIRECT = 'https://blechdepp1.github.io/MiApp/';
 const STUNDE = 3_600_000;
 
-type Aufruf = { url: string; init: RequestInit };
-
-// Nachgebautes Dropbox: Tokens, Dateien im App-Ordner
-function attrappe() {
-  const aufrufe: Aufruf[] = [];
-  const dateien = new Map<string, string>();
-  let gueltigerToken = 'access-1';
-  let tokenZaehler = 1;
-
-  const abrufen = vi.fn(async (eingabe: RequestInfo | URL, init: RequestInit = {}) => {
-    const url = String(eingabe);
-    aufrufe.push({ url, init });
-    const header = (init.headers ?? {}) as Record<string, string>;
-
-    if (url.endsWith('/oauth2/token')) {
-      const felder = new URLSearchParams(String(init.body));
-      if (
-        felder.get('grant_type') === 'refresh_token' &&
-        felder.get('refresh_token') !== 'refresh-1'
-      ) {
-        return new Response('{"error":"invalid_grant"}', { status: 400 });
-      }
-      gueltigerToken = `access-${++tokenZaehler}`;
-      return Response.json({
-        access_token: gueltigerToken,
-        expires_in: 14400,
-        ...(felder.get('grant_type') === 'authorization_code' && { refresh_token: 'refresh-1' }),
-      });
-    }
-
-    if (header.Authorization !== `Bearer ${gueltigerToken}`) {
-      return new Response('{"error":"expired_access_token"}', { status: 401 });
-    }
-    const arg = JSON.parse(header['Dropbox-API-Arg'] ?? '{}') as { path?: string };
-    if (url.endsWith('/files/upload')) {
-      dateien.set(arg.path!, new TextDecoder().decode(init.body as Uint8Array));
-      return Response.json({ path_display: arg.path });
-    }
-    if (url.endsWith('/files/download')) {
-      const inhalt = dateien.get(arg.path!);
-      return inhalt === undefined
-        ? new Response('{"error":"path/not_found"}', { status: 409 })
-        : new Response(inhalt);
-    }
-    if (url.endsWith('/auth/token/revoke')) return new Response(null);
-    return new Response('unbekannt', { status: 404 });
-  });
-
-  return {
-    aufrufe,
-    dateien,
-    abrufen,
-    widerrufeToken() {
-      gueltigerToken = 'neu-und-unbekannt';
-    },
-  };
-}
-
 function aufbau(start = 1_000_000) {
-  const dropboxSeite = attrappe();
+  const dropboxSeite = dropboxAttrappe();
   const speicher = tokenSpeicherImArbeitsspeicher();
   let uhr = start;
   const dropbox = erstelleDropbox({
@@ -159,6 +102,39 @@ describe('Dateien', () => {
   });
 });
 
+describe('liste', () => {
+  it('listet alle Dateien eines Ordners über mehrere Seiten', async () => {
+    const a = aufbau();
+    await verbinde(a);
+    for (const name of ['a', 'b', 'c', 'd', 'e'])
+      await a.dropbox.hochladen(`/ordner/${name}.jsonl`, name);
+    await a.dropbox.hochladen('/anderer/x.json', 'x');
+    const dateien = await a.dropbox.liste('/ordner');
+    expect(dateien.map((d) => d.name)).toEqual([
+      'a.jsonl',
+      'b.jsonl',
+      'c.jsonl',
+      'd.jsonl',
+      'e.jsonl',
+    ]);
+    expect(dateien[0]).toMatchObject({ pfad: '/ordner/a.jsonl', rev: expect.any(String) });
+    expect(a.dropboxSeite.aufrufe.filter((x) => x.url.endsWith('/continue'))).toHaveLength(2);
+  });
+
+  it('liefert eine leere Liste, wenn es den Ordner nicht gibt', async () => {
+    const a = aufbau();
+    await verbinde(a);
+    expect(await a.dropbox.liste('/gibts-nicht')).toEqual([]);
+  });
+
+  it('meldet andere Fehler', async () => {
+    const a = aufbau();
+    await verbinde(a);
+    a.dropboxSeite.abrufen.mockResolvedValueOnce(new Response('kaputt', { status: 500 }));
+    await expect(a.dropbox.liste('/ordner')).rejects.toThrow('Ordner lesen fehlgeschlagen');
+  });
+});
+
 describe('Token-Erneuerung', () => {
   it('erneuert den Access-Token nach Ablauf ohne neue Anmeldung', async () => {
     const a = aufbau();
@@ -167,7 +143,7 @@ describe('Token-Erneuerung', () => {
     await a.dropbox.hochladen('/a.json', '1');
     const urls = a.dropboxSeite.aufrufe.map((x) => x.url);
     expect(urls.at(-2)).toMatch(/oauth2\/token$/);
-    expect(a.dropboxSeite.dateien.get('/a.json')).toBe('1');
+    expect(a.dropboxSeite.dateien.get('/a.json')?.inhalt).toBe('1');
     const tokens = (await a.speicher.ladeTokens()) as Tokens;
     expect(tokens.refreshToken).toBe('refresh-1');
     expect(tokens.ablauf).toBeGreaterThan(1_000_000 + 24 * STUNDE);
@@ -187,7 +163,7 @@ describe('Token-Erneuerung', () => {
     await verbinde(a);
     a.dropboxSeite.widerrufeToken();
     await a.dropbox.hochladen('/a.json', '2');
-    expect(a.dropboxSeite.dateien.get('/a.json')).toBe('2');
+    expect(a.dropboxSeite.dateien.get('/a.json')?.inhalt).toBe('2');
   });
 });
 

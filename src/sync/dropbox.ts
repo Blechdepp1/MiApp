@@ -12,6 +12,13 @@ const INHALT = 'https://content.dropboxapi.com/2';
 const PUFFER_MS = 60_000;
 
 export type Tokens = { accessToken: string; ablauf: number; refreshToken: string };
+export type DropboxDatei = { name: string; pfad: string; rev: string };
+
+type ListFolderAntwort = {
+  entries: { '.tag': string; name: string; path_display: string; rev: string }[];
+  cursor: string;
+  has_more: boolean;
+};
 export type Anmeldung = { verifier: string; state: string };
 
 export type TokenSpeicher = {
@@ -171,6 +178,30 @@ export function erstelleDropbox({
       if (antwort.status === 409) return undefined;
       if (!antwort.ok) throw new DropboxFehler('Herunterladen fehlgeschlagen', antwort.status);
       return antwort.text();
+    },
+
+    // Dateien eines Ordners mit Revision (ändert sich bei jeder neuen Version); leer, wenn es ihn nicht gibt
+    async liste(ordner: string): Promise<DropboxDatei[]> {
+      const dateien: DropboxDatei[] = [];
+      let url = `${API}/files/list_folder`;
+      let koerper: object = { path: ordner };
+      for (;;) {
+        const antwort = await mitAnmeldung(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(koerper),
+        });
+        if (antwort.status === 409) return [];
+        if (!antwort.ok) throw new DropboxFehler('Ordner lesen fehlgeschlagen', antwort.status);
+        const seite = (await antwort.json()) as ListFolderAntwort;
+        for (const e of seite.entries) {
+          if (e['.tag'] === 'file')
+            dateien.push({ name: e.name, pfad: e.path_display, rev: e.rev });
+        }
+        if (!seite.has_more) return dateien;
+        url = `${API}/files/list_folder/continue`;
+        koerper = { cursor: seite.cursor };
+      }
     },
 
     async trennen(): Promise<void> {
