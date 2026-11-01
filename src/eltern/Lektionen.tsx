@@ -12,6 +12,8 @@ import {
   type Erkennung,
 } from './fotoImport.ts';
 import { useGeraet } from './GeraetKontext.tsx';
+import { Kamera } from './Kamera.tsx';
+import { kameraVerfuegbar } from './kameraZugriff.ts';
 import { standardKiSchluessel } from './ki.ts';
 
 type Foto = { datei: File; vorschau: string };
@@ -33,7 +35,10 @@ export function Lektionen({
   erkenne = erkenneVokabeln,
   leseBild = verkleinere,
   entwurf = standardEntwurf,
+  kamera = kameraVerfuegbar() ? {} : undefined,
 }: {
+  // Kamera in der App; fehlt sie, öffnet „Foto aufnehmen“ die System-Kamera
+  kamera?: Pick<Parameters<typeof Kamera>[0], 'holeStrom' | 'nimmAuf'>;
   entwurf?: GespeicherterWert<Entwurf | null>;
   kiSchluessel?: GespeicherterWert<string>;
   erkenne?: (schluessel: string, bilder: Bild[]) => Promise<Erkennung>;
@@ -55,7 +60,6 @@ export function Lektionen({
   }, []);
 
   // Entwurf einmal laden und danach bei jeder Änderung sichern
-  const abschnitt = useRef<HTMLElement>(null);
   const [entwurfGeladen, setEntwurfGeladen] = useState(false);
   useEffect(() => {
     let aktiv = true;
@@ -71,7 +75,6 @@ export function Lektionen({
           setKlassenarbeit(e.klassenarbeit);
           setFotos(neu);
           setSchritt({ art: 'neu' });
-          abschnitt.current?.scrollIntoView?.({ block: 'start' });
         }
         setEntwurfGeladen(true);
       });
@@ -87,6 +90,14 @@ export function Lektionen({
     entwurf.speichern(wert).catch(() => {});
   }, [entwurf, entwurfGeladen, schritt.art, titel, klassenarbeit, fotos]);
 
+  // Neue Lektion als eigene Vollbild-Ansicht: Jeder Schritt beginnt oben, nichts springt
+  const vollbild = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    vollbild.current?.scrollTo?.(0, 0);
+  }, [schritt.art]);
+  const [kameraOffen, setKameraOffen] = useState(false);
+  const [ohneKamera, setOhneKamera] = useState(!kamera);
+
   function fotoEntfernen(foto: Foto) {
     URL.revokeObjectURL(foto.vorschau);
     offeneVorschauen.current.delete(foto.vorschau);
@@ -100,7 +111,7 @@ export function Lektionen({
     setSchritt({ art: 'liste' });
   }
 
-  function fotosDazu(dateien: FileList | null) {
+  function fotosDazu(dateien: FileList | readonly File[] | null) {
     if (!dateien) return;
     const neu = [...dateien].map((datei) => ({ datei, vorschau: URL.createObjectURL(datei) }));
     neu.forEach((f) => offeneVorschauen.current.add(f.vorschau));
@@ -154,7 +165,7 @@ export function Lektionen({
   }
 
   return (
-    <section className="verbinden verwalten" ref={abschnitt}>
+    <section className="verbinden verwalten">
       <h2>Lektionen</h2>
 
       {schritt.art === 'liste' && (
@@ -204,105 +215,132 @@ export function Lektionen({
         </>
       )}
 
-      {schritt.art === 'neu' && (
-        <div className="lektion-neu">
-          <p>
-            Fach: <strong>Englisch – Vokabeln</strong>
-          </p>
-          <label>
-            <span>Titel</span>
-            <input
-              value={titel}
-              maxLength={MAX_TITEL}
-              placeholder="z. B. Unit 3 – At school"
-              onChange={(e) => setTitel(e.target.value)}
-            />
-          </label>
-          <label>
-            <span>Klassenarbeit am (optional)</span>
-            <input
-              type="date"
-              value={klassenarbeit}
-              onChange={(e) => setKlassenarbeit(e.target.value)}
-            />
-          </label>
+      {schritt.art !== 'liste' && (
+        <div className="lektion-vollbild" ref={vollbild}>
+          <h2>Neue Lektion</h2>
+          {schritt.art === 'neu' && (
+            <div className="lektion-neu">
+              <p>
+                Fach: <strong>Englisch – Vokabeln</strong>
+              </p>
+              <label>
+                <span>Titel</span>
+                <input
+                  value={titel}
+                  maxLength={MAX_TITEL}
+                  placeholder="z. B. Unit 3 – At school"
+                  onChange={(e) => setTitel(e.target.value)}
+                />
+              </label>
+              <label>
+                <span>Klassenarbeit am (optional)</span>
+                <input
+                  type="date"
+                  value={klassenarbeit}
+                  onChange={(e) => setKlassenarbeit(e.target.value)}
+                />
+              </label>
 
-          <div className="lektion-fotos">
-            {fotos.map((f, i) => (
-              <figure key={f.vorschau}>
-                <img src={f.vorschau} alt={`Foto ${i + 1}`} />
+              <div className="lektion-fotos">
+                {fotos.map((f, i) => (
+                  <figure key={f.vorschau}>
+                    <img src={f.vorschau} alt={`Foto ${i + 1}`} />
+                    <button
+                      type="button"
+                      aria-label={`Foto ${i + 1} entfernen`}
+                      onClick={() => fotoEntfernen(f)}
+                    >
+                      ✕
+                    </button>
+                  </figure>
+                ))}
+              </div>
+              <div className="verbinden-knoepfe">
+                {ohneKamera ? (
+                  <label className="lektion-dateiknopf">
+                    📷 Foto aufnehmen
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => {
+                        fotosDazu(e.target.files);
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
+                ) : (
+                  <button
+                    type="button"
+                    className="lektion-dateiknopf"
+                    onClick={() => setKameraOffen(true)}
+                  >
+                    📷 Foto aufnehmen
+                  </button>
+                )}
+                <label className="lektion-dateiknopf">
+                  🖼️ Aus Galerie
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      fotosDazu(e.target.files);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+              </div>
+
+              {schritt.fehler && (
+                <p className="verbinden-fehler" role="alert">
+                  {schritt.fehler}
+                </p>
+              )}
+              <div className="verbinden-knoepfe">
                 <button
                   type="button"
-                  aria-label={`Foto ${i + 1} entfernen`}
-                  onClick={() => fotoEntfernen(f)}
+                  className="verbinden-haupt"
+                  disabled={fotos.length === 0}
+                  onClick={auswerten}
                 >
-                  ✕
+                  Fotos auswerten
                 </button>
-              </figure>
-            ))}
-          </div>
-          <div className="verbinden-knoepfe">
-            <label className="lektion-dateiknopf">
-              📷 Foto aufnehmen
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={(e) => {
-                  fotosDazu(e.target.files);
-                  e.target.value = '';
-                }}
-              />
-            </label>
-            <label className="lektion-dateiknopf">
-              🖼️ Aus Galerie
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={(e) => {
-                  fotosDazu(e.target.files);
-                  e.target.value = '';
-                }}
-              />
-            </label>
-          </div>
-
-          {schritt.fehler && (
-            <p className="verbinden-fehler" role="alert">
-              {schritt.fehler}
-            </p>
+                <button type="button" onClick={zuruecksetzen}>
+                  Abbrechen
+                </button>
+              </div>
+            </div>
           )}
-          <div className="verbinden-knoepfe">
-            <button
-              type="button"
-              className="verbinden-haupt"
-              disabled={fotos.length === 0}
-              onClick={auswerten}
-            >
-              Fotos auswerten
-            </button>
-            <button type="button" onClick={zuruecksetzen}>
-              Abbrechen
-            </button>
-          </div>
+
+          {schritt.art === 'auswerten' && (
+            <p role="status">⏳ Die KI liest die Fotos … das dauert meist 10 bis 30 Sekunden.</p>
+          )}
+
+          {schritt.art === 'vorschau' && (
+            <Vorschau
+              woerter={schritt.woerter}
+              hinweis={schritt.hinweis}
+              ergaenzt={schritt.ergaenzt}
+              fehler={schritt.fehler}
+              titel={titel}
+              setTitel={setTitel}
+              onFreigeben={freigeben}
+              onVerwerfen={zuruecksetzen}
+            />
+          )}
         </div>
       )}
-
-      {schritt.art === 'auswerten' && (
-        <p role="status">⏳ Die KI liest die Fotos … das dauert meist 10 bis 30 Sekunden.</p>
-      )}
-
-      {schritt.art === 'vorschau' && (
-        <Vorschau
-          woerter={schritt.woerter}
-          hinweis={schritt.hinweis}
-          ergaenzt={schritt.ergaenzt}
-          fehler={schritt.fehler}
-          titel={titel}
-          setTitel={setTitel}
-          onFreigeben={freigeben}
-          onVerwerfen={zuruecksetzen}
+      {kameraOffen && (
+        <Kamera
+          {...kamera}
+          anzahl={fotos.length}
+          onFoto={(datei) => fotosDazu([datei])}
+          onFertig={() => setKameraOffen(false)}
+          onNichtVerfuegbar={() => {
+            setKameraOffen(false);
+            setOhneKamera(true);
+          }}
         />
       )}
     </section>

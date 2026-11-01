@@ -128,6 +128,7 @@ describe('Lektionen (Ansicht)', () => {
     schluessel = 'sk-ant-test' as string | undefined,
     lektionen = lektionenImArbeitsspeicher() as LektionenSpeicher,
     entwurf = wertImArbeitsspeicher<Entwurf | null>(),
+    kamera = undefined as Parameters<typeof Lektionen>[0]['kamera'],
   } = {}) {
     const leseBild = vi.fn(async () => BILD);
     render(
@@ -140,6 +141,7 @@ describe('Lektionen (Ansicht)', () => {
             erkenne={erkenne}
             leseBild={leseBild}
             entwurf={entwurf}
+            kamera={kamera}
           />
         </GeraetProvider>
       </LektionenProvider>,
@@ -248,6 +250,45 @@ describe('Lektionen (Ansicht)', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Abbrechen' }));
     await vi.waitFor(async () => expect(await entwurf.laden()).toBeNull());
+  });
+
+  it('fotografiert mit der Kamera in der App, ohne die Seite zu verlassen', async () => {
+    const stop = vi.fn();
+    const strom = {
+      getTracks: () => [{ stop }],
+      getVideoTracks: () => [],
+    } as unknown as MediaStream;
+    const nimmAuf = vi.fn(async () => new Blob(['bild'], { type: 'image/jpeg' }));
+    await zeige({ kamera: { holeStrom: async () => strom, nimmAuf } });
+    await userEvent.click(await screen.findByRole('button', { name: '📷 Neue Lektion aus Fotos' }));
+    expect(screen.getByRole('heading', { name: 'Neue Lektion' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: '📷 Foto aufnehmen' }));
+
+    const kamera = screen.getByRole('dialog', { name: 'Kamera' });
+    const ausloeser = within(kamera).getByRole('button', { name: 'Foto aufnehmen' });
+    await vi.waitFor(() => expect(ausloeser).toBeEnabled());
+    await userEvent.click(ausloeser);
+    await userEvent.click(ausloeser);
+    expect(await within(kamera).findByText('2 Foto(s) aufgenommen')).toBeInTheDocument();
+    await userEvent.click(within(kamera).getByRole('button', { name: 'Fertig' }));
+
+    expect(screen.queryByRole('dialog', { name: 'Kamera' })).toBeNull();
+    expect(stop).toHaveBeenCalled();
+    expect(screen.getByAltText('Foto 2')).toBeInTheDocument();
+  });
+
+  it('nimmt die System-Kamera, wenn die Kamera in der App nicht geht', async () => {
+    const holeStrom = vi.fn(async (): Promise<MediaStream> => {
+      throw new Error('verweigert');
+    });
+    await zeige({ kamera: { holeStrom } });
+    await userEvent.click(await screen.findByRole('button', { name: '📷 Neue Lektion aus Fotos' }));
+    await userEvent.click(screen.getByRole('button', { name: '📷 Foto aufnehmen' }));
+    expect(await screen.findByLabelText('📷 Foto aufnehmen')).toHaveAttribute(
+      'capture',
+      'environment',
+    );
+    expect(screen.queryByRole('dialog', { name: 'Kamera' })).toBeNull();
   });
 
   it('weist auf den fehlenden KI-Schlüssel hin', async () => {

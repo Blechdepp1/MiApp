@@ -292,3 +292,81 @@
   border-radius: 10px;
   background: var(--farbe-flaeche);
 }
+
+/* Neue Lektion als eigene Vollbild-Ansicht */
+.lektion-vollbild {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  overflow-y: auto;
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  padding: 1rem max(1rem, calc((100vw - 40rem) / 2)) 2rem;
+  background: var(--farbe-hintergrund);
+  overscroll-behavior: contain;
+}
+
+/* Kamera in der App */
+.kamera {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  background: #000;
+  color: #fff;
+}
+
+.kamera-bild {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+
+.kamera-blitz {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.kamera-zahl {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  text-align: center;
+}
+
+.kamera-knoepfe {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0.5rem 1rem 1.5rem;
+}
+
+.kamera .kamera-ausloeser {
+  grid-column: 2;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  border: 5px solid #fff;
+  background: #fff;
+  box-shadow: inset 0 0 0 3px #000;
+}
+
+.kamera .kamera-ausloeser:disabled {
+  opacity: 0.4;
+}
+
+.kamera .kamera-fertig {
+  justify-self: end;
+  min-height: var(--touch);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius);
+  border: 3px solid #fff;
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+}
