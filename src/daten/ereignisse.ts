@@ -18,7 +18,34 @@ export type EreignisDaten =
   | { typ: 'runde-beendet'; richtig: number; mitHilfe: number; verbessert: number }
   // Name und Symbol werden mitgespeichert, damit die Liste auch nach Änderungen an den Belohnungen stimmt
   | { typ: 'eingeloest'; belohnungId: string; preis: number; name?: string; symbol?: string }
-  | { typ: 'bestaetigt'; einloesungId: string };
+  | { typ: 'bestaetigt'; einloesungId: string }
+  // Rückmeldung von Milena (Smiley, Satz) oder ein automatisch gemeldeter technischer Fehler
+  | {
+      typ: 'feedback';
+      art: 'rueckmeldung' | 'fehler';
+      stimmung?: Stimmung;
+      text?: string;
+      seite: string;
+      version: string;
+      geraetInfo?: string;
+    }
+  | { typ: 'feedback-erledigt'; feedbackId: string }
+  // Klassenarbeiten und Tests (SPEC 10a): eintragen, Note nachtragen, Eltern bestätigen
+  | {
+      typ: 'test-eingetragen';
+      fach: TestFach;
+      art: TestArt;
+      // Kalendertag, z. B. "2026-11-12"
+      datum: string;
+      thema?: string;
+      lektionId?: string;
+    }
+  | { typ: 'test-ergebnis'; testId: string; note: number }
+  | { typ: 'test-bestaetigt'; testId: string };
+
+export type Stimmung = 'gut' | 'mittel' | 'schlecht';
+export type TestFach = 'englisch' | 'deutsch' | 'mathe' | 'andere';
+export type TestArt = 'klassenarbeit' | 'test' | 'vokabeltest';
 
 export type LernEreignis = Basis & EreignisDaten;
 

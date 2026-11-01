@@ -4,6 +4,7 @@ import { tagVon } from '../belohnung/logik.ts';
 import { useEreignisse } from '../daten/ProtokollKontext.tsx';
 import type { LernEreignis } from '../daten/ereignisse.ts';
 import { useLektionen } from '../lektionen/LektionenKontext.tsx';
+import { testVorrang } from '../klassenarbeiten/logik.ts';
 import { berechneStaende } from './leitner.ts';
 import { vokabelQuellen } from './quellen.ts';
 import { Runde } from './Runde.tsx';
@@ -26,11 +27,10 @@ export function VokabelSeite({ zufall }: { zufall?: Zufall }) {
   // Stand zu Beginn der Runde einfrieren, damit neue Antworten oder ein Abgleich die laufende Runde nicht neu mischen
   const [start, setStart] = useState<Start | null>(null);
   if (ereignisse && lektionen && start?.runde !== runde) {
-    setStart({
-      runde,
-      ereignisse,
-      ...vokabelQuellen(lektionen, heute, berechneStaende(ereignisse)),
-    });
+    const quellen = vokabelQuellen(lektionen, heute, berechneStaende(ereignisse));
+    // Auch eingetragene Tests mit Lektion geben deren Wörtern Vorrang
+    const vorrang = new Set([...quellen.vorrang, ...testVorrang(ereignisse, heute)]);
+    setStart({ runde, ereignisse, listen: quellen.listen, vorrang });
   }
 
   return (

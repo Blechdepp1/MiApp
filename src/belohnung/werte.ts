@@ -10,6 +10,21 @@ export const PUNKTE = {
 
 export const TAGESZIEL_RUNDEN = 2;
 
+// Tests und Klassenarbeiten: Punkte für Einsatz, nie für die Note
+export const TEST_PUNKTE = {
+  // sofort beim Eintragen (höchstens EINTRAGEN_PRO_WOCHE-mal pro Woche)
+  eintragen: 20,
+  // fürs Nachtragen der Note, sobald die Eltern sie bestätigt haben
+  ergebnis: 30,
+  // besser als die letzte bestätigte Note im selben Fach
+  verbesserung: 50,
+} as const;
+
+export const EINTRAGEN_PRO_WOCHE = 3;
+
+// So viele Tage vor einem eingetragenen Test wird die zugehörige Lektion bevorzugt geübt
+export const VORRANG_TAGE_TEST = 7;
+
 export type Levelstufe = { ab: number; titel: string };
 
 // Thema „Entdeckerin“: am Anfang schnell, später längere Abstände

@@ -28,6 +28,8 @@ import { dropbox as standardDropbox } from './sync/verbindung.ts';
 import { IST_VORSCHAU } from './basis/kanal.ts';
 import { VorschauBand } from './basis/VorschauBand.tsx';
 import { VokabelSeite } from './vokabeln-en/VokabelSeite.tsx';
+import { TestsSeite } from './klassenarbeiten/TestsSeite.tsx';
+import { FehlerMelder } from './feedback/FehlerMelder.tsx';
 import './basis/thema.css';
 import './App.css';
 
@@ -69,6 +71,7 @@ export function App({
                 inhalteStand={inhalteStand}
                 lektionenStand={lektionenStand}
               >
+                <FehlerMelder />
                 {vorschau && <VorschauBand />}
                 <Eingerichtet>
                   <main>
@@ -109,6 +112,8 @@ function Inhalt({ dropbox }: { dropbox: Dropbox }) {
       );
     case 'vokabeln':
       return <VokabelSeite />;
+    case 'tests':
+      return <TestsSeite />;
     case 'belohnungen':
       return <BelohnungenSeite />;
     case 'eltern':

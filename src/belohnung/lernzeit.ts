@@ -1,5 +1,5 @@
 import type { LernEreignis } from '../daten/ereignisse.ts';
-import { gesamtPunkte } from './logik.ts';
+import { lernPunkte } from './logik.ts';
 
 // Schätzung, solange es zu wenige echte Runden gibt: 2 Runden in ~10 Minuten ≈ 90 Punkte
 export const STANDARD_PUNKTE_PRO_MINUTE = 9;
@@ -35,7 +35,7 @@ export function lernrate(ereignisse: readonly LernEreignis[]): Lernrate {
   }
   const minuten = dauern.reduce((s, d) => s + d, 0) / 60_000;
   return {
-    punkteProMinute: gesamtPunkte(ereignisse) / minuten,
+    punkteProMinute: lernPunkte(ereignisse) / minuten,
     gemessen: true,
     runden: dauern.length,
   };

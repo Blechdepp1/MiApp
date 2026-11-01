@@ -310,22 +310,24 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `.github/workflows/deploy.yml`, `vite.config.ts`, `docs/geraetetest.md`
 **Umfang:** M
 
-### Aufgabe 22: Feedback „Sag uns was“
+### Aufgabe 22: Feedback „Sag uns was“ ✅ (im Testkanal, Gerätetest offen)
 **Beschreibung:** Knopf auf der Startseite: Smiley (😀 😐 😟) + optionaler Satz (Textfeld, für Spracheingabe der Android-Tastatur ausgelegt), alles vorlesbar. Kontext automatisch (Version, Seite, Gerät, Zeit). Technische Fehler (`window.onerror`, `unhandledrejection`) werden lokal gesammelt und mitgeschickt. Ablage in Dropbox `feedback/<geraete-id>.jsonl` (ein Schreiber pro Datei); Liste im Eltern-Bereich mit „erledigt“.
 **Akzeptanz:**
-- [ ] Milena kann in unter 30 Sekunden ein Feedback abschicken, ohne tippen zu müssen.
-- [ ] Feedback erscheint nach dem Abgleich im Eltern-Bereich des anderen Geräts.
-- [ ] Ein absichtlich ausgelöster Fehler landet als technische Meldung in der Liste.
+- [x] Milena kann in unter 30 Sekunden ein Feedback abschicken, ohne tippen zu müssen (Smiley + Abschicken).
+- [ ] Feedback erscheint nach dem Abgleich im Eltern-Bereich des anderen Geräts (auf den Geräten prüfen).
+- [x] Ein absichtlich ausgelöster Fehler landet als technische Meldung in der Liste (Unit-Test).
+**Umsetzung (abweichend):** Rückmeldungen und Fehler sind Ereignisse (`feedback`, `feedback-erledigt`) im Protokoll und reisen mit dem bestehenden Abgleich, statt eigener `feedback/`-Dateien. Höchstens 5 Fehler pro Sitzung, jeder nur einmal.
 **Abhängig von:** 13, 20
 **Dateien:** `src/feedback/*`, `src/sync/feedbackAbgleich.ts`, `src/eltern/FeedbackListe.tsx`
 **Umfang:** M
 
-### Aufgabe 23: Klassenarbeiten und Tests eintragen
+### Aufgabe 23: Klassenarbeiten und Tests eintragen ✅ (im Testkanal, Gerätetest offen)
 **Beschreibung:** Kachel „📝 Tests“: eintragen (Fach, Art, Datum, Thema, bei Englisch optional Lektion → Vorrang), nach dem Datum „Wie lief dein Test?“ mit Note oder „weiß ich noch nicht“. Ereignisse `test-eingetragen`, `test-ergebnis`, `test-bestaetigt`. Bonus für Einsatz: Eintragen sofort, Ergebnis- und Verbesserungsbonus nach Bestätigung durch die Eltern. Übersicht im Eltern-Bereich.
 **Akzeptanz:**
-- [ ] Punkte gibt es fürs Eintragen und Nachtragen unabhängig von der Note; Verbesserung im selben Fach gibt Extra-Bonus (Unit-Tests).
-- [ ] Ergebnis-Bonus zählt erst nach Bestätigung der Eltern.
-- [ ] Eine eingetragene Englisch-Arbeit mit Lektion gibt deren Wörtern Vorrang.
+- [x] Punkte gibt es fürs Eintragen und Nachtragen unabhängig von der Note; Verbesserung im selben Fach gibt Extra-Bonus (Unit-Tests).
+- [x] Ergebnis-Bonus zählt erst nach Bestätigung der Eltern.
+- [x] Eine eingetragene Englisch-Arbeit mit Lektion gibt deren Wörtern Vorrang.
+**Umsetzung:** Punkte in `TEST_PUNKTE` (Eintragen 20, höchstens 3-mal pro Woche; Note 30; Verbesserung 50). Bis zur Bestätigung gilt die zuletzt eingetragene Note, Eltern können sie korrigieren. Version 0.11.0.
 **Abhängig von:** 15, 17a
 **Dateien:** `src/tests/*`, `src/belohnung/werte.ts`, `src/belohnung/logik.ts`, `src/eltern/TestUebersicht.tsx`
 **Umfang:** L (ggf. in 23a Eintragen/Bonus und 23b Übersicht teilen)

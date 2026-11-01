@@ -1,7 +1,14 @@
 import { useEffect, useSyncExternalStore } from 'react';
 
 // Navigation über den Hash (#/vokabeln): funktioniert auf GitHub Pages ohne Server-Regeln
-export const ZIELE = ['start', 'vokabeln', 'belohnungen', 'einstellungen', 'eltern'] as const;
+export const ZIELE = [
+  'start',
+  'vokabeln',
+  'tests',
+  'belohnungen',
+  'einstellungen',
+  'eltern',
+] as const;
 export type Ziel = (typeof ZIELE)[number];
 
 export function zielAusHash(hash: string): Ziel {

@@ -1,4 +1,5 @@
 import type { LernEreignis } from '../daten/ereignisse.ts';
+import { testPunkte } from '../klassenarbeiten/logik.ts';
 import {
   LEVEL_START,
   PUNKTE,
@@ -35,6 +36,12 @@ function rundenProTag(ereignisse: readonly LernEreignis[]): Map<string, number> 
 
 // Gesamtpunkte sinken nie: Fehler und Einlösungen ziehen nichts ab
 export function gesamtPunkte(ereignisse: readonly LernEreignis[]): number {
+  // Dazu der Bonus für Einsatz bei Tests und Klassenarbeiten
+  return lernPunkte(ereignisse) + testPunkte(ereignisse);
+}
+
+// Nur die Punkte aus Runden und Tageszielen (Grundlage für die Lernzeit-Schätzung)
+export function lernPunkte(ereignisse: readonly LernEreignis[]): number {
   let summe = 0;
   for (const e of ereignisse) if (e.typ === 'runde-beendet') summe += punkteFuerRunde(e);
   for (const runden of rundenProTag(ereignisse).values()) {

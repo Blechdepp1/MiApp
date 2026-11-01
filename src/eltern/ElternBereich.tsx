@@ -3,7 +3,11 @@ import { IST_VORSCHAU } from '../basis/kanal.ts';
 import { Seite } from '../basis/Seite.tsx';
 import { Version } from '../basis/Version.tsx';
 import { VERSION_TEXT } from '../basis/version.ts';
+import { tagVon } from '../belohnung/logik.ts';
 import { useInhalt } from '../daten/InhalteKontext.tsx';
+import { useEreignisse } from '../daten/ProtokollKontext.tsx';
+import { rueckmeldungen } from '../feedback/logik.ts';
+import { alleTests, datumText, zuBestaetigen } from '../klassenarbeiten/logik.ts';
 import { statusVon } from '../lektionen/lektion.ts';
 import { useLektionen } from '../lektionen/LektionenKontext.tsx';
 import type { Dropbox } from '../sync/dropbox.ts';
@@ -20,6 +24,8 @@ import { Lektionen } from './Lektionen.tsx';
 import { LevelVerwalten } from './LevelVerwalten.tsx';
 import { zeitText } from './liveKopie.ts';
 import { LiveDatenUebernehmen, useKopieStand } from './LiveDatenUebernehmen.tsx';
+import { Rueckmeldungen } from './Rueckmeldungen.tsx';
+import { TestUebersicht } from './TestUebersicht.tsx';
 import './ElternBereich.css';
 
 // Aufbau wie die Einstellungen von Android und iOS: eine Übersicht mit Gruppen, jede Zeile zeigt
@@ -27,6 +33,8 @@ import './ElternBereich.css';
 // so führen die Zurück-Taste und „Zurück“ zur Übersicht, und nach dem Neuladen bleibt sie offen.
 type Bereich =
   | 'einloesungen'
+  | 'tests'
+  | 'rueckmeldungen'
   | 'lektionen'
   | 'belohnungen'
   | 'level'
@@ -37,6 +45,8 @@ type Bereich =
 
 const TITEL: Record<Bereich, string> = {
   einloesungen: 'Einlösungen',
+  tests: 'Tests & Klassenarbeiten',
+  rueckmeldungen: 'Rückmeldungen',
   lektionen: 'Lektionen',
   belohnungen: 'Belohnungen',
   level: 'Level & Titel',
@@ -102,6 +112,10 @@ function Unterseite({ bereich, dropbox }: { bereich: Bereich; dropbox: Dropbox }
   switch (bereich) {
     case 'einloesungen':
       return <Einloesungen />;
+    case 'tests':
+      return <TestUebersicht />;
+    case 'rueckmeldungen':
+      return <Rueckmeldungen />;
     case 'lektionen':
       return <Lektionen />;
     case 'belohnungen':
@@ -127,6 +141,10 @@ function Unterseite({ bereich, dropbox }: { bereich: Bereich; dropbox: Dropbox }
 function Uebersicht({ oeffne }: { oeffne: (b: Bereich) => void }) {
   const { geraet } = useGeraet();
   const offen = useOffeneEinloesungen();
+  const ereignisse = useEreignisse() ?? [];
+  const tests = alleTests(ereignisse);
+  const noten = zuBestaetigen(tests).length;
+  const neueRueckmeldungen = rueckmeldungen(ereignisse).filter((r) => !r.erledigt).length;
   const lektionen = (useLektionen() ?? []).filter((l) => !l.geloescht);
   const [belohnungen] = useInhalt('belohnungen');
   const [stufen] = useInhalt('level');
@@ -135,6 +153,8 @@ function Uebersicht({ oeffne }: { oeffne: (b: Bereich) => void }) {
   const kopie = useKopieStand();
   const istEltern = geraet?.rolle === 'eltern';
   const dran = lektionen.filter((l) => statusVon(l) === 'aktiv').length;
+  const heute = tagVon(new Date().toISOString());
+  const naechster = [...tests].reverse().find((t) => t.datum >= heute);
 
   const dropboxText = !sync.verbunden
     ? 'Nicht verbunden'
@@ -150,15 +170,35 @@ function Uebersicht({ oeffne }: { oeffne: (b: Bereich) => void }) {
         Dieses Gerät gehört <strong>{istEltern ? 'den Eltern' : 'dem Kind'}</strong>
       </p>
 
-      {offen > 0 && (
+      {offen + noten + neueRueckmeldungen > 0 && (
         <Gruppe titel="Zu erledigen">
-          <Zeile
-            symbol="✅"
-            titel="Einlösungen bestätigen"
-            text={`${offen} ${offen === 1 ? 'Belohnung wartet' : 'Belohnungen warten'}`}
-            zahl={offen}
-            onClick={() => oeffne('einloesungen')}
-          />
+          {offen > 0 && (
+            <Zeile
+              symbol="✅"
+              titel="Einlösungen bestätigen"
+              text={`${offen} ${offen === 1 ? 'Belohnung wartet' : 'Belohnungen warten'}`}
+              zahl={offen}
+              onClick={() => oeffne('einloesungen')}
+            />
+          )}
+          {noten > 0 && (
+            <Zeile
+              symbol="📝"
+              titel="Noten bestätigen"
+              text={`${noten} ${noten === 1 ? 'Note wartet' : 'Noten warten'}`}
+              zahl={noten}
+              onClick={() => oeffne('tests')}
+            />
+          )}
+          {neueRueckmeldungen > 0 && (
+            <Zeile
+              symbol="💬"
+              titel="Neue Rückmeldungen"
+              text="Von Milena oder automatisch gemeldet"
+              zahl={neueRueckmeldungen}
+              onClick={() => oeffne('rueckmeldungen')}
+            />
+          )}
         </Gruppe>
       )}
 
@@ -172,6 +212,16 @@ function Uebersicht({ oeffne }: { oeffne: (b: Bereich) => void }) {
               : `${lektionen.length} Lektionen · ${dran} gerade dran`
           }
           onClick={() => oeffne('lektionen')}
+        />
+        <Zeile
+          symbol="📝"
+          titel="Tests & Klassenarbeiten"
+          text={
+            tests.length === 0
+              ? 'Noch keine eingetragen'
+              : `${tests.length} eingetragen${naechster ? ` · nächster ${datumText(naechster.datum)}` : ''}`
+          }
+          onClick={() => oeffne('tests')}
         />
       </Gruppe>
 
@@ -240,6 +290,12 @@ function Uebersicht({ oeffne }: { oeffne: (b: Bereich) => void }) {
       )}
 
       <Gruppe titel="Info">
+        <Zeile
+          symbol="💬"
+          titel="Rückmeldungen"
+          text={neueRueckmeldungen > 0 ? `${neueRueckmeldungen} neu` : 'Nichts Neues'}
+          onClick={() => oeffne('rueckmeldungen')}
+        />
         <Zeile
           symbol="ℹ️"
           titel="Version & Neuigkeiten"

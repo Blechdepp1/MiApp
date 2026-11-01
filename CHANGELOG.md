@@ -3,6 +3,14 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.11.0 – 01.11.2026
+
+- Neue Kachel „📝 Tests“: Trag deine Klassenarbeiten und Tests ein. Dafür gibt es sofort Punkte.
+- Nach dem Test fragt die App: „Wie lief dein Test?“ Für die Note gibt es Punkte, egal welche – sobald deine Eltern sie bestätigt haben.
+- Bist du besser als beim letzten Mal im selben Fach, gibt es einen Extra-Bonus.
+- Steht ein Englisch-Test mit Lektion an, übst du deren Wörter vorher öfter.
+- „💬 Sag uns was“ auf der Startseite: Smiley antippen und sagen, was dir gefällt oder nicht.
+
 ## 0.10.0 – 01.11.2026
 
 - Eltern können Lektionen jetzt ordnen: „Gerade dran“, „Noch nicht dran“ und „Archiv“.

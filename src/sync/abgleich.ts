@@ -27,7 +27,17 @@ export function zuJsonl(ereignisse: readonly LernEreignis[]): string {
   return [{ format: DATENFORMAT }, ...ereignisse].map((e) => JSON.stringify(e)).join('\n') + '\n';
 }
 
-const TYPEN = new Set(['antwort', 'runde-beendet', 'eingeloest', 'bestaetigt']);
+const TYPEN = new Set([
+  'antwort',
+  'runde-beendet',
+  'eingeloest',
+  'bestaetigt',
+  'feedback',
+  'feedback-erledigt',
+  'test-eingetragen',
+  'test-ergebnis',
+  'test-bestaetigt',
+]);
 
 function istEreignis(wert: unknown): wert is LernEreignis {
   if (typeof wert !== 'object' || wert === null) return false;

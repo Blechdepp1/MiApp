@@ -123,3 +123,74 @@
   margin: 0;
   font-weight: 700;
 }
+
+/* Rückmeldungen */
+.rueckmeldungen {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.rueckmeldungen li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.rueckmeldung-symbol {
+  font-size: 1.6rem;
+}
+
+.rueckmeldung-text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+  overflow-wrap: anywhere;
+}
+
+.rueckmeldung-info {
+  font-size: 0.85rem;
+  color: var(--farbe-text-leise);
+}
+
+.rueckmeldungen-erledigt {
+  opacity: 0.75;
+}
+
+/* Tests */
+.test-uebersicht li {
+  flex-wrap: wrap;
+}
+
+.test-note-aendern {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.test-tabelle {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.test-tabelle th,
+.test-tabelle td {
+  padding: 0.4rem 0.35rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid color-mix(in srgb, var(--farbe-text-leise) 25%, transparent);
+}
+
+.test-tabelle th {
+  font-size: 0.85rem;
+  color: var(--farbe-text-leise);
+}
+
+.test-thema {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--farbe-text-leise);
+}

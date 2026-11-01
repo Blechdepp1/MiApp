@@ -1,6 +1,7 @@
 import { Fortschritt } from '../belohnung/Fortschritt.tsx';
 import { useOffeneEinloesungen } from '../eltern/Einloesungen.tsx';
 import { useGeraet } from '../eltern/GeraetKontext.tsx';
+import { SagUnsWas } from '../feedback/SagUnsWas.tsx';
 import type { Ziel } from './navigation.ts';
 import { Verweis } from './Verweis.tsx';
 import { VorleseKnopf } from './VorleseKnopf.tsx';
@@ -8,6 +9,7 @@ import './Startseite.css';
 
 const KACHELN: { ziel: Ziel; symbol: string; text: string; vorlesen: string }[] = [
   { ziel: 'vokabeln', symbol: '📚', text: 'Vokabeln', vorlesen: 'Vokabeln üben' },
+  { ziel: 'tests', symbol: '📝', text: 'Tests', vorlesen: 'Meine Tests und Klassenarbeiten' },
   { ziel: 'belohnungen', symbol: '🏆', text: 'Belohnungen', vorlesen: 'Deine Belohnungen' },
   { ziel: 'einstellungen', symbol: '⚙️', text: 'Einstellungen', vorlesen: 'Einstellungen' },
 ];
@@ -52,6 +54,8 @@ export function Startseite() {
           </li>
         ))}
       </ul>
+
+      <SagUnsWas />
     </div>
   );
 }

@@ -1,0 +1,112 @@
+.tests-karte,
+.tests-liste {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+}
+
+.tests-karte h2,
+.tests-liste h2,
+.tests-karte p,
+.tests-meldung p {
+  margin: 0;
+}
+
+.tests-karte h2,
+.tests-liste h2 {
+  font-size: 1.2rem;
+}
+
+.tests-zeile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tests-meldung {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-left: 6px solid var(--farbe-belohnung);
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+  font-weight: 700;
+}
+
+.tests-noten {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.4rem;
+}
+
+.tests-noten button,
+.tests-auswahl button,
+.tests-haupt,
+.tests-leise {
+  min-height: var(--touch);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  border: 3px solid var(--farbe-akzent);
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tests-noten button {
+  font-size: 1.4rem;
+  padding: 0.25rem;
+}
+
+.tests-auswahl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tests-auswahl button[aria-pressed='true'] {
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
+}
+
+.tests-haupt {
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
+}
+
+.tests-haupt:disabled {
+  opacity: 0.5;
+}
+
+.tests-leise {
+  border-color: transparent;
+  background: transparent;
+  text-decoration: underline;
+}
+
+.tests-feld {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tests-feld input,
+.tests-feld select {
+  min-height: var(--touch);
+  padding: 0.25rem 0.75rem;
+  border: 2px solid var(--farbe-text-leise);
+  border-radius: 10px;
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+}
+
+.tests-liste ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.4rem;
+}

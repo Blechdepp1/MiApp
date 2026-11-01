@@ -58,8 +58,8 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 ### Phase 5: Betrieb und Rückmeldungen (SPEC 10a)
 - [x] 20. Versionierung: Versionsnummer + „Was ist neu“ in der App, CHANGELOG, Tags, Datenformat-Version
 - [x] 21. Qualitätssicherung: E2E und Abdeckung im CI, Testkanal `/vorschau/`, Gerätetest-Checkliste
-- [ ] 22. Feedback „Sag uns was“ (Smiley + Spracheingabe) und automatische Fehlermeldungen
-- [ ] 23. Klassenarbeiten/Tests eintragen, Ergebnis nachtragen, Bonus für Einsatz, Eltern bestätigen
+- [x] 22. Feedback „Sag uns was“ (Smiley + Spracheingabe) und automatische Fehlermeldungen
+- [x] 23. Klassenarbeiten/Tests eintragen, Ergebnis nachtragen, Bonus für Einsatz, Eltern bestätigen
 
 **Checkpoint E:** Neue Versionen gehen erst in den Testkanal; Milena kann Feedback geben und Tests eintragen.
 
