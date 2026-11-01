@@ -40,6 +40,56 @@ describe('JSONL', () => {
   });
 });
 
+describe('Prüfung der Ereignisse aus Dropbox', () => {
+  const basis = { id: 'x', geraet: 'fremd', zeit: '2026-11-01T10:00:00Z' };
+  it.each([
+    ['riesige Punkte', { typ: 'runde-beendet', richtig: 1e9, mitHilfe: 0, verbessert: 0 }],
+    ['Zahl als Text', { typ: 'runde-beendet', richtig: '5', mitHilfe: 0, verbessert: 0 }],
+    ['negativer Preis', { typ: 'eingeloest', belohnungId: 'kino', preis: -500 }],
+    ['Note 0', { typ: 'test-ergebnis', testId: 't', note: 0 }],
+    ['Note 2,5', { typ: 'test-ergebnis', testId: 't', note: 2.5 }],
+    ['Datum ohne Format', { typ: 'test-eingetragen', fach: 'mathe', art: 'test', datum: 'morgen' }],
+    [
+      'unbekanntes Fach',
+      { typ: 'test-eingetragen', fach: 'kunst', art: 'test', datum: '2026-11-05' },
+    ],
+    [
+      'riesiger Text',
+      {
+        typ: 'feedback',
+        art: 'rueckmeldung',
+        text: 'x'.repeat(5000),
+        seite: 'start',
+        version: '1',
+      },
+    ],
+    ['leere id', { typ: 'bestaetigt', einloesungId: '' }],
+  ])('überspringt %s', (_, daten) => {
+    expect(ausJsonl(JSON.stringify({ ...basis, ...daten }))).toEqual([]);
+  });
+
+  it('übernimmt gültige Ereignisse aller Arten', () => {
+    const gueltig = [
+      { typ: 'antwort', listeId: 'l', wortId: 'w', uebung: 'schreiben', richtig: true },
+      { typ: 'runde-beendet', richtig: 8, mitHilfe: 1, verbessert: 2 },
+      { typ: 'eingeloest', belohnungId: 'kino', preis: 1300, name: 'Kino', symbol: '🎬' },
+      { typ: 'bestaetigt', einloesungId: 'e1' },
+      { typ: 'feedback', art: 'fehler', text: 'Boom', seite: 'start', version: '0.11.0' },
+      { typ: 'feedback-erledigt', feedbackId: 'f1' },
+      {
+        typ: 'test-eingetragen',
+        fach: 'englisch',
+        art: 'vokabeltest',
+        datum: '2026-11-05',
+        lektionId: 'u5',
+      },
+      { typ: 'test-ergebnis', testId: 't', note: 2 },
+      { typ: 'test-bestaetigt', testId: 't' },
+    ].map((d, i) => ({ ...basis, id: `e${i}`, ...d }));
+    expect(ausJsonl(gueltig.map((e) => JSON.stringify(e)).join('\n'))).toHaveLength(9);
+  });
+});
+
 describe('gleicheAb', () => {
   it('lädt die eigenen Ereignisse in die eigene Datei hoch', async () => {
     const seite = dropboxAttrappe();
@@ -135,6 +185,19 @@ describe('gleicheAb', () => {
     expect((await alt.abgleichen()).neu).toBe(0);
     expect(await alt.protokoll.alle()).toEqual([]);
     expect((await alt.stand.laden())?.revs).toEqual({});
+  });
+
+  it('liest nach einem Update alle Dateien einmal neu (neue Ereignis-Arten)', async () => {
+    const seite = dropboxAttrappe();
+    const kind = await geraet('kind-1', seite);
+    await kind.protokoll.hinzufuegen(RUNDE);
+    await kind.abgleichen();
+    // Ein Gerät mit älterer App hat die Datei schon gesehen, aber Teile davon übersprungen
+    const eltern = await geraet('eltern-1', seite);
+    const rev = seite.dateien.get(eigeneDatei('kind-1'))!.rev;
+    await eltern.stand.speichern({ revs: { [eigeneDatei('kind-1')]: rev }, hochgeladen: 0 });
+    expect((await eltern.abgleichen()).neu).toBe(1);
+    expect((await eltern.stand.laden())?.lesart).toBeGreaterThan(0);
   });
 
   it('kommt mit einem leeren App-Ordner zurecht', async () => {

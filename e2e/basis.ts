@@ -19,6 +19,27 @@ export async function einrichten(page: Page) {
   await page.goto('about:blank');
 }
 
+// Macht das Gerät zum Eltern-Gerät (wie das Handy der Eltern) und lädt neu.
+// Bestätigen geht nur dort; so lassen sich beide Seiten auf einem Gerät durchspielen.
+export async function werdeEltern(page: Page) {
+  await page.evaluate(
+    () =>
+      new Promise<void>((fertig) => {
+        const anfrage = indexedDB.open('miapp');
+        anfrage.onsuccess = () => {
+          const db = anfrage.result;
+          const tx = db.transaction('schluessel', 'readwrite');
+          tx.objectStore('schluessel').put({ id: 'geraet-rolle', wert: 'eltern' });
+          tx.oncomplete = () => {
+            db.close();
+            fertig();
+          };
+        };
+      }),
+  );
+  await page.reload();
+}
+
 // Beim ersten Start merkt sich die App das aktuelle Level, ohne zu feiern. Erst danach dürfen
 // Punkte dazukommen, sonst gilt das neue Level als „schon gesehen“ (Wettlauf, v. a. im CI).
 async function warteAufGesehenesLevel(page: Page) {

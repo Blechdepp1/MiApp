@@ -48,7 +48,9 @@ describe('Sag uns was', () => {
 });
 
 describe('FehlerMelder', () => {
-  it('meldet technische Fehler einmal, höchstens fünf pro Sitzung', async () => {
+  beforeEach(() => localStorage.clear());
+
+  it('meldet technische Fehler einmal, höchstens fünf pro Tag', async () => {
     const protokoll = protokollImArbeitsspeicher();
     mit(protokoll, <FehlerMelder />);
     act(() => {
@@ -60,6 +62,18 @@ describe('FehlerMelder', () => {
     const texte = rueckmeldungen(await protokoll.alle()).map((r) => [r.art, r.text]);
     expect(texte).toContainEqual(['fehler', 'A']);
     expect(texte).not.toContainEqual(['fehler', 'F']);
+  });
+
+  it('meldet denselben Fehler nach einem Neustart am selben Tag nicht noch einmal', async () => {
+    const protokoll = protokollImArbeitsspeicher();
+    const { unmount } = mit(protokoll, <FehlerMelder />);
+    act(() => void window.dispatchEvent(new ErrorEvent('error', { message: 'Immer wieder' })));
+    await vi.waitFor(async () => expect(await protokoll.alle()).toHaveLength(1));
+    unmount();
+    mit(protokoll, <FehlerMelder />);
+    act(() => void window.dispatchEvent(new ErrorEvent('error', { message: 'Immer wieder' })));
+    await new Promise((r) => setTimeout(r, 50));
+    expect(await protokoll.alle()).toHaveLength(1);
   });
 
   it('meldet nicht abgefangene Promise-Fehler', async () => {

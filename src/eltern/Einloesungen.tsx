@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { einloesungen } from '../belohnung/logik.ts';
 import { useEreignisse, useProtokoll } from '../daten/ProtokollKontext.tsx';
+import { useGeraet } from './GeraetKontext.tsx';
 
 // Eingelöste Belohnungen bestätigen (z. B. wenn der Kinobesuch ausgemacht ist)
 export function Einloesungen() {
   const ereignisse = useEreignisse() ?? [];
   const protokoll = useProtokoll();
   const [laeuft, setLaeuft] = useState<string | null>(null);
+  // Bestätigen ist Sache der Eltern; auf dem Gerät des Kindes nur ansehen
+  const istEltern = useGeraet().geraet?.rolle === 'eltern';
   const alle = einloesungen(ereignisse);
   const offen = alle.filter((e) => !e.bestaetigt);
   const erledigt = alle.filter((e) => e.bestaetigt).slice(0, 5);
@@ -28,6 +31,9 @@ export function Einloesungen() {
     <section className="verbinden verwalten">
       <h2>Einlösungen</h2>
       {offen.length === 0 && <p>Gerade wartet nichts auf eure Bestätigung.</p>}
+      {offen.length > 0 && !istEltern && (
+        <p className="eltern-hinweis">Bestätigen geht nur auf einem Eltern-Gerät.</p>
+      )}
       {offen.length > 0 && (
         <ul className="verwalten-liste">
           {offen.map((e) => (
@@ -37,14 +43,16 @@ export function Einloesungen() {
                 <strong>{e.name ?? 'Belohnung'}</strong> · {e.preis} Punkte ·{' '}
                 {new Date(e.zeit).toLocaleDateString('de-DE')}
               </span>
-              <button
-                type="button"
-                className="verbinden-haupt"
-                onClick={() => bestaetigen(e.id)}
-                disabled={laeuft !== null}
-              >
-                Bestätigen
-              </button>
+              {istEltern && (
+                <button
+                  type="button"
+                  className="verbinden-haupt"
+                  onClick={() => bestaetigen(e.id)}
+                  disabled={laeuft !== null}
+                >
+                  Bestätigen
+                </button>
+              )}
             </li>
           ))}
         </ul>

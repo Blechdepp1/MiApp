@@ -43,6 +43,8 @@ type Optionen = {
   redirectUri: string;
   // Unterordner im App-Ordner, z. B. „/vorschau“ für den Testkanal; Pfade bleiben für Aufrufer gleich
   ordner?: string;
+  // Nur lesen: hochladen wirft (Testkanal liest damit Milenas Ordner)
+  nurLesen?: boolean;
   appKey?: string;
   abrufen?: typeof fetch;
   jetzt?: () => number;
@@ -60,6 +62,7 @@ export function erstelleDropbox({
   speicher,
   redirectUri,
   ordner = '',
+  nurLesen = false,
   appKey = APP_KEY,
   abrufen = (...args) => fetch(...args),
   jetzt = Date.now,
@@ -167,6 +170,7 @@ export function erstelleDropbox({
     },
 
     async hochladen(pfad: string, inhalt: string): Promise<void> {
+      if (nurLesen) throw new DropboxFehler('Diese Verbindung darf nur lesen');
       const antwort = await mitAnmeldung(`${INHALT}/files/upload`, {
         method: 'POST',
         headers: {

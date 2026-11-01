@@ -78,7 +78,9 @@ function Eintrag({ r, onErledigt }: { r: Rueckmeldung; onErledigt?: () => void }
       </span>
       <span className="rueckmeldung-text">
         <strong>
-          {r.art === 'fehler' ? 'Technischer Fehler' : stimmung ? `Milena: ${stimmung}` : 'Milena'}
+          {r.art === 'fehler'
+            ? 'Technischer Fehler'
+            : `${r.rolle === 'eltern' ? 'Eltern' : 'Milena'}${stimmung ? `: ${stimmung}` : ''}`}
         </strong>
         {r.text && <span>„{r.text}“</span>}
         <span className="rueckmeldung-info">

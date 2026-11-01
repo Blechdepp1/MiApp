@@ -1,4 +1,4 @@
-import { test, expect, tippePin } from './basis.ts';
+import { test, expect, tippePin, werdeEltern } from './basis.ts';
 
 function tag(versatz: number): string {
   const d = new Date();
@@ -21,8 +21,9 @@ test('Test eintragen, Note nachtragen, Eltern bestätigen', async ({ page }) => 
   await page.getByRole('button', { name: '2', exact: true }).click();
   await expect(page.getByText(/wartet auf Bestätigung/)).toBeVisible();
 
-  // Eltern bestätigen
+  // Eltern bestätigen (auf einem Eltern-Gerät)
   await page.getByRole('link', { name: /Zurück/ }).click();
+  await werdeEltern(page);
   await page.getByRole('link', { name: 'Eltern-Bereich' }).click();
   await tippePin(page);
   await page.getByRole('button', { name: /Noten bestätigen/ }).click();

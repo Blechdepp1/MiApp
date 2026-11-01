@@ -2,7 +2,7 @@ import { INHALTE, type InhaltName } from '../belohnung/inhalte.ts';
 import type { InhaltEintrag, InhalteSpeicher } from '../daten/inhalte.ts';
 import type { GespeicherterWert } from '../daten/schluesselWert.ts';
 import type { Dropbox } from './dropbox.ts';
-import { DATENFORMAT, istZuNeu } from './format.ts';
+import { DATENFORMAT, istZuNeu, LESART } from './format.ts';
 
 // Inhalte liegen als /inhalte/<name>.json. Nur Eltern-Geräte schreiben sie, alle lesen sie.
 // Haben zwei Eltern-Geräte geändert, gewinnt der neueste Stand.
@@ -15,6 +15,8 @@ export function inhaltDatei(name: InhaltName): string {
 export type InhalteStand = {
   // Revision je Datei beim letzten Lesen
   revs: Record<string, string>;
+  // LESART beim letzten Abgleich; weicht sie ab, werden alle Dateien neu gelesen
+  lesart?: number;
   // Zeitstempel je Inhalt, der zuletzt hochgeladen oder übernommen wurde
   bekannt: Record<string, string>;
 };
@@ -47,7 +49,7 @@ export async function gleicheInhalteAb({
   stand: GespeicherterWert<InhalteStand>;
 }): Promise<{ uebernommen: number; hochgeladen: number }> {
   const bisher = (await stand.laden()) ?? { revs: {}, bekannt: {} };
-  const revs = { ...bisher.revs };
+  const revs = bisher.lesart === LESART ? { ...bisher.revs } : {};
   const bekannt = { ...bisher.bekannt };
 
   // 1. Neuere Inhalte aus Dropbox übernehmen
@@ -93,6 +95,6 @@ export async function gleicheInhalteAb({
     }
   }
 
-  await stand.speichern({ revs, bekannt });
+  await stand.speichern({ lesart: LESART, revs, bekannt });
   return { uebernommen, hochgeladen };
 }

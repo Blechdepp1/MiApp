@@ -1,3 +1,5 @@
+import { geraetImArbeitsspeicher } from '../eltern/geraet.ts';
+import { GeraetProvider } from '../eltern/GeraetKontext.tsx';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { erstelleEreignis, type LernEreignis } from '../daten/ereignisse.ts';
@@ -18,11 +20,15 @@ function punkte(anzahl: number, tag = '2026-10-30'): LernEreignis {
   );
 }
 
+const PIN = { salz: '', hash: '' };
+
 function zeige(protokoll: Protokoll, inhalt: 'kind' | 'eltern' = 'kind') {
   render(
     <ProtokollProvider protokoll={protokoll}>
       <InhalteProvider speicher={inhalteImArbeitsspeicher()}>
-        {inhalt === 'kind' ? <BelohnungenSeite /> : <Einloesungen />}
+        <GeraetProvider speicher={geraetImArbeitsspeicher({ rolle: inhalt, pin: PIN })}>
+          {inhalt === 'kind' ? <BelohnungenSeite /> : <Einloesungen />}
+        </GeraetProvider>
       </InhalteProvider>
     </ProtokollProvider>,
   );

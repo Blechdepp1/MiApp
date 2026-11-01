@@ -2,7 +2,7 @@ import type { GespeicherterWert } from '../daten/schluesselWert.ts';
 import { pruefeLektion, type Lektion } from '../lektionen/lektion.ts';
 import type { LektionenSpeicher } from '../lektionen/speicher.ts';
 import type { Dropbox } from './dropbox.ts';
-import { DATENFORMAT, istZuNeu } from './format.ts';
+import { DATENFORMAT, istZuNeu, LESART } from './format.ts';
 
 // Jede Lektion ist eine eigene Datei /inhalte/lektionen/<id>.json, damit zwei Eltern-Geräte
 // sich beim Anlegen nicht überschreiben. Nur Eltern-Geräte schreiben; bei Änderungen an
@@ -15,6 +15,8 @@ export function lektionDatei(id: string): string {
 
 export type LektionenStand = {
   revs: Record<string, string>;
+  // LESART beim letzten Abgleich; weicht sie ab, werden alle Dateien neu gelesen
+  lesart?: number;
   // Stand je Lektion, der zuletzt hochgeladen oder übernommen wurde
   bekannt: Record<string, string>;
 };
@@ -44,7 +46,7 @@ export async function gleicheLektionenAb({
   stand: GespeicherterWert<LektionenStand>;
 }): Promise<{ uebernommen: number; hochgeladen: number }> {
   const bisher = (await stand.laden()) ?? { revs: {}, bekannt: {} };
-  const revs = { ...bisher.revs };
+  const revs = bisher.lesart === LESART ? { ...bisher.revs } : {};
   const bekannt = { ...bisher.bekannt };
 
   let uebernommen = 0;
@@ -84,6 +86,6 @@ export async function gleicheLektionenAb({
     }
   }
 
-  await stand.speichern({ revs, bekannt });
+  await stand.speichern({ lesart: LESART, revs, bekannt });
   return { uebernommen, hochgeladen };
 }

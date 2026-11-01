@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   istVokabelLektion,
   pruefeLektion,
@@ -41,6 +41,38 @@ export function Lerninhalte({
   const speicher = useLektionenSpeicher();
   const [gewaehlt, setGewaehlt] = useState<string | null>(startId ?? null);
   const [ungespeichert, setUngespeichert] = useState(false);
+  const [verschiebt, setVerschiebt] = useState(false);
+
+  // Eigener Verlaufseintrag: Die Zurück-Taste schließt nur die Lerninhalte und fragt vorher,
+  // wenn etwas nicht gespeichert ist
+  const ungespeichertRef = useRef(false);
+  const schliessenRef = useRef(onSchliessen);
+  useLayoutEffect(() => {
+    ungespeichertRef.current = ungespeichert;
+    schliessenRef.current = onSchliessen;
+  });
+  useEffect(() => {
+    const eintrag = () => ({ ...window.history.state, lerninhalte: true });
+    if (!window.history.state?.lerninhalte) {
+      window.history.pushState(eintrag(), '', window.location.href);
+    }
+    const beiZurueck = () => {
+      if (ungespeichertRef.current && !window.confirm(VERWERFEN)) {
+        window.history.pushState(eintrag(), '', window.location.href);
+        return;
+      }
+      schliessenRef.current();
+    };
+    window.addEventListener('popstate', beiZurueck);
+    return () => window.removeEventListener('popstate', beiZurueck);
+  }, []);
+
+  function schliessen() {
+    if (!darfWechseln()) return;
+    ungespeichertRef.current = false;
+    if (window.history.state?.lerninhalte) window.history.back();
+    else onSchliessen();
+  }
   const merkeUngespeichert = useCallback((u: boolean) => setUngespeichert(u), []);
 
   const lektion = lektionen.find((l) => l.id === gewaehlt);
@@ -59,9 +91,15 @@ export function Lerninhalte({
   }
 
   async function verschieben(gruppe: Lektion[], id: string, richtung: -1 | 1) {
-    const jetzt = new Date().toISOString();
-    for (const l of verschiebe(gruppe, id, richtung)) {
-      await speicher.speichere({ ...l, geaendert: jetzt });
+    if (verschiebt) return;
+    setVerschiebt(true);
+    try {
+      const jetzt = new Date().toISOString();
+      for (const l of verschiebe(gruppe, id, richtung)) {
+        await speicher.speichere({ ...l, geaendert: jetzt });
+      }
+    } finally {
+      setVerschiebt(false);
     }
   }
 
@@ -95,7 +133,7 @@ export function Lerninhalte({
     >
       <header className="lerninhalte-kopf">
         <h2>📚 Lerninhalte</h2>
-        <button type="button" onClick={() => darfWechseln() && onSchliessen()}>
+        <button type="button" onClick={schliessen}>
           Schließen
         </button>
       </header>
@@ -129,7 +167,7 @@ export function Lerninhalte({
                             type="button"
                             className="lerninhalte-pfeil"
                             aria-label={`${l.titel} nach oben`}
-                            disabled={i === 0}
+                            disabled={i === 0 || verschiebt}
                             onClick={() => verschieben(gruppe, l.id, -1)}
                           >
                             ↑
@@ -138,7 +176,7 @@ export function Lerninhalte({
                             type="button"
                             className="lerninhalte-pfeil"
                             aria-label={`${l.titel} nach unten`}
-                            disabled={i === gruppe.length - 1}
+                            disabled={i === gruppe.length - 1 || verschiebt}
                             onClick={() => verschieben(gruppe, l.id, 1)}
                           >
                             ↓

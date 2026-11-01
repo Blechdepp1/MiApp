@@ -67,7 +67,7 @@ export function LiveDatenUebernehmen({
         });
         return;
       }
-      const frage = `Aus ${live.quelle} übernehmen: ${zusammenfassung(live)}.\n\nDas ersetzt Lektionen, Belohnungen, Level und Punkte im Testkanal. Milenas App bleibt unverändert.`;
+      const frage = `Aus ${live.quelle} übernehmen: ${zusammenfassung(live)}.\n\nDas ersetzt Lektionen, Belohnungen, Level und Punkte im Testkanal auf diesem Gerät. Milenas App bleibt unverändert.`;
       if (!window.confirm(frage)) {
         setZustand({ art: 'bereit' });
         return;
@@ -108,7 +108,8 @@ export function LiveDatenUebernehmen({
       <p className="eltern-hinweis">
         Übernimmt Lektionen, Belohnungen, Level und Punkte aus Milenas App – aus Dropbox, wenn der
         Testkanal verbunden ist, sonst von diesem Gerät. Milenas App wird dabei nur gelesen, nicht
-        verändert. Danach gilt nur noch das, was ihr im Testkanal ändert.
+        verändert. Punkte gelten nur auf dem Gerät, auf dem ihr übernehmt; Lektionen und Belohnungen
+        kommen über Dropbox auch auf andere Testgeräte.
       </p>
       {zustand.art === 'fehler' && (
         <p className="verbinden-fehler" role="alert">

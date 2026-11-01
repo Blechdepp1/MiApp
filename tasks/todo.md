@@ -332,6 +332,18 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/tests/*`, `src/belohnung/werte.ts`, `src/belohnung/logik.ts`, `src/eltern/TestUebersicht.tsx`
 **Umfang:** L (ggf. in 23a Eintragen/Bonus und 23b Übersicht teilen)
 
+### Review und Sicherheitsprüfung (01.11.2026) ✅
+Code-Review seit v0.9.0 und Sicherheitsprüfung, behoben:
+- Test-Punkte sinken nie mehr (Obergrenze je Gerät, Verbesserung in Reihenfolge der Bestätigungen, Bestätigung mit Note).
+- Tests entfernen (Eltern), „Weiß ich noch nicht“ gemerkt, Frage ab dem Tag nach dem Test; Test-Lektion wird immer geübt.
+- Abgleich liest nach einem Update alle Dateien neu (`LESART`); unbekannter Lektions-Status wird behalten statt verworfen.
+- Ereignisse aus Dropbox werden je Art streng geprüft (Grenzen für Zahlen, Texte, Noten), übergroße Dateien übersprungen.
+- Bestätigen nur auf Eltern-Geräten; PIN-Sperre übersteht Neuladen und wird länger; Eltern-Bereich schließt sich nach 5 Min. ohne Eingabe bzw. 2 Min. im Hintergrund; Anleitung zum Zurücksetzen nur in `docs/eltern.md`.
+- Testkanal: Live-Ordner nur lesend (zur Laufzeit gesperrt); Übernahme ersetzt Punkte nur auf dem Gerät.
+- GitHub Actions: Deploy-Rechte nur im Deploy-Job, Prüfen ohne Install-Skripte; Content Security Policy in der fertigen App.
+- Zurück-Taste schließt „Lerninhalte“ mit Rückfrage; Fehler-Meldungen höchstens 5 pro Tag; Diktat fängt Startfehler ab; Rückmeldungen zeigen, ob vom Kind oder den Eltern.
+Offen (Entscheidung der Eltern): Testkanal unter eigener Adresse (anderer Ursprung), vertraute Eltern-Geräte markieren.
+
 ### ✅ Checkpoint E
 - [ ] Neue Versionen gehen zuerst in den Testkanal
 - [ ] Milena kann Feedback geben und Tests eintragen; Bonus und Bestätigung funktionieren

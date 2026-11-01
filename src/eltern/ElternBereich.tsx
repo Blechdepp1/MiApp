@@ -7,7 +7,7 @@ import { tagVon } from '../belohnung/logik.ts';
 import { useInhalt } from '../daten/InhalteKontext.tsx';
 import { useEreignisse } from '../daten/ProtokollKontext.tsx';
 import { rueckmeldungen } from '../feedback/logik.ts';
-import { alleTests, datumText, zuBestaetigen } from '../klassenarbeiten/logik.ts';
+import { alleTests, datumText, sichtbareTests, zuBestaetigen } from '../klassenarbeiten/logik.ts';
 import { statusVon } from '../lektionen/lektion.ts';
 import { useLektionen } from '../lektionen/LektionenKontext.tsx';
 import type { Dropbox } from '../sync/dropbox.ts';
@@ -142,7 +142,7 @@ function Uebersicht({ oeffne }: { oeffne: (b: Bereich) => void }) {
   const { geraet } = useGeraet();
   const offen = useOffeneEinloesungen();
   const ereignisse = useEreignisse() ?? [];
-  const tests = alleTests(ereignisse);
+  const tests = sichtbareTests(alleTests(ereignisse));
   const noten = zuBestaetigen(tests).length;
   const neueRueckmeldungen = rueckmeldungen(ereignisse).filter((r) => !r.erledigt).length;
   const lektionen = (useLektionen() ?? []).filter((l) => !l.geloescht);

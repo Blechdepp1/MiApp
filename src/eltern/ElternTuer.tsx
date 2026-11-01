@@ -4,15 +4,43 @@ import { useGeraet } from './GeraetKontext.tsx';
 import { MAX_FEHLVERSUCHE, pruefePin, SPERRE_MS } from './pin.ts';
 import { PinEingabe } from './PinEingabe.tsx';
 
-// Fehlversuche gelten für die ganze Sitzung, nicht nur für einen Besuch der Seite
-let fehlversuche = 0;
-let gesperrtBis = 0;
+// Fehlversuche und Sperre überstehen ein Neuladen (localStorage). Jede weitere Sperre dauert
+// länger, damit Durchprobieren aller 10 000 PINs aussichtslos ist.
+type Sperre = { fehlversuche: number; gesperrtBis: number; stufe: number };
+const SPERRE_SCHLUESSEL = `${KANAL.speicherPraefix}-pin-sperre`;
+const SPERR_FAKTOR = [1, 5, 15, 60];
+
+function ladeSperre(): Sperre {
+  try {
+    const s = JSON.parse(localStorage.getItem(SPERRE_SCHLUESSEL) ?? 'null') as Sperre | null;
+    if (s && Number.isFinite(s.fehlversuche) && Number.isFinite(s.gesperrtBis)) {
+      return { fehlversuche: s.fehlversuche, gesperrtBis: s.gesperrtBis, stufe: s.stufe ?? 0 };
+    }
+  } catch {
+    // ohne Speicher gilt die Sperre nur bis zum Neuladen
+  }
+  return { fehlversuche: 0, gesperrtBis: 0, stufe: 0 };
+}
+
+let sperre = ladeSperre();
+
+function speichereSperre(neu: Sperre) {
+  sperre = neu;
+  try {
+    localStorage.setItem(SPERRE_SCHLUESSEL, JSON.stringify(neu));
+  } catch {
+    // siehe ladeSperre
+  }
+}
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function setzeSperreZurueck() {
-  fehlversuche = 0;
-  gesperrtBis = 0;
+  speichereSperre({ fehlversuche: 0, gesperrtBis: 0, stufe: 0 });
 }
+
+// Offener Bereich schließt sich nach so langer Zeit ohne Eingabe oder im Hintergrund
+export const INAKTIV_MS = 5 * 60 * 1000;
+export const HINTERGRUND_MS = 2 * 60 * 1000;
 
 // Android beendet die App oft im Hintergrund, während die Kamera offen ist. Damit die PIN
 // danach nicht erneut gefragt wird, merkt sich der Tab die Freigabe kurz (nur sessionStorage).
@@ -48,7 +76,7 @@ export function ElternTuer({
   const { geraet } = useGeraet();
   const [offen, setOffen] = useState(() => freigabeGilt(jetzt()));
   const [fehler, setFehler] = useState<string | null>(null);
-  const [gesperrt, setGesperrt] = useState(() => gesperrtBis > jetzt());
+  const [gesperrt, setGesperrt] = useState(() => sperre.gesperrtBis > jetzt());
   const [vergessen, setVergessen] = useState(false);
 
   // Solange der Bereich offen ist, gilt die Freigabe; wer ihn verlässt, schließt ihn wieder
@@ -62,27 +90,65 @@ export function ElternTuer({
     };
   }, [offen, jetzt]);
 
+  // Ohne Eingabe oder lange im Hintergrund wieder zu, z. B. wenn das Handy zurück ans Kind geht
+  useEffect(() => {
+    if (!offen) return;
+    let zuletzt = jetzt();
+    let versteckt = 0;
+    const schliessen = () => {
+      merkeFreigabe(null);
+      setOffen(false);
+    };
+    const aktiv = () => {
+      zuletzt = jetzt();
+    };
+    const sichtbarkeit = () => {
+      if (document.hidden) versteckt = jetzt();
+      else if (versteckt && jetzt() - versteckt > HINTERGRUND_MS) schliessen();
+    };
+    const timer = setInterval(() => {
+      if (jetzt() - zuletzt > INAKTIV_MS) schliessen();
+    }, 15 * 1000);
+    window.addEventListener('pointerdown', aktiv);
+    window.addEventListener('keydown', aktiv);
+    document.addEventListener('visibilitychange', sichtbarkeit);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('pointerdown', aktiv);
+      window.removeEventListener('keydown', aktiv);
+      document.removeEventListener('visibilitychange', sichtbarkeit);
+    };
+  }, [offen, jetzt]);
+
   useEffect(() => {
     if (!gesperrt) return;
-    const timer = setTimeout(() => setGesperrt(false), Math.max(0, gesperrtBis - jetzt()));
+    const timer = setTimeout(() => setGesperrt(false), Math.max(0, sperre.gesperrtBis - jetzt()));
     return () => clearTimeout(timer);
   }, [gesperrt, jetzt]);
+
+  const minuten = Math.max(1, Math.ceil((sperre.gesperrtBis - jetzt()) / 60_000));
+  const sperrText = `Zu viele falsche Versuche. Bitte ${minuten === 1 ? 'eine Minute' : `${minuten} Minuten`} warten.`;
 
   const pinEingegeben = useCallback(
     async (pin: string) => {
       if (!geraet) return;
       if (await pruefePin(pin, geraet.pin)) {
-        fehlversuche = 0;
+        setzeSperreZurueck();
         setOffen(true);
         return;
       }
-      fehlversuche++;
+      const fehlversuche = sperre.fehlversuche + 1;
       if (fehlversuche >= MAX_FEHLVERSUCHE) {
-        fehlversuche = 0;
-        gesperrtBis = jetzt() + SPERRE_MS;
+        const faktor = SPERR_FAKTOR[Math.min(sperre.stufe, SPERR_FAKTOR.length - 1)]!;
+        speichereSperre({
+          fehlversuche: 0,
+          gesperrtBis: jetzt() + SPERRE_MS * faktor,
+          stufe: sperre.stufe + 1,
+        });
         setGesperrt(true);
-        setFehler('Zu viele falsche Versuche. Bitte eine Minute warten.');
+        setFehler(null);
       } else {
+        speichereSperre({ ...sperre, fehlversuche });
         setFehler('Die PIN stimmt nicht.');
       }
     },
@@ -95,7 +161,7 @@ export function ElternTuer({
     <div className="eltern-tuer">
       <PinEingabe
         titel="Eltern-PIN eingeben"
-        fehler={gesperrt ? 'Zu viele falsche Versuche. Bitte eine Minute warten.' : fehler}
+        fehler={gesperrt ? sperrText : fehler}
         gesperrt={gesperrt}
         onFertig={pinEingegeben}
       />
@@ -104,10 +170,7 @@ export function ElternTuer({
       </button>
       {vergessen && (
         <p className="eltern-hinweis">
-          Die PIN lässt sich nur zurücksetzen, indem ihr die Daten der App auf diesem Gerät löscht
-          (Chrome → Einstellungen → Website-Einstellungen → blechdepp1.github.io → Daten löschen)
-          und das Gerät neu einrichtet. Nach dem Abgleich mit Dropbox sind Punkte und Listen wieder
-          da.
+          Wie ihr die PIN zurücksetzt, steht in der Anleitung für Eltern (docs/eltern.md).
         </p>
       )}
     </div>

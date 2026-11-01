@@ -136,6 +136,23 @@ describe('ElternTuer', () => {
     expect(screen.getByRole('button', { name: '1' })).toBeDisabled();
   });
 
+  it('sperrt beim nächsten Mal länger', async () => {
+    let uhr = Date.now();
+    await zeige(() => uhr);
+    for (let i = 0; i < MAX_FEHLVERSUCHE; i++) {
+      await tippePin('0000');
+      await screen.findByRole('alert');
+    }
+    cleanup();
+    uhr += 61_000;
+    await zeige(() => uhr);
+    for (let i = 0; i < MAX_FEHLVERSUCHE; i++) {
+      await tippePin('0000');
+      await screen.findByRole('alert');
+    }
+    expect(screen.getByRole('alert')).toHaveTextContent('5 Minuten');
+  });
+
   it('bleibt gesperrt, auch wenn die Seite neu geöffnet wird', async () => {
     await zeige();
     for (let i = 0; i < MAX_FEHLVERSUCHE; i++) {
@@ -175,6 +192,8 @@ describe('ElternTuer', () => {
   it('erklärt, was bei vergessener PIN zu tun ist', async () => {
     await zeige();
     await userEvent.click(screen.getByRole('button', { name: 'PIN vergessen?' }));
-    expect(screen.getByText(/Daten der App auf diesem Gerät löscht/)).toBeInTheDocument();
+    expect(screen.getByText(/Anleitung für Eltern/)).toBeInTheDocument();
+    // Die Anleitung zum Zurücksetzen steht nicht auf dem Gerät des Kindes
+    expect(screen.queryByText(/Daten löschen/)).toBeNull();
   });
 });

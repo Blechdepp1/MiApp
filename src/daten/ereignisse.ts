@@ -28,6 +28,8 @@ export type EreignisDaten =
       seite: string;
       version: string;
       geraetInfo?: string;
+      // Wer es geschickt hat (Gerät des Kindes oder der Eltern)
+      rolle?: 'kind' | 'eltern';
     }
   | { typ: 'feedback-erledigt'; feedbackId: string }
   // Klassenarbeiten und Tests (SPEC 10a): eintragen, Note nachtragen, Eltern bestätigen
@@ -41,7 +43,9 @@ export type EreignisDaten =
       lektionId?: string;
     }
   | { typ: 'test-ergebnis'; testId: string; note: number }
-  | { typ: 'test-bestaetigt'; testId: string };
+  // note: die Note, die die Eltern beim Bestätigen gesehen haben (ältere Einträge ohne)
+  | { typ: 'test-bestaetigt'; testId: string; note?: number }
+  | { typ: 'test-geloescht'; testId: string };
 
 export type Stimmung = 'gut' | 'mittel' | 'schlecht';
 export type TestFach = 'englisch' | 'deutsch' | 'mathe' | 'andere';

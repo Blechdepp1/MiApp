@@ -17,12 +17,14 @@ export function vokabelQuellen(
   lektionen: readonly Lektion[],
   heute: string,
   staende: ReadonlyMap<string, WortStand> = new Map(),
+  // Lektionen eines bald anstehenden Tests: immer ganz dabei, egal welcher Status
+  immerDabei: ReadonlySet<string> = new Set(),
 ): { listen: Vokabelliste[]; vorrang: Set<string> } {
   const englisch = sortiereLektionen(lektionen.filter(istVokabelLektion));
   if (englisch.length === 0) return { listen: [BEISPIELLISTE], vorrang: new Set() };
   const listen: Vokabelliste[] = [];
   for (const l of englisch) {
-    const status = statusVon(l);
+    const status = immerDabei.has(l.id) ? 'aktiv' : statusVon(l);
     if (status === 'pausiert') continue;
     const liste = alsVokabelliste(l);
     if (status === 'archiviert') {

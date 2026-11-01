@@ -27,9 +27,10 @@ export function VokabelSeite({ zufall }: { zufall?: Zufall }) {
   // Stand zu Beginn der Runde einfrieren, damit neue Antworten oder ein Abgleich die laufende Runde nicht neu mischen
   const [start, setStart] = useState<Start | null>(null);
   if (ereignisse && lektionen && start?.runde !== runde) {
-    const quellen = vokabelQuellen(lektionen, heute, berechneStaende(ereignisse));
-    // Auch eingetragene Tests mit Lektion geben deren Wörtern Vorrang
-    const vorrang = new Set([...quellen.vorrang, ...testVorrang(ereignisse, heute)]);
+    // Eingetragene Tests mit Lektion: deren Wörter sind dabei und haben Vorrang
+    const fuerTests = testVorrang(ereignisse, heute);
+    const quellen = vokabelQuellen(lektionen, heute, berechneStaende(ereignisse), fuerTests);
+    const vorrang = new Set([...quellen.vorrang, ...fuerTests]);
     setStart({ runde, ereignisse, listen: quellen.listen, vorrang });
   }
 

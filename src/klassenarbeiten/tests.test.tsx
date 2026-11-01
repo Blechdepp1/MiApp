@@ -5,6 +5,8 @@ import { TEST_PUNKTE } from '../belohnung/werte.ts';
 import { erstelleEreignis } from '../daten/ereignisse.ts';
 import { protokollImArbeitsspeicher, type Protokoll } from '../daten/protokoll.ts';
 import { ProtokollProvider } from '../daten/ProtokollKontext.tsx';
+import { geraetImArbeitsspeicher } from '../eltern/geraet.ts';
+import { GeraetProvider } from '../eltern/GeraetKontext.tsx';
 import { TestUebersicht } from '../eltern/TestUebersicht.tsx';
 import { LektionenProvider } from '../lektionen/LektionenKontext.tsx';
 import { lektionenImArbeitsspeicher } from '../lektionen/speicher.ts';
@@ -20,10 +22,14 @@ const UNIT5 = {
   inhalt: { art: 'vokabeln', woerter: [{ id: 'w1', en: 'began', de: 'anfangen' }] },
 };
 
-function mit(protokoll: Protokoll, inhalt: ReactNode) {
+function mit(protokoll: Protokoll, inhalt: ReactNode, rolle: 'kind' | 'eltern' = 'eltern') {
   return render(
     <ProtokollProvider protokoll={protokoll}>
-      <LektionenProvider speicher={lektionenImArbeitsspeicher([UNIT5])}>{inhalt}</LektionenProvider>
+      <GeraetProvider speicher={geraetImArbeitsspeicher({ rolle, pin: { salz: '', hash: '' } })}>
+        <LektionenProvider speicher={lektionenImArbeitsspeicher([UNIT5])}>
+          {inhalt}
+        </LektionenProvider>
+      </GeraetProvider>
     </ProtokollProvider>,
   );
 }
@@ -52,7 +58,7 @@ describe('Meine Tests (Kind)', () => {
     expect(within(bald).getByText(/Vokabeltest in Englisch/)).toBeInTheDocument();
   });
 
-  it('fragt nach dem Termin nach der Note', async () => {
+  it('fragt ab dem Tag nach dem Termin nach der Note', async () => {
     const t = test('2026-11-02');
     const protokoll = protokollImArbeitsspeicher([t]);
     mit(protokoll, <TestsSeite heute="2026-11-03" />);
@@ -90,5 +96,28 @@ describe('Tests & Klassenarbeiten (Eltern)', () => {
     expect(testPunkte(await protokoll.alle())).toBe(TEST_PUNKTE.eintragen + TEST_PUNKTE.ergebnis);
     const tabelle = screen.getByRole('table');
     expect(within(tabelle).getByText('3 ✓')).toBeInTheDocument();
+  });
+
+  it('entfernt einen falsch eingetragenen Test', async () => {
+    const protokoll = protokollImArbeitsspeicher([test('2026-11-02')]);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    mit(protokoll, <TestUebersicht />);
+    await userEvent.click(await screen.findByRole('button', { name: /entfernen/ }));
+    expect(await screen.findByText('Noch keine Tests eingetragen.')).toBeInTheDocument();
+    expect(alleTests(await protokoll.alle())[0]!.geloescht).toBe(true);
+  });
+
+  it('auf dem Gerät des Kindes lässt sich nichts bestätigen', async () => {
+    const t = test('2026-11-02');
+    mit(
+      protokollImArbeitsspeicher([
+        t,
+        erstelleEreignis({ typ: 'test-ergebnis', testId: t.id, note: 2 }, 'kind'),
+      ]),
+      <TestUebersicht />,
+      'kind',
+    );
+    expect(await screen.findByText(/nur auf einem Eltern-Gerät/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Bestätigen' })).toBeNull();
   });
 });

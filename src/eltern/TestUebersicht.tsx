@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useEreignisse, useProtokoll } from '../daten/ProtokollKontext.tsx';
 import { useLektionen } from '../lektionen/LektionenKontext.tsx';
+import { useGeraet } from './GeraetKontext.tsx';
 import {
   alleTests,
   artName,
@@ -8,6 +9,7 @@ import {
   fachName,
   NOTEN,
   punkteFuerTest,
+  sichtbareTests,
   zuBestaetigen,
   type TestEintrag,
 } from '../klassenarbeiten/logik.ts';
@@ -18,7 +20,8 @@ export function TestUebersicht() {
   const protokoll = useProtokoll();
   const lektionen = useLektionen() ?? [];
   const [laeuft, setLaeuft] = useState(false);
-  const tests = alleTests(ereignisse);
+  const istEltern = useGeraet().geraet?.rolle === 'eltern';
+  const tests = sichtbareTests(alleTests(ereignisse));
   const offen = zuBestaetigen(tests);
 
   async function schreibe(aktion: () => Promise<unknown>) {
@@ -53,47 +56,61 @@ export function TestUebersicht() {
                     {t.thema && ` · ${t.thema}`}
                   </span>
                 </span>
-                <label className="test-note-aendern">
-                  <span>Note</span>
-                  <select
-                    value={t.note}
+                {istEltern && (
+                  <label className="test-note-aendern">
+                    <span>Note</span>
+                    <select
+                      value={t.note}
+                      disabled={laeuft}
+                      onChange={(e) =>
+                        schreibe(() =>
+                          protokoll.hinzufuegen({
+                            typ: 'test-ergebnis',
+                            testId: t.id,
+                            note: Number(e.target.value),
+                          }),
+                        )
+                      }
+                    >
+                      {NOTEN.map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                {istEltern && (
+                  <button
+                    type="button"
+                    className="verbinden-haupt"
                     disabled={laeuft}
-                    onChange={(e) =>
-                      schreibe(() =>
-                        protokoll.hinzufuegen({
-                          typ: 'test-ergebnis',
-                          testId: t.id,
-                          note: Number(e.target.value),
-                        }),
-                      )
+                    onClick={() =>
+                      schreibe(async () => {
+                        // Nicht doppelt bestätigen, falls ein anderes Gerät schneller war
+                        const aktuell = alleTests(await protokoll.alle()).find(
+                          (x) => x.id === t.id,
+                        );
+                        if (!aktuell?.bestaetigt) {
+                          // Mit der Note, die ihr gerade seht, damit genau sie zählt
+                          await protokoll.hinzufuegen({
+                            typ: 'test-bestaetigt',
+                            testId: t.id,
+                            note: t.note,
+                          });
+                        }
+                      })
                     }
                   >
-                    {NOTEN.map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <button
-                  type="button"
-                  className="verbinden-haupt"
-                  disabled={laeuft}
-                  onClick={() =>
-                    schreibe(async () => {
-                      // Nicht doppelt bestätigen, falls ein anderes Gerät schneller war
-                      const aktuell = alleTests(await protokoll.alle()).find((x) => x.id === t.id);
-                      if (!aktuell?.bestaetigt) {
-                        await protokoll.hinzufuegen({ typ: 'test-bestaetigt', testId: t.id });
-                      }
-                    })
-                  }
-                >
-                  Bestätigen
-                </button>
+                    Bestätigen
+                  </button>
+                )}
               </li>
             ))}
           </ul>
+        )}
+        {!istEltern && offen.length > 0 && (
+          <p className="eltern-hinweis">Bestätigen geht nur auf einem Eltern-Gerät.</p>
         )}
         <p className="eltern-hinweis">
           Milena bekommt Punkte fürs Eintragen und – nach eurer Bestätigung – fürs Nachtragen der
@@ -114,6 +131,7 @@ export function TestUebersicht() {
                 <th>Test</th>
                 <th>Note</th>
                 <th>Punkte</th>
+                {istEltern && <th aria-label="Entfernen" />}
               </tr>
             </thead>
             <tbody>
@@ -131,6 +149,29 @@ export function TestUebersicht() {
                     {t.note === undefined ? '–' : t.bestaetigt ? `${t.note} ✓` : `${t.note} ⏳`}
                   </td>
                   <td>{punkteFuerTest(t)}</td>
+                  {istEltern && (
+                    <td>
+                      <button
+                        type="button"
+                        className="verwalten-entfernen"
+                        aria-label={`${artName(t.art)} ${fachName(t.fach)} vom ${datumText(t.datum)} entfernen`}
+                        disabled={laeuft}
+                        onClick={() => {
+                          if (
+                            !window.confirm(
+                              'Diesen Test entfernen? Die Punkte fürs Eintragen bleiben.',
+                            )
+                          )
+                            return;
+                          void schreibe(() =>
+                            protokoll.hinzufuegen({ typ: 'test-geloescht', testId: t.id }),
+                          );
+                        }}
+                      >
+                        🗑️
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

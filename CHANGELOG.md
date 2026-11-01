@@ -11,6 +11,7 @@ Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei F
 - Steht ein Englisch-Test mit Lektion an, übst du deren Wörter vorher öfter.
 - „💬 Sag uns was“ auf der Startseite: Smiley antippen und sagen, was dir gefällt oder nicht.
 - Mit „🎤 Sprechen“ kannst du deinen Satz einfach sagen, statt ihn zu tippen.
+- Für Eltern: mehr Sicherheit (Bestätigen nur auf Eltern-Geräten, längere PIN-Sperre, Eltern-Bereich schließt sich von selbst) und falsch eingetragene Tests lassen sich entfernen.
 
 ## 0.10.0 – 01.11.2026
 

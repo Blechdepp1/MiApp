@@ -10,6 +10,7 @@ export type Rueckmeldung = {
   seite: string;
   version: string;
   geraetInfo?: string;
+  rolle?: 'kind' | 'eltern';
   zeit: string;
   erledigt: boolean;
 };
@@ -41,6 +42,7 @@ export function rueckmeldungen(ereignisse: readonly LernEreignis[]): Rueckmeldun
               seite: e.seite,
               version: e.version,
               ...(e.geraetInfo && { geraetInfo: e.geraetInfo }),
+              ...(e.rolle && { rolle: e.rolle }),
               zeit: e.zeit,
               erledigt: erledigt.has(e.id),
             },

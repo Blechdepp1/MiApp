@@ -166,7 +166,8 @@ export async function schreibeInVorschau(daten: LiveDaten, stand: KopieStand): P
       await db.schluessel.put({ id: 'gesehenes-level', wert: daten.gesehenesLevel });
     }
     await db.schluessel.put({ id: 'live-kopie', wert: stand });
-    // Abgleich mit dem Dropbox-Ordner des Testkanals beginnt von vorn
-    await db.schluessel.bulkDelete(['abgleich-stand', 'inhalte-stand', 'lektionen-stand']);
+    // Lektionen und Inhalte gleichen sich neu mit dem Testkanal-Ordner ab (die Kopie gewinnt).
+    // Den Stand der Ereignisse behalten: Sonst kämen alte Testpunkte anderer Testgeräte zurück.
+    await db.schluessel.bulkDelete(['inhalte-stand', 'lektionen-stand']);
   });
 }

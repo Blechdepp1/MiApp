@@ -1,4 +1,4 @@
-import { test, expect, setzePunkte, tippePin } from './basis.ts';
+import { test, expect, setzePunkte, tippePin, werdeEltern } from './basis.ts';
 
 test('Belohnung einlösen und im Eltern-Bereich bestätigen', async ({ page }) => {
   await page.goto('./');
@@ -18,7 +18,8 @@ test('Belohnung einlösen und im Eltern-Bereich bestätigen', async ({ page }) =
   await page.getByRole('link', { name: /Zurück/ }).click();
   await expect(page.getByText('Level 3')).toBeVisible();
 
-  // Eltern bestätigen
+  // Eltern bestätigen (auf einem Eltern-Gerät)
+  await werdeEltern(page);
   await page.getByRole('link', { name: 'Eltern-Bereich' }).click();
   await tippePin(page);
   await page.getByRole('button', { name: /Einlösungen bestätigen/ }).click();

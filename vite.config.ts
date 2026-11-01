@@ -3,7 +3,7 @@ import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -20,6 +20,38 @@ function commit() {
   }
 }
 
+// Content Security Policy für die fertige App (GitHub Pages kann keine Header setzen, also als
+// <meta>). Erlaubt nur eigene Skripte und Verbindungen zu Dropbox und Anthropic. Nicht im
+// Entwicklungsserver, der Inline-Skripte braucht.
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' blob: data:",
+  "font-src 'self'",
+  "connect-src 'self' https://api.dropboxapi.com https://content.dropboxapi.com https://api.anthropic.com",
+  "media-src 'self' blob:",
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+].join('; ');
+
+function sicherheitsRegeln(): Plugin {
+  return {
+    name: 'miapp-csp',
+    apply: 'build',
+    transformIndexHtml: () => [
+      {
+        tag: 'meta',
+        attrs: { 'http-equiv': 'Content-Security-Policy', content: CSP },
+        injectTo: 'head-prepend',
+      },
+    ],
+  };
+}
+
 export default defineConfig({
   base: BASIS,
   define: {
@@ -34,6 +66,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    sicherheitsRegeln(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],

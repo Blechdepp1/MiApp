@@ -24,8 +24,13 @@ function standardNavigieren(url: string) {
 }
 
 // Entfernt ?code=…&state=… aus der Adresse, damit ein Neuladen nichts doppelt verarbeitet
+// Code und state aus der Adresse entfernen; den Zustand des Verlaufseintrags (Unterseite) behalten
 function standardBereinigen() {
-  window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+  window.history.replaceState(
+    window.history.state,
+    '',
+    window.location.pathname + window.location.hash,
+  );
 }
 
 export function DropboxVerbinden({

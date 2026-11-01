@@ -5,6 +5,7 @@ import { Diktat } from '../basis/Diktat.tsx';
 import { insBildHolen } from '../basis/sichtbarerBereich.ts';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 import { useProtokoll } from '../daten/ProtokollKontext.tsx';
+import { useGeraet } from '../eltern/GeraetKontext.tsx';
 import type { Stimmung } from '../daten/ereignisse.ts';
 import { geraetInfo, STIMMUNGEN } from './logik.ts';
 import './SagUnsWas.css';
@@ -29,6 +30,7 @@ export function SagUnsWas() {
 
 function SagUnsWasDialog({ onSchliessen }: { onSchliessen: () => void }) {
   const protokoll = useProtokoll();
+  const rolle = useGeraet().geraet?.rolle;
   const [stimmung, setStimmung] = useState<Stimmung | null>(null);
   const [text, setText] = useState('');
   const [gesendet, setGesendet] = useState(false);
@@ -51,6 +53,7 @@ function SagUnsWasDialog({ onSchliessen }: { onSchliessen: () => void }) {
         seite: zielAusHash(window.location.hash),
         version: VERSION_TEXT,
         geraetInfo: geraetInfo(navigator.userAgent),
+        ...(rolle && { rolle }),
       });
       setGesendet(true);
     } finally {

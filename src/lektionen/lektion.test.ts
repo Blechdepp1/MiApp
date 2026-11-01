@@ -17,6 +17,7 @@ import {
   hatVorrang,
   pruefeLektion,
   sortiereLektionen,
+  statusVon,
   verschiebe,
   type Lektion,
 } from './lektion.ts';
@@ -78,7 +79,11 @@ describe('pruefeLektion', () => {
 describe('Status und Reihenfolge', () => {
   it('prüft Status und Reihenfolge', () => {
     expect(pruefeLektion(lektion('a', { status: 'pausiert', reihenfolge: 2 }))).toBeNull();
-    expect(pruefeLektion({ ...lektion('a'), status: 'kaputt' })).toBe('Ungültige Daten');
+    expect(pruefeLektion({ ...lektion('a'), status: 5 })).toBe('Ungültige Daten');
+    // Status einer neueren App-Version: behalten, aber nicht üben
+    const neu = { ...lektion('a'), status: 'wiederholen' } as unknown as Lektion;
+    expect(pruefeLektion(neu)).toBeNull();
+    expect(statusVon(neu)).toBe('pausiert');
     expect(pruefeLektion(lektion('a', { reihenfolge: Number.NaN }))).toBe('Ungültige Daten');
   });
 

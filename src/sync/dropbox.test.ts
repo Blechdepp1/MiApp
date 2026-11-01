@@ -139,6 +139,19 @@ describe('liste', () => {
     ]);
   });
 
+  it('schreibt mit einer Nur-lesen-Verbindung nichts', async () => {
+    const a = aufbau();
+    await verbinde(a);
+    const lesend = erstelleDropbox({
+      speicher: a.speicher,
+      redirectUri: REDIRECT,
+      nurLesen: true,
+      abrufen: a.dropboxSeite.abrufen as unknown as typeof fetch,
+    });
+    await expect(lesend.hochladen('/inhalte/belohnungen.json', '{}')).rejects.toThrow('nur lesen');
+    expect(a.dropboxSeite.dateien.size).toBe(0);
+  });
+
   it('meldet andere Fehler', async () => {
     const a = aufbau();
     await verbinde(a);

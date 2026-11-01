@@ -16,6 +16,66 @@ function eingetragen(fach: 'englisch' | 'mathe', datum: string, tag = 0, lektion
 }
 
 describe('Tests und Klassenarbeiten', () => {
+  it('zählt die Obergrenze je Gerät: ein anderes Gerät nimmt keine Punkte weg', () => {
+    const handy = [1, 2, 3].map((t) => eingetragen('mathe', '2026-11-20', t));
+    const tablet = erstelleEreignis(
+      { typ: 'test-eingetragen', fach: 'mathe', art: 'test', datum: '2026-11-21' },
+      'tablet',
+      new Date(2026, 10, 2, 9),
+    );
+    expect(testPunkte([...handy, tablet])).toBe(4 * TEST_PUNKTE.eintragen);
+  });
+
+  it('nimmt einmal vergebene Punkte nie wieder weg, auch bei nachgetragenen Tests', () => {
+    const t1 = eingetragen('englisch', '2026-11-01', 0);
+    const t2 = eingetragen('englisch', '2026-11-10', 8);
+    const verlauf = [
+      t1,
+      ereignis({ typ: 'test-ergebnis', testId: t1.id, note: 3 }, 1),
+      ereignis({ typ: 'test-bestaetigt', testId: t1.id, note: 3 }, 1, 12),
+      t2,
+      ereignis({ typ: 'test-ergebnis', testId: t2.id, note: 2 }, 9),
+      ereignis({ typ: 'test-bestaetigt', testId: t2.id, note: 2 }, 9, 12),
+    ];
+    // Ein vergessener Test vom 05.11. mit Note 1 wird erst später nachgetragen und bestätigt
+    const vergessen = eingetragen('englisch', '2026-11-05', 15);
+    const spaeter = [
+      vergessen,
+      ereignis({ typ: 'test-ergebnis', testId: vergessen.id, note: 1 }, 15, 11),
+      ereignis({ typ: 'test-bestaetigt', testId: vergessen.id, note: 1 }, 15, 12),
+      ereignis({ typ: 'test-geloescht', testId: t1.id }, 16),
+    ];
+    // Jedes neue Ereignis darf die Punkte nur gleich lassen oder erhöhen
+    let vorher = testPunkte(verlauf);
+    for (let i = 1; i <= spaeter.length; i++) {
+      const jetzt = testPunkte([...verlauf, ...spaeter.slice(0, i)]);
+      expect(jetzt).toBeGreaterThanOrEqual(vorher);
+      vorher = jetzt;
+    }
+    expect(
+      alleTests([...verlauf, ...spaeter]).find((t) => t.id === t2.id)!.punkte.verbesserung,
+    ).toBe(TEST_PUNKTE.verbesserung);
+  });
+
+  it('bestätigt genau die Note, die die Eltern gesehen haben', () => {
+    const t = eingetragen('mathe', '2026-11-05');
+    const [test] = alleTests([
+      t,
+      ereignis({ typ: 'test-ergebnis', testId: t.id, note: 4 }, 4),
+      ereignis({ typ: 'test-bestaetigt', testId: t.id, note: 3 }, 4, 12),
+      // Ein Kind-Gerät mit vorgehender Uhr meldet danach noch eine andere Note
+      ereignis({ typ: 'test-ergebnis', testId: t.id, note: 1 }, 4, 13),
+    ]);
+    expect(test).toMatchObject({ note: 3, bestaetigt: true });
+  });
+
+  it('entfernte Tests fragen nicht mehr nach der Note, behalten aber ihre Punkte', () => {
+    const t = eingetragen('mathe', '2026-11-03');
+    const ereignisse = [t, ereignis({ typ: 'test-geloescht', testId: t.id }, 1)];
+    expect(ohneNote(alleTests(ereignisse), '2026-11-10')).toEqual([]);
+    expect(testPunkte(ereignisse)).toBe(TEST_PUNKTE.eintragen);
+  });
+
   it('gibt fürs Eintragen sofort Punkte, höchstens 3-mal pro Woche', () => {
     const woche1 = [0, 1, 2, 3].map((t) => eingetragen('mathe', '2026-11-20', t));
     const woche2 = eingetragen('mathe', '2026-11-27', 7);
@@ -50,13 +110,13 @@ describe('Tests und Klassenarbeiten', () => {
     const tests = alleTests([
       mathe,
       ereignis({ typ: 'test-ergebnis', testId: mathe.id, note: 2 }, 4),
-      ereignis({ typ: 'test-bestaetigt', testId: mathe.id }, 4),
+      ereignis({ typ: 'test-bestaetigt', testId: mathe.id }, 4, 12),
       englisch,
       ereignis({ typ: 'test-ergebnis', testId: englisch.id, note: 1 }, 11),
-      ereignis({ typ: 'test-bestaetigt', testId: englisch.id }, 11),
+      ereignis({ typ: 'test-bestaetigt', testId: englisch.id }, 11, 12),
       schlechter,
       ereignis({ typ: 'test-ergebnis', testId: schlechter.id, note: 5 }, 18),
-      ereignis({ typ: 'test-bestaetigt', testId: schlechter.id }, 18),
+      ereignis({ typ: 'test-bestaetigt', testId: schlechter.id }, 18, 12),
     ]);
     for (const t of tests) expect(t.punkte.ergebnis).toBe(TEST_PUNKTE.ergebnis);
     expect(tests.map((t) => t.punkte.verbesserung)).toEqual([0, 0, 0]);
@@ -81,8 +141,9 @@ describe('Tests und Klassenarbeiten', () => {
     const vorbei = eingetragen('mathe', '2026-11-03');
     const heute = eingetragen('mathe', '2026-11-04');
     const spaeter = eingetragen('mathe', '2026-11-10');
+    // Am Tag des Tests selbst wird noch nicht gefragt
     expect(ohneNote(alleTests([vorbei, heute, spaeter]), '2026-11-04').map((t) => t.datum)).toEqual(
-      ['2026-11-04', '2026-11-03'],
+      ['2026-11-03'],
     );
   });
 

@@ -74,7 +74,8 @@ export function pruefeLektion(wert: unknown): string | null {
   ) {
     return 'Das Datum der Klassenarbeit ist ungültig.';
   }
-  if (l.status !== undefined && !STATUS.includes(l.status)) return 'Ungültige Daten';
+  // Unbekannter Status (neuere App-Version): Lektion behalten, aber nicht üben (statusVon)
+  if (l.status !== undefined && typeof l.status !== 'string') return 'Ungültige Daten';
   if (l.reihenfolge !== undefined && !Number.isFinite(l.reihenfolge)) return 'Ungültige Daten';
   if (typeof l.inhalt !== 'object' || l.inhalt === null || typeof l.inhalt.art !== 'string') {
     return 'Ungültige Daten';
@@ -90,7 +91,8 @@ export function istVokabelLektion(l: Lektion): l is Lektion & { inhalt: VokabelI
 }
 
 export function statusVon(l: Lektion): LektionStatus {
-  return l.status ?? 'aktiv';
+  if (l.status === undefined) return 'aktiv';
+  return STATUS.includes(l.status) ? l.status : 'pausiert';
 }
 
 // Nach Reihenfolge, Lektionen ohne Angabe dahinter in der Reihenfolge ihrer Erstellung

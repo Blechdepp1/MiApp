@@ -151,6 +151,23 @@ describe('Lerninhalte', () => {
     expect(frage).toHaveBeenCalledTimes(3);
   });
 
+  it('Zurück-Taste schließt die Lerninhalte, fragt aber vorher bei ungespeicherten Änderungen', async () => {
+    window.history.replaceState({ elternBereich: 'lektionen' }, '', window.location.href);
+    const { onSchliessen } = await zeige([lektion('1')], '1');
+    expect(window.history.state).toMatchObject({ lerninhalte: true, elternBereich: 'lektionen' });
+    await userEvent.type(await screen.findByLabelText('Titel'), ' neu');
+
+    const frage = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    window.history.back();
+    await vi.waitFor(() => expect(frage).toHaveBeenCalled());
+    expect(onSchliessen).not.toHaveBeenCalled();
+    expect(window.history.state).toMatchObject({ lerninhalte: true });
+
+    frage.mockReturnValue(true);
+    window.history.back();
+    await vi.waitFor(() => expect(onSchliessen).toHaveBeenCalled());
+  });
+
   it('löscht eine Lektion nach Rückfrage', async () => {
     const { speicher } = await zeige([lektion('1')], '1');
     vi.spyOn(window, 'confirm').mockReturnValue(true);

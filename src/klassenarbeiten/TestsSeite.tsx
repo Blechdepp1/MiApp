@@ -1,5 +1,6 @@
 import { useId, useState, type ReactNode } from 'react';
 import { Diktat } from '../basis/Diktat.tsx';
+import { KANAL } from '../basis/kanal.ts';
 import { Seite } from '../basis/Seite.tsx';
 import { insBildHolen } from '../basis/sichtbarerBereich.ts';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
@@ -19,9 +20,28 @@ import {
   NOTEN,
   ohneNote,
   punkteFuerTest,
+  sichtbareTests,
   type TestEintrag,
 } from './logik.ts';
 import './Tests.css';
+
+const SPAETER_SCHLUESSEL = `${KANAL.speicherPraefix}-test-spaeter`;
+
+function ladeSpaeter(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(SPAETER_SCHLUESSEL) ?? '{}') as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+function speichereSpaeter(wert: Record<string, string>) {
+  try {
+    localStorage.setItem(SPAETER_SCHLUESSEL, JSON.stringify(wert));
+  } catch {
+    // dann fragt die App beim nächsten Öffnen eben wieder
+  }
+}
 
 function beschreibe(t: TestEintrag): string {
   return `${artName(t.art)} in ${fachName(t.fach)} am ${datumText(t.datum)}${t.thema ? `: ${t.thema}` : ''}`;
@@ -33,7 +53,8 @@ export function TestsSeite({ heute = tagVon(new Date().toISOString()) }: { heute
   const ereignisse = useEreignisse();
   const protokoll = useProtokoll();
   const [eintragen, setEintragen] = useState(false);
-  const [spaeter, setSpaeter] = useState<Set<string>>(new Set());
+  // „Weiß ich noch nicht“: heute nicht mehr fragen, morgen wieder (auf diesem Gerät gemerkt)
+  const [spaeter, setSpaeter] = useState<Record<string, string>>(ladeSpaeter);
   const [meldung, setMeldung] = useState<string | null>(null);
 
   if (!ereignisse) {
@@ -44,8 +65,8 @@ export function TestsSeite({ heute = tagVon(new Date().toISOString()) }: { heute
     );
   }
 
-  const tests = alleTests(ereignisse);
-  const fragen = ohneNote(tests, heute).filter((t) => !spaeter.has(t.id));
+  const tests = sichtbareTests(alleTests(ereignisse));
+  const fragen = ohneNote(tests, heute).filter((t) => spaeter[t.id] !== heute);
   const bald = tests.filter((t) => t.datum > heute).reverse();
   const mitNote = tests.filter((t) => t.note !== undefined);
 
@@ -84,7 +105,11 @@ export function TestsSeite({ heute = tagVon(new Date().toISOString()) }: { heute
             <button
               type="button"
               className="tests-leise"
-              onClick={() => setSpaeter(new Set([...spaeter, t.id]))}
+              onClick={() => {
+                const neu = { ...spaeter, [t.id]: heute };
+                setSpaeter(neu);
+                speichereSpaeter(neu);
+              }}
             >
               Weiß ich noch nicht
             </button>

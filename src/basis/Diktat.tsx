@@ -52,7 +52,14 @@ export function Diktat({
     };
     laufend.current = e;
     setHoert(true);
-    e.start();
+    try {
+      e.start();
+    } catch {
+      // z. B. wenn die Erkennung noch von vorher läuft
+      laufend.current = null;
+      setHoert(false);
+      setFehler('Das Sprechen hat nicht geklappt. Bitte noch einmal tippen.');
+    }
   }
 
   return (

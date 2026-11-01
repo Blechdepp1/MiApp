@@ -16,6 +16,15 @@ export function istRueckkehrVonDropbox(suche = window.location.search): boolean 
   return p.has('code') || p.has('error');
 }
 
-// Testkanal: liest die Daten von Milenas App (App-Ordner ohne Unterordner), schreibt dort nie
-export const dropboxLive: Pick<typeof dropbox, 'verbunden' | 'liste' | 'herunterladen'> =
-  erstelleDropbox({ speicher: dexieTokenSpeicher, redirectUri: REDIRECT_URI });
+// Testkanal: liest die Daten von Milenas App (App-Ordner ohne Unterordner). Schreiben ist
+// zur Laufzeit gesperrt, und nach außen gibt es nur die lesenden Funktionen.
+const live = erstelleDropbox({
+  speicher: dexieTokenSpeicher,
+  redirectUri: REDIRECT_URI,
+  nurLesen: true,
+});
+export const dropboxLive: Pick<typeof dropbox, 'verbunden' | 'liste' | 'herunterladen'> = {
+  verbunden: () => live.verbunden(),
+  liste: (pfad) => live.liste(pfad),
+  herunterladen: (pfad) => live.herunterladen(pfad),
+};
