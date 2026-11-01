@@ -7,6 +7,9 @@ Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei F
 
 - Für Eltern: Wochenübersicht mit Lerntagen, Runden und Minuten der letzten 7 Tage.
 - Für Eltern: Bei jeder Lektion steht, wie viele Wörter du schon sicher kannst, welche du gerade lernst und welche dir schwerfallen.
+- Mit ganz großer Schrift passt jetzt alles auf den Bildschirm.
+- Ist eine Antwort falsch, steht da „Nicht schlimm!“, und du kannst dir alles vorlesen lassen.
+- Die Smileys bei „Sag uns was“ haben jetzt Wörter darunter.
 
 ## 0.11.0 – 01.11.2026
 

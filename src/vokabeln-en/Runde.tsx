@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { punkteFuerRunde, tagesziel } from '../belohnung/logik.ts';
 import { PUNKTE } from '../belohnung/werte.ts';
 import { useProtokoll } from '../daten/ProtokollKontext.tsx';
@@ -229,40 +229,51 @@ function Rueckmeldung({
   kommtNochmal: boolean;
   onWeiter: () => void;
 }) {
+  const kasten = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    kasten.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+  }, []);
   const lob = 'Richtig! Super gemacht!';
   const fast = 'Fast richtig! Das zählt. So schreibt man es:';
   return (
-    <div className="runde-rueckmeldung" role="status" data-richtig={antwort.richtig}>
-      {antwort.fast ? (
-        <>
-          <p>
-            <VorleseKnopf text={fast} />
-            <span>{fast}</span>
-          </p>
-          <p className="runde-loesung" lang="en">
-            <VorleseKnopf text={sprechtext(wort.en)} sprache="en" /> {wort.en}
-          </p>
-        </>
-      ) : antwort.richtig ? (
-        <p>
-          <VorleseKnopf text={lob} />
-          <span>{lob} 🎉</span>
-        </p>
-      ) : (
-        <>
-          <p>So ist es richtig:</p>
-          <p className="runde-loesung">
-            <span lang="en">
+    <div ref={kasten} className="runde-rueckmeldung" data-richtig={antwort.richtig}>
+      <div role="status">
+        {antwort.fast ? (
+          <>
+            <p>
+              <VorleseKnopf text={fast} />
+              <span>{fast}</span>
+            </p>
+            <p className="runde-loesung" lang="en">
               <VorleseKnopf text={sprechtext(wort.en)} sprache="en" /> {wort.en}
-            </span>
-            <span aria-hidden="true">=</span>
-            <span>
-              <VorleseKnopf text={wort.de} /> {wort.de}
-            </span>
+            </p>
+          </>
+        ) : antwort.richtig ? (
+          <p>
+            <VorleseKnopf text={lob} />
+            <span>{lob} 🎉</span>
           </p>
-          {kommtNochmal && <p>Das Wort kommt gleich noch einmal.</p>}
-        </>
-      )}
+        ) : (
+          <>
+            <p>
+              <VorleseKnopf
+                text={`Nicht schlimm! So ist es richtig: ${wort.de}.${kommtNochmal ? ' Das Wort kommt gleich noch einmal.' : ''}`}
+              />
+              <span>Nicht schlimm! So ist es richtig:</span>
+            </p>
+            <p className="runde-loesung">
+              <span lang="en">
+                <VorleseKnopf text={sprechtext(wort.en)} sprache="en" /> {wort.en}
+              </span>
+              <span aria-hidden="true">=</span>
+              <span>
+                <VorleseKnopf text={wort.de} /> {wort.de}
+              </span>
+            </p>
+            {kommtNochmal && <p>Das Wort kommt gleich noch einmal.</p>}
+          </>
+        )}
+      </div>
       <button type="button" className="runde-weiter" onClick={onWeiter}>
         Weiter →
       </button>

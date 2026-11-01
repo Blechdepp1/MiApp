@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Seite } from '../basis/Seite.tsx';
+import { Dialog } from '../basis/Dialog.tsx';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 import { useInhalt } from '../daten/InhalteKontext.tsx';
 import { useEreignisse, useProtokoll } from '../daten/ProtokollKontext.tsx';
@@ -62,7 +63,10 @@ export function BelohnungenSeite() {
       )}
 
       {belohnungen.length === 0 ? (
-        <p>Noch keine Belohnungen festgelegt.</p>
+        <p className="belohnungen-guthaben">
+          <VorleseKnopf text="Noch keine Belohnungen festgelegt." />
+          <span>Noch keine Belohnungen festgelegt.</span>
+        </p>
       ) : (
         <ul className="belohnungen-liste">
           {belohnungen.map((b) => {
@@ -106,7 +110,17 @@ export function BelohnungenSeite() {
 
       {eingeloest.length > 0 && (
         <section className="belohnungen-verlauf">
-          <h2>Eingelöst</h2>
+          <div className="belohnungen-guthaben">
+            <VorleseKnopf
+              text={`Eingelöst: ${eingeloest
+                .map(
+                  (e) =>
+                    `${e.name ?? 'Belohnung'}, ${e.bestaetigt ? 'bestätigt' : 'wartet auf Bestätigung'}`,
+                )
+                .join('. ')}`}
+            />
+            <h2>Eingelöst</h2>
+          </div>
           <ul>
             {eingeloest.map((e) => (
               <li key={e.id}>
@@ -146,11 +160,13 @@ function EinloesenFrage({
 }) {
   const ja = useRef<HTMLButtonElement>(null);
   const text = `Möchtest du ${belohnung.name} für ${belohnung.preis} Punkte einlösen?`;
-  useEffect(() => {
-    ja.current?.focus();
-  }, []);
   return (
-    <div className="aufhoeren" role="dialog" aria-modal="true" aria-labelledby="einloesen-titel">
+    <Dialog
+      className="aufhoeren"
+      beschriftetVon="einloesen-titel"
+      startFokus={ja}
+      onAbbrechen={() => !laeuft && onNein()}
+    >
       <div className="aufhoeren-karte">
         <p className="aufhoeren-symbol" aria-hidden="true">
           {belohnung.symbol}
@@ -171,6 +187,6 @@ function EinloesenFrage({
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }

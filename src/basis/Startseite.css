@@ -29,7 +29,8 @@
 
 .startseite-gruss h1 {
   margin: 0;
-  font-size: 1.25rem;
+  /* Bei sehr großer Schrift nicht so groß, dass Wörter mitten drin umbrechen */
+  font-size: min(1.25rem, 6.5vw);
 }
 
 .startseite-eltern {
@@ -49,7 +50,8 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  /* Zwei Spalten, bei großer Schrift von selbst eine */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr));
   gap: 1rem;
 }
 
@@ -58,6 +60,7 @@
 }
 
 .kachel a {
+  min-width: 0;
   display: grid;
   place-items: center;
   gap: 0.5rem;

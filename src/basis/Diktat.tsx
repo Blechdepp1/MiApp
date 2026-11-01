@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { VorleseKnopf } from './VorleseKnopf.tsx';
 import { standardErkennung, type Erkennung, type ErkennungsFabrik } from './spracherkennung.ts';
 import './Diktat.css';
 
@@ -79,8 +80,9 @@ export function Diktat({
         </p>
       )}
       {fehler && (
-        <p className="diktat-status" role="alert">
-          {fehler}
+        <p className="diktat-status diktat-fehler" role="alert">
+          <VorleseKnopf text={fehler} />
+          <span>{fehler}</span>
         </p>
       )}
     </div>

@@ -26,3 +26,9 @@
   margin: 0;
   font-weight: 700;
 }
+
+.diktat-fehler {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

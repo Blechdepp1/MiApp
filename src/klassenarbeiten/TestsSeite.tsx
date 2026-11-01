@@ -73,7 +73,7 @@ export function TestsSeite({ heute = tagVon(new Date().toISOString()) }: { heute
   async function noteEintragen(t: TestEintrag, note: number) {
     await protokoll.hinzufuegen({ typ: 'test-ergebnis', testId: t.id, note });
     setMeldung(
-      `Danke! Sobald deine Eltern die Note bestätigt haben, bekommst du ${TEST_PUNKTE.ergebnis} Punkte – egal welche Note.`,
+      `Danke! Deine Eltern schauen die Note an. Dann bekommst du ${TEST_PUNKTE.ergebnis} Punkte. Die Note ist egal.`,
     );
   }
 
@@ -164,7 +164,17 @@ export function TestsSeite({ heute = tagVon(new Date().toISOString()) }: { heute
 
       {mitNote.length > 0 && (
         <section className="tests-liste" aria-label="Schon geschrieben">
-          <h2>Schon geschrieben</h2>
+          <div className="tests-zeile">
+            <VorleseKnopf
+              text={`Schon geschrieben: ${mitNote
+                .map(
+                  (t) =>
+                    `${beschreibe(t)}, Note ${t.note}, ${t.bestaetigt ? 'bestätigt' : 'wartet auf Bestätigung'}`,
+                )
+                .join('. ')}`}
+            />
+            <h2>Schon geschrieben</h2>
+          </div>
           <ul>
             {mitNote.map((t) => (
               <li key={t.id}>
@@ -207,8 +217,8 @@ function TestEintragen({ onFertig }: { onFertig: (meldung?: string) => void }) {
         alleTests(await protokoll.alle()).find((t) => t.id === ereignis.id)?.punkte.eintragen ?? 0;
       onFertig(
         punkte > 0
-          ? `Super, eingetragen! +${punkte} Punkte. Nach dem Test fragt dich die App nach der Note.`
-          : 'Super, eingetragen! Nach dem Test fragt dich die App nach der Note.',
+          ? `Super, eingetragen! +${punkte} Punkte. Nach dem Test fragt die App: Wie lief es?`
+          : 'Super, eingetragen! Nach dem Test fragt die App: Wie lief es?',
       );
     } finally {
       setSendet(false);
@@ -296,6 +306,11 @@ function TestEintragen({ onFertig }: { onFertig: (meldung?: string) => void }) {
         </Feld>
       )}
 
+      {(!fach || !datum) && (
+        <p className="tests-tipp">
+          {!fach ? 'Tipp erst ein Fach an.' : 'Wähl noch aus, wann der Test ist.'}
+        </p>
+      )}
       <button
         type="button"
         className="tests-haupt"

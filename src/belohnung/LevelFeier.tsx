@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useEinstellungen } from '../basis/EinstellungenKontext.tsx';
 import { vorlesen } from '../basis/vorlesen.ts';
+import { Dialog } from '../basis/Dialog.tsx';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 import { useInhalt } from '../daten/InhalteKontext.tsx';
 import { useEreignisse } from '../daten/ProtokollKontext.tsx';
@@ -66,7 +67,12 @@ export function LevelFeier({
   }
 
   return (
-    <div className="feier" role="dialog" aria-modal="true" aria-labelledby="feier-titel">
+    <Dialog
+      className="feier"
+      beschriftetVon="feier-titel"
+      startFokus={knopf}
+      onAbbrechen={schliessen}
+    >
       <div className="feier-konfetti" aria-hidden="true">
         {Array.from({ length: 14 }, (_, i) => (
           <span
@@ -93,6 +99,6 @@ export function LevelFeier({
           Juhu! 🎉
         </button>
       </div>
-    </div>
+    </Dialog>
   );
 }

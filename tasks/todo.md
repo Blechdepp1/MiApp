@@ -345,6 +345,11 @@ Code-Review seit v0.9.0 und Sicherheitsprüfung, behoben:
 - Zurück-Taste schließt „Lerninhalte“ mit Rückfrage; Fehler-Meldungen höchstens 5 pro Tag; Diktat fängt Startfehler ab; Rückmeldungen zeigen, ob vom Kind oder den Eltern.
 Offen (Entscheidung der Eltern): Testkanal unter eigener Adresse (anderer Ursprung), vertraute Eltern-Geräte markieren.
 
+### Barrierefreiheit/LRS-Prüfung und Layout-Tests (01.11.2026) ✅
+- Neue Layout-Tests (`e2e/layout.ts`, `e2e/layout.spec.ts`): 12 Ansichten × Standard/größte Darstellung, prüfen seitliches Scrollen, abgeschnittenen Text, Überdeckung, Tippflächen; Nachweis, dass der Level-Balken-Fehler gefunden würde.
+- Behoben: größte Schrift + OpenDyslexic macht keine Seite mehr breiter als das Handy (Überschriften an Bildschirmbreite begrenzt, Umbruch langer Wörter, Raster mit `minmax(0, 1fr)`); Dialoge als `<dialog>` (Fokus bleibt drin, Escape, Fokus zurück); ermutigende Texte („Nicht schlimm!“, „Später weiter“); mehr Vorlesen (Rückmeldung, Diktat-Fehler, Listen); Smileys beschriftet; Antwort-Rückmeldung verdeckt die Antworten nicht mehr; Gold-Kontrast (Sterne, Ring, Fokusrahmen); Notenknöpfe umbrechend; Hinweise bei ausgegrauten Knöpfen.
+- Offen (niedrig): Pfeiltasten in den Einstellungs-Auswahlen.
+
 ### ✅ Checkpoint E
 - [ ] Neue Versionen gehen zuerst in den Testkanal
 - [ ] Milena kann Feedback geben und Tests eintragen; Bonus und Bestätigung funktionieren

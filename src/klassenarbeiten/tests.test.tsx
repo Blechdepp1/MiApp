@@ -64,7 +64,7 @@ describe('Meine Tests (Kind)', () => {
     mit(protokoll, <TestsSeite heute="2026-11-03" />);
     expect(await screen.findByRole('heading', { name: 'Wie lief dein Test?' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: '3' }));
-    expect(await screen.findByRole('status')).toHaveTextContent('egal welche Note');
+    expect(await screen.findByRole('status')).toHaveTextContent('Die Note ist egal');
     expect(alleTests(await protokoll.alle())[0]).toMatchObject({ note: 3, bestaetigt: false });
     expect(screen.getByText(/wartet auf Bestätigung/)).toBeInTheDocument();
   });

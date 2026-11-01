@@ -7,7 +7,7 @@ test('Nachfrage beim Verlassen einer angefangenen Runde', async ({ page }) => {
 
   // Zurück-Taste des Handys: Nachfrage statt Verlassen
   await page.goBack();
-  const frage = page.getByRole('dialog', { name: 'Möchtest du wirklich aufhören?' });
+  const frage = page.getByRole('dialog', { name: 'Möchtest du aufhören?' });
   await expect(frage).toBeVisible();
   await expect(page.getByRole('heading', { level: 1, name: 'Vokabeln' })).toBeVisible();
 
@@ -17,8 +17,8 @@ test('Nachfrage beim Verlassen einer angefangenen Runde', async ({ page }) => {
   await page.getByRole('link', { name: /Zurück/ }).click();
   await expect(frage).toBeVisible();
 
-  // Aufhören: zur Startseite, danach verlässt Zurück die App
-  await page.getByRole('button', { name: 'Aufhören' }).click();
+  // Später weiter: zur Startseite, danach verlässt Zurück die App
+  await page.getByRole('button', { name: 'Später weiter' }).click();
   await expect(page.getByRole('link', { name: 'Vokabeln' })).toBeVisible();
   await page.goBack();
   expect(page.url()).toBe('about:blank');

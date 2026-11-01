@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { Dialog } from '../basis/Dialog.tsx';
 import { zielAusHash } from '../basis/navigation.ts';
 import { VERSION_TEXT } from '../basis/version.ts';
 import { Diktat } from '../basis/Diktat.tsx';
@@ -14,6 +15,7 @@ const FRAGE = 'Wie gefällt dir MiApp gerade?';
 const SATZ =
   'Willst du uns noch etwas sagen? Du musst nicht tippen: Tipp auf Sprechen und sag es einfach.';
 const DANKE = 'Danke! Wir lesen das ganz bestimmt.';
+const ERST_GESICHT = 'Tipp erst ein Gesicht an oder sag etwas.';
 
 // „Sag uns was“: Smiley antippen, optional einen Satz diktieren – ohne tippen zu müssen
 export function SagUnsWas() {
@@ -37,10 +39,6 @@ function SagUnsWasDialog({ onSchliessen }: { onSchliessen: () => void }) {
   const [sendet, setSendet] = useState(false);
   const erster = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    erster.current?.focus();
-  }, []);
-
   async function abschicken() {
     if (sendet) return;
     setSendet(true);
@@ -62,7 +60,12 @@ function SagUnsWasDialog({ onSchliessen }: { onSchliessen: () => void }) {
   }
 
   return (
-    <div className="aufhoeren" role="dialog" aria-modal="true" aria-label="Sag uns was">
+    <Dialog
+      className="aufhoeren"
+      label="Sag uns was"
+      startFokus={erster}
+      onAbbrechen={onSchliessen}
+    >
       <div className="aufhoeren-karte sag-uns-was">
         {gesendet ? (
           <>
@@ -89,11 +92,13 @@ function SagUnsWasDialog({ onSchliessen }: { onSchliessen: () => void }) {
                   key={s.stimmung}
                   ref={i === 0 ? erster : undefined}
                   type="button"
-                  aria-label={s.name}
                   aria-pressed={stimmung === s.stimmung}
                   onClick={() => setStimmung(s.stimmung)}
                 >
-                  {s.symbol}
+                  <span className="sag-uns-was-gesicht" aria-hidden="true">
+                    {s.symbol}
+                  </span>
+                  <span>{s.name}</span>
                 </button>
               ))}
             </div>
@@ -109,6 +114,7 @@ function SagUnsWasDialog({ onSchliessen }: { onSchliessen: () => void }) {
               onChange={(e) => setText(e.target.value)}
               onFocus={(e) => insBildHolen(e.currentTarget)}
             />
+            {!stimmung && !text.trim() && <p className="sag-uns-was-tipp">{ERST_GESICHT}</p>}
             <button
               type="button"
               className="sag-uns-was-haupt"
@@ -123,6 +129,6 @@ function SagUnsWasDialog({ onSchliessen }: { onSchliessen: () => void }) {
           </>
         )}
       </div>
-    </div>
+    </Dialog>
   );
 }

@@ -196,19 +196,19 @@ describe('Runde', () => {
       const { container } = zeige();
       await ersteAntwort(container);
       act(() => navigiere('start'));
-      const frage = screen.getByRole('dialog', { name: 'Möchtest du wirklich aufhören?' });
-      expect(frage).toHaveTextContent('keine Punkte');
+      const frage = screen.getByRole('dialog', { name: 'Möchtest du aufhören?' });
+      expect(frage).toHaveTextContent('deine Punkte für diese Runde');
       expect(frage).toHaveTextContent('Nur noch 2 Wörter!');
       await userEvent.click(screen.getByRole('button', { name: 'Weiter üben' }));
       expect(screen.queryByRole('dialog')).toBeNull();
       expect(window.location.hash).toBe('#/vokabeln');
     });
 
-    it('geht bei „Aufhören“ zur Startseite', async () => {
+    it('geht bei „Später weiter“ zur Startseite', async () => {
       const { container } = zeige();
       await ersteAntwort(container);
       act(() => navigiere('start'));
-      await userEvent.click(screen.getByRole('button', { name: 'Aufhören' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Später weiter' }));
       await vi.waitFor(() => expect(window.location.hash).toBe('#/'));
     });
 

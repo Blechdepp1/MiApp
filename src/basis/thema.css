@@ -74,6 +74,18 @@ h3 {
   margin: 0 0 0.5rem;
 }
 
+/* Feste Größe statt 2em: Mit großer Schrift und OpenDyslexic wären lange Wörter wie
+   „Einstellungen“ sonst breiter als das Handy */
+h1 {
+  font-size: min(1.6rem, 8.5vw);
+}
+
+/* Lange Wörter umbrechen statt über den Rand zu laufen (nur im Notfall; keine Silbentrennung,
+   die ist bei LRS schwer zu lesen) */
+body {
+  overflow-wrap: anywhere;
+}
+
 /* Keine Kursivschrift: schwerer zu lesen bei LRS */
 em,
 i {
@@ -100,6 +112,22 @@ select {
 }
 
 :focus-visible {
-  outline: 3px solid var(--farbe-belohnung);
+  outline: 3px solid var(--farbe-akzent);
   outline-offset: 2px;
+}
+
+/* Dialoge (src/basis/Dialog.tsx): Aussehen kommt ganz von den eigenen Klassen */
+dialog {
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  color: inherit;
+}
+
+dialog::backdrop {
+  background: transparent;
 }

@@ -33,13 +33,31 @@
 }
 
 .sag-uns-was-smileys button {
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 50%;
+  flex: 1 1 0;
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  padding: 0.4rem 0.2rem;
+  border-radius: var(--radius);
   border: 3px solid transparent;
   background: var(--farbe-flaeche);
-  font-size: 2.5rem;
+  color: var(--farbe-text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
   cursor: pointer;
+}
+
+.sag-uns-was-gesicht {
+  font-size: 2.4rem;
+  line-height: 1.1;
+}
+
+.sag-uns-was-tipp {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--farbe-text-leise);
 }
 
 .sag-uns-was-smileys button[aria-pressed='true'] {

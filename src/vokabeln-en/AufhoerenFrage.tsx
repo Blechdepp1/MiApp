@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
+import { Dialog } from '../basis/Dialog.tsx';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 
 // Kindgerechte Nachfrage, bevor eine angefangene Runde verlassen wird
@@ -12,43 +13,43 @@ export function AufhoerenFrage({
   onAufhoeren: () => void;
 }) {
   const weiter = useRef<HTMLButtonElement>(null);
+  // Ermutigen statt drohen: was sie noch schafft, nicht was sie verliert
   const nochText =
     uebrig <= 0
       ? 'Du bist gleich fertig!'
       : uebrig === 1
         ? 'Nur noch 1 Wort!'
         : `Nur noch ${uebrig} Wörter!`;
-  const text = `Möchtest du wirklich aufhören? Wenn du jetzt aufhörst, bekommst du für diese Runde keine Punkte. ${nochText}`;
-
-  useEffect(() => {
-    weiter.current?.focus();
-  }, []);
+  const text = `Möchtest du aufhören? ${nochText} Dann bekommst du deine Punkte für diese Runde.`;
 
   return (
-    <div className="aufhoeren" role="dialog" aria-modal="true" aria-labelledby="aufhoeren-titel">
+    <Dialog
+      className="aufhoeren"
+      beschriftetVon="aufhoeren-titel"
+      startFokus={weiter}
+      onAbbrechen={onBleiben}
+    >
       <div className="aufhoeren-karte">
         <p className="aufhoeren-symbol" aria-hidden="true">
           🤔
         </p>
         <div className="aufhoeren-titel">
-          <h2 id="aufhoeren-titel">Möchtest du wirklich aufhören?</h2>
+          <h2 id="aufhoeren-titel">Möchtest du aufhören?</h2>
           <VorleseKnopf text={text} />
         </div>
-        <p>
-          Wenn du jetzt aufhörst, bekommst du für diese Runde <strong>keine Punkte</strong>.
-        </p>
         <p className="aufhoeren-noch">
           {nochText} <span aria-hidden="true">💪</span>
         </p>
+        <p>Dann bekommst du deine Punkte für diese Runde.</p>
         <div className="aufhoeren-knoepfe">
           <button ref={weiter} type="button" className="runde-weiter" onClick={onBleiben}>
             Weiter üben
           </button>
           <button type="button" className="schreib-hilfe" onClick={onAufhoeren}>
-            Aufhören
+            Später weiter
           </button>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }

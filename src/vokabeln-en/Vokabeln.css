@@ -43,7 +43,8 @@
   padding: 1.5rem 1rem;
   border-radius: var(--radius);
   background: var(--farbe-flaeche);
-  font-size: 2rem;
+  /* Groß, aber lange Wörter passen auch bei großer Schrift aufs Handy */
+  font-size: clamp(1.3rem, 8vw, 2rem);
   font-weight: 700;
 }
 
@@ -91,9 +92,10 @@
 }
 
 /* Bleibt am unteren Bildschirmrand, damit „Weiter“ auf dem Handy ohne Scrollen sichtbar ist */
+/* Steht unter den Antworten (nicht darüber geschoben); beim Erscheinen wird sie ins Bild
+   gescrollt, damit „Weiter“ sichtbar ist und die gewählte Antwort sichtbar bleibt */
 .runde-rueckmeldung {
-  position: sticky;
-  bottom: 0.5rem;
+  scroll-margin-bottom: 0.5rem;
   display: grid;
   gap: 0.75rem;
   padding: 1rem;
@@ -101,6 +103,11 @@
   background: var(--farbe-flaeche);
   border-left: 8px solid var(--farbe-belohnung);
   box-shadow: 0 -4px 16px rgb(0 0 0 / 0.18);
+}
+
+.runde-rueckmeldung > [role='status'] {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .runde-rueckmeldung[data-richtig='true'] {

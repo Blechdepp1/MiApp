@@ -38,7 +38,8 @@
 
 .tests-noten {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  /* 6 nebeneinander; bei großer Schrift von selbst in zwei Reihen */
+  grid-template-columns: repeat(auto-fit, minmax(3rem, 1fr));
   gap: 0.4rem;
 }
 
@@ -95,6 +96,8 @@
 
 .tests-feld input,
 .tests-feld select {
+  width: 100%;
+  min-width: 0;
   min-height: var(--touch);
   padding: 0.25rem 0.75rem;
   border: 2px solid var(--farbe-text-leise);
@@ -109,4 +112,10 @@
   padding-left: 1.25rem;
   display: grid;
   gap: 0.4rem;
+}
+
+.tests-tipp {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--farbe-text-leise);
 }
