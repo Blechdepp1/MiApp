@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   MAX_TITEL,
   STATUS,
@@ -31,8 +31,11 @@ export function LektionBearbeiten({
   onLoeschen,
   onGeaendert,
   onZurueck,
+  kopf,
 }: {
   lektion: Lektion & { inhalt: VokabelInhalt };
+  // Wird unter „Alle Lektionen“ angezeigt (z. B. der Lernstand)
+  kopf?: ReactNode;
   // liefert einen Fehlertext oder null
   onSpeichern: (aenderung: Aenderung) => Promise<string | null>;
   onLoeschen: () => void;
@@ -98,6 +101,7 @@ export function LektionBearbeiten({
       <button type="button" className="nur-handy bearbeiten-zurueck" onClick={onZurueck}>
         ← Alle Lektionen
       </button>
+      {kopf}
       <label>
         <span>Titel</span>
         <input

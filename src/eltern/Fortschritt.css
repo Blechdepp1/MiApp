@@ -1,0 +1,140 @@
+.fortschritt-balken {
+  display: flex;
+  height: 0.8rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--farbe-flaeche);
+  border: 1px solid color-mix(in srgb, var(--farbe-text-leise) 40%, transparent);
+}
+
+.fortschritt-balken span {
+  display: block;
+  height: 100%;
+}
+
+.fb-sicher {
+  background: var(--farbe-akzent);
+}
+
+.fb-lernt {
+  background: var(--farbe-belohnung);
+}
+
+.fb-neu {
+  background: transparent;
+}
+
+.fl {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: 3px;
+  border: 1px solid var(--farbe-text-leise);
+  vertical-align: middle;
+}
+
+.fortschritt-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.lektion-fortschritt {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+}
+
+.lektion-fortschritt h3,
+.lektion-fortschritt p {
+  margin: 0;
+}
+
+.lektion-fortschritt summary {
+  min-height: var(--touch);
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Wochenübersicht */
+.woche-tage {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+
+.woche-tage li {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: center;
+  font-size: 0.85rem;
+}
+
+.woche-punkt {
+  width: min(2rem, 100%);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--farbe-akzent);
+  font-weight: 700;
+}
+
+.woche-punkt.geuebt {
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
+}
+
+.woche-zahlen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.woche-zahlen div {
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  background: var(--farbe-hintergrund);
+  text-align: center;
+}
+
+.woche-zahlen dt {
+  font-size: 0.85rem;
+  color: var(--farbe-text-leise);
+}
+
+.woche-zahlen dd {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.woche-lektionen {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.woche-lektionen li {
+  display: grid;
+  gap: 0.25rem;
+}
+
+/* In der Liste der Lerninhalte über die ganze Breite des Eintrags */
+.lerninhalte-eintrag .fortschritt-balken {
+  justify-self: stretch;
+  height: 0.5rem;
+}

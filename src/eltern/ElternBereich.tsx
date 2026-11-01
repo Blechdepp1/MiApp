@@ -25,7 +25,9 @@ import { LevelVerwalten } from './LevelVerwalten.tsx';
 import { zeitText } from './liveKopie.ts';
 import { LiveDatenUebernehmen, useKopieStand } from './LiveDatenUebernehmen.tsx';
 import { Rueckmeldungen } from './Rueckmeldungen.tsx';
+import { wochenUebersicht } from './statistik.ts';
 import { TestUebersicht } from './TestUebersicht.tsx';
+import { Wochenuebersicht } from './Wochenuebersicht.tsx';
 import './ElternBereich.css';
 
 // Aufbau wie die Einstellungen von Android und iOS: eine Übersicht mit Gruppen, jede Zeile zeigt
@@ -34,6 +36,7 @@ import './ElternBereich.css';
 type Bereich =
   | 'einloesungen'
   | 'tests'
+  | 'woche'
   | 'rueckmeldungen'
   | 'lektionen'
   | 'belohnungen'
@@ -46,6 +49,7 @@ type Bereich =
 const TITEL: Record<Bereich, string> = {
   einloesungen: 'Einlösungen',
   tests: 'Tests & Klassenarbeiten',
+  woche: 'Wochenübersicht',
   rueckmeldungen: 'Rückmeldungen',
   lektionen: 'Lektionen',
   belohnungen: 'Belohnungen',
@@ -114,6 +118,8 @@ function Unterseite({ bereich, dropbox }: { bereich: Bereich; dropbox: Dropbox }
       return <Einloesungen />;
     case 'tests':
       return <TestUebersicht />;
+    case 'woche':
+      return <Wochenuebersicht />;
     case 'rueckmeldungen':
       return <Rueckmeldungen />;
     case 'lektionen':
@@ -155,6 +161,7 @@ function Uebersicht({ oeffne }: { oeffne: (b: Bereich) => void }) {
   const dran = lektionen.filter((l) => statusVon(l) === 'aktiv').length;
   const heute = tagVon(new Date().toISOString());
   const naechster = [...tests].reverse().find((t) => t.datum >= heute);
+  const woche = wochenUebersicht(ereignisse, heute);
 
   const dropboxText = !sync.verbunden
     ? 'Nicht verbunden'
@@ -203,6 +210,16 @@ function Uebersicht({ oeffne }: { oeffne: (b: Bereich) => void }) {
       )}
 
       <Gruppe titel="Lernen">
+        <Zeile
+          symbol="📊"
+          titel="Wochenübersicht"
+          text={
+            woche.runden === 0
+              ? 'Diese Woche noch nicht geübt'
+              : `${woche.lerntage} Lerntage · ${woche.runden} Runden · ≈ ${woche.minuten} Min.`
+          }
+          onClick={() => oeffne('woche')}
+        />
         <Zeile
           symbol="📚"
           titel="Lektionen"

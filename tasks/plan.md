@@ -50,7 +50,7 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 - [x] 17a. Lektionen: Format, Speicherung, Abgleich (vorbereitet für Deutsch und Mathe)
 - [x] 17b. Lektion aus Fotos (Englisch)
 - [x] 18a. Lerninhalte verwalten: Fach → Lektion → Wörter, Status (aktiv/pausiert/archiviert), bearbeiten, am PC zweispaltig
-- [ ] 18b. Fortschritt pro Lektion (neu / am Lernen / sicher), schwierige Wörter und Wochenübersicht
+- [x] 18b. Fortschritt pro Lektion (neu / am Lernen / sicher), schwierige Wörter und Wochenübersicht
 - [ ] 19. End-to-End-Tests und Abnahme auf dem Gerät
 
 **Checkpoint D:** Alle Abnahmekriterien aus SPEC.md Abschnitt 10 sind erfüllt, und Version 1 ist fertig.

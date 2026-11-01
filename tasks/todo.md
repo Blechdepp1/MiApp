@@ -260,21 +260,22 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/lektionen/lektion.ts`, `src/eltern/Lerninhalte.tsx`, `src/eltern/LektionBearbeiten.tsx`, `src/vokabeln-en/quellen.ts`
 **Umfang:** M
 
-### Aufgabe 18b: Fortschritt pro Lektion und Wochenübersicht
+### Aufgabe 18b: Fortschritt pro Lektion und Wochenübersicht ✅ (im Testkanal, Gerätetest offen)
 **Beschreibung:** In der Ansicht „Lerninhalte“ pro Lektion den Fortschritt (neu / am Lernen / sicher) und pro Wort Fach, zuletzt geübt und Fehlerzahl. Dazu „Wörter, die ihr gerade schwerfallen“ und die Wochenübersicht der letzten 7 Tage (Lerntage, Minuten, Runden, gelernte Wörter).
 **Akzeptanz:**
-- [ ] Die Zahlen stimmen mit dem Ereignis-Protokoll überein (Unit-Test).
-- [ ] Sichtbar ist, welche Lektion gerade dran ist und wann sie zuletzt geübt hat.
+- [x] Die Zahlen stimmen mit dem Ereignis-Protokoll überein (Unit-Test).
+- [x] Sichtbar ist, welche Lektion gerade dran ist und wann sie zuletzt geübt hat.
+**Umsetzung:** `src/eltern/statistik.ts` (sicher ab Leitner-Fach 3), Wochenübersicht als Unterseite im Eltern-Bereich, Fortschritt in „Lerninhalte“. Version 0.12.0.
 **Prüfen:** Unit- und Komponententests.
 **Abhängig von:** 13, 18a
 **Dateien:** `src/eltern/statistik.ts`, `src/eltern/statistik.test.ts`, `src/eltern/Wochenuebersicht.tsx`
 **Umfang:** M
 
-### Aufgabe 19: End-to-End-Tests und Abnahme auf dem Gerät
+### Aufgabe 19: End-to-End-Tests und Abnahme auf dem Gerät (E2E ✅, Geräte-Abnahme offen)
 **Beschreibung:** Playwright-Tests für die Hauptabläufe ergänzen: Runde, Level-Aufstieg, Einlösen und Bestätigen, Foto-Import (gemockt), Eltern-PIN. Danach die Abnahme aus SPEC Abschnitt 10 auf den echten Geräten durchgehen.
 **Akzeptanz:**
-- [ ] Alle E2E-Tests grün.
-- [ ] Jeder Punkt aus SPEC Abschnitt 10 ist abgehakt.
+- [x] Alle E2E-Tests grün (16, inkl. Foto-Import mit nachgestellter KI).
+- [ ] Jeder Punkt aus SPEC Abschnitt 10 ist abgehakt (Checkliste `docs/abnahme.md`).
 **Prüfen:** `npm run test:e2e`; Abnahme-Checkliste gemeinsam.
 **Abhängig von:** 15, 17, 18a, 18b
 **Dateien:** `e2e/*.spec.ts`

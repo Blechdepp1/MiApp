@@ -1,5 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEreignisse } from '../daten/ProtokollKontext.tsx';
+import { berechneStaende } from '../vokabeln-en/leitner.ts';
+import { FortschrittBalken, LektionFortschritt } from './Fortschrittsanzeigen.tsx';
+import { fortschritt } from './statistik.ts';
 import {
+  alsVokabelliste,
   istVokabelLektion,
   pruefeLektion,
   sortiereLektionen,
@@ -38,6 +43,9 @@ export function Lerninhalte({
   onSchliessen: () => void;
 }) {
   const lektionen = (useLektionen() ?? []).filter((l) => !l.geloescht);
+  const geladen = useEreignisse();
+  const ereignisse = useMemo(() => geladen ?? [], [geladen]);
+  const staende = useMemo(() => berechneStaende(ereignisse), [ereignisse]);
   const speicher = useLektionenSpeicher();
   const [gewaehlt, setGewaehlt] = useState<string | null>(startId ?? null);
   const [ungespeichert, setUngespeichert] = useState(false);
@@ -162,6 +170,9 @@ export function Lerninhalte({
                           >
                             <strong>{l.titel}</strong>
                             <span>{beschreibung(l)}</span>
+                            {istVokabelLektion(l) && (
+                              <FortschrittBalken f={fortschritt(alsVokabelliste(l), staende)} />
+                            )}
                           </button>
                           <button
                             type="button"
@@ -199,6 +210,13 @@ export function Lerninhalte({
           <LektionBearbeiten
             key={lektion.id}
             lektion={lektion}
+            kopf={
+              <LektionFortschritt
+                liste={alsVokabelliste(lektion)}
+                ereignisse={ereignisse}
+                staende={staende}
+              />
+            }
             onSpeichern={(a) => speichern(lektion, a)}
             onLoeschen={() => loeschen(lektion)}
             onGeaendert={merkeUngespeichert}

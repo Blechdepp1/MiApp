@@ -65,6 +65,15 @@ describe('Lerninhalte', () => {
     }
   });
 
+  it('zeigt zur Lektion, wo Milena steht', async () => {
+    await zeige([lektion('1')], '1');
+    const f = await screen.findByRole('region', { name: 'Fortschritt' });
+    expect(
+      within(f).getByRole('img', { name: '0 sicher, 0 am Lernen, 2 neu' }),
+    ).toBeInTheDocument();
+    expect(within(f).getByText('Zuletzt geübt: noch nie')).toBeInTheDocument();
+  });
+
   it('bearbeitet Wörter, ohne dass der Lernstand verloren geht', async () => {
     const { speicher } = await zeige([lektion('1')], '1');
     const de = await screen.findByLabelText('Deutsch 1');

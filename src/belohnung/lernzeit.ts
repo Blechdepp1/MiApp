@@ -12,8 +12,10 @@ const MIN_RUNDE_MS = 60_000;
 export type Lernrate = { punkteProMinute: number; gemessen: boolean; runden: number };
 
 // Dauer einer Runde: von der ersten Antwort nach der vorigen Runde bis zum Rundenende (pro Gerät)
-export function rundenDauernMs(ereignisse: readonly LernEreignis[]): number[] {
-  const dauern: number[] = [];
+export function rundenMitDauer(
+  ereignisse: readonly LernEreignis[],
+): { ende: string; dauerMs: number }[] {
+  const runden: { ende: string; dauerMs: number }[] = [];
   const ersteAntwort = new Map<string, number>();
   for (const e of ereignisse) {
     const zeit = Date.parse(e.zeit);
@@ -22,10 +24,17 @@ export function rundenDauernMs(ereignisse: readonly LernEreignis[]): number[] {
       const start = ersteAntwort.get(e.geraet);
       ersteAntwort.delete(e.geraet);
       if (start === undefined) continue;
-      dauern.push(Math.min(MAX_RUNDE_MS, Math.max(MIN_RUNDE_MS, zeit - start)));
+      runden.push({
+        ende: e.zeit,
+        dauerMs: Math.min(MAX_RUNDE_MS, Math.max(MIN_RUNDE_MS, zeit - start)),
+      });
     }
   }
-  return dauern;
+  return runden;
+}
+
+export function rundenDauernMs(ereignisse: readonly LernEreignis[]): number[] {
+  return rundenMitDauer(ereignisse).map((r) => r.dauerMs);
 }
 
 export function lernrate(ereignisse: readonly LernEreignis[]): Lernrate {

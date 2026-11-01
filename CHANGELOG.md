@@ -3,6 +3,11 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.12.0 – 01.11.2026
+
+- Für Eltern: Wochenübersicht mit Lerntagen, Runden und Minuten der letzten 7 Tage.
+- Für Eltern: Bei jeder Lektion steht, wie viele Wörter du schon sicher kannst, welche du gerade lernst und welche dir schwerfallen.
+
 ## 0.11.0 – 01.11.2026
 
 - Neue Kachel „📝 Tests“: Trag deine Klassenarbeiten und Tests ein. Dafür gibt es sofort Punkte.

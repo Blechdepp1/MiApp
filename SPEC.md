@@ -226,7 +226,7 @@ export function gesamtPunkte(ereignisse: LernEreignis[]): number {
 - [ ] Sie kann eine Vokabelrunde komplett ohne Lesehilfe von außen machen.
 - [ ] Punkte, Level und Guthaben stimmen auf beiden Geräten überein.
 - [ ] Eine Belohnung lässt sich einlösen, und die Eltern können sie bestätigen.
-- [ ] Alle automatischen Tests sind grün, die Abdeckung der Fachlogik liegt bei mindestens 90 %.
+- [x] Alle automatischen Tests sind grün, die Abdeckung der Fachlogik liegt bei mindestens 90 % (im CI erzwungen).
 
 ## 10a. Erweiterungen nach Rückmeldung der Eltern (01.11.2026)
 
