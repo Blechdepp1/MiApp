@@ -1,5 +1,6 @@
 import { Fortschritt } from '../belohnung/Fortschritt.tsx';
-import { pfad, type Ziel } from './navigation.ts';
+import type { Ziel } from './navigation.ts';
+import { Verweis } from './Verweis.tsx';
 import { VorleseKnopf } from './VorleseKnopf.tsx';
 import './Startseite.css';
 
@@ -19,9 +20,9 @@ export function Startseite() {
           <VorleseKnopf text={BEGRUESSUNG} />
           <h1>{BEGRUESSUNG}</h1>
         </div>
-        <a className="startseite-eltern" href={pfad('eltern')} aria-label="Eltern-Bereich">
+        <Verweis className="startseite-eltern" ziel="eltern" aria-label="Eltern-Bereich">
           <span aria-hidden="true">🔒</span>
-        </a>
+        </Verweis>
       </header>
 
       <Fortschritt />
@@ -29,12 +30,12 @@ export function Startseite() {
       <ul className="kacheln">
         {KACHELN.map((k) => (
           <li key={k.ziel} className="kachel">
-            <a href={pfad(k.ziel)}>
+            <Verweis ziel={k.ziel}>
               <span className="kachel-symbol" aria-hidden="true">
                 {k.symbol}
               </span>
               <span>{k.text}</span>
-            </a>
+            </Verweis>
             <span className="kachel-vorlesen">
               <VorleseKnopf text={k.vorlesen} />
             </span>

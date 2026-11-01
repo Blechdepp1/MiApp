@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { pfad } from './navigation.ts';
+import { Verweis } from './Verweis.tsx';
 import { VorleseKnopf } from './VorleseKnopf.tsx';
 import './Seite.css';
 
@@ -16,9 +16,9 @@ export function Seite({
   return (
     <div className="seite">
       <header className="seite-kopf">
-        <a className="seite-zurueck" href={pfad('start')}>
+        <Verweis className="seite-zurueck" ziel="start">
           <span aria-hidden="true">←</span> Zurück
-        </a>
+        </Verweis>
         <div className="seite-titel">
           <h1>{titel}</h1>
           <VorleseKnopf text={vorlesetext ?? titel} />

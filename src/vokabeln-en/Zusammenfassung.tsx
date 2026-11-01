@@ -1,4 +1,4 @@
-import { pfad } from '../basis/navigation.ts';
+import { Verweis } from '../basis/Verweis.tsx';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 import { TAGESZIEL_RUNDEN } from '../belohnung/werte.ts';
 import { sprechtext } from './runde.ts';
@@ -62,9 +62,9 @@ export function Zusammenfassung({
         <button type="button" className="runde-weiter" onClick={onNochEinmal}>
           Noch eine Runde
         </button>
-        <a className="seite-zurueck" href={pfad('start')}>
+        <Verweis className="seite-zurueck" ziel="start">
           Zur Startseite
-        </a>
+        </Verweis>
       </div>
     </div>
   );
