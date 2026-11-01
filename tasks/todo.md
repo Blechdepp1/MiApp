@@ -246,13 +246,14 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 **Dateien:** `src/eltern/fotoImport.ts`, `src/eltern/fotoImport.test.ts`, `src/eltern/LektionAusFotos.tsx`
 **Umfang:** M
 
-### Aufgabe 18a: Lerninhalte verwalten – Gliederung und Bearbeiten (SPEC 10a)
+### Aufgabe 18a: Lerninhalte verwalten – Gliederung und Bearbeiten (SPEC 10a) ✅ (im Testkanal, Gerätetest offen)
 **Beschreibung:** Eigene Ansicht „Lerninhalte“ im Eltern-Bereich: Fach → Lektion → Wörter. Lektionen mit Status (aktiv, pausiert, archiviert) und Reihenfolge; Wörter bearbeiten, ergänzen, löschen, Liste als Text einfügen. Am PC zweispaltig.
 **Akzeptanz:**
-- [ ] Eine bestehende Lektion lässt sich bearbeiten; bearbeitete Wörter behalten ihren Lernstand (gleiche `id`).
-- [ ] Pausierte und archivierte Lektionen kommen nicht in neue Runden (archivierte nur noch als Wiederholung fälliger Wörter).
-- [ ] Änderungen erscheinen nach dem Abgleich auf Milenas Gerät.
-- [ ] Am PC (Breite ≥ 1000 px) zweispaltig, am Handy einspaltig ohne waagerechtes Scrollen.
+- [x] Eine bestehende Lektion lässt sich bearbeiten; bearbeitete Wörter behalten ihren Lernstand (gleiche `id`).
+- [x] Pausierte und archivierte Lektionen kommen nicht in neue Runden (archivierte nur noch als Wiederholung fälliger Wörter).
+- [ ] Änderungen erscheinen nach dem Abgleich auf Milenas Gerät (Abgleich unverändert „neueste Änderung gewinnt“; auf den Geräten prüfen).
+- [x] Am PC (Breite ≥ 1000 px) zweispaltig, am Handy einspaltig ohne waagerechtes Scrollen (E2E in beiden Größen).
+**Umsetzung:** Vollbild „📚 Lerninhalte“ aus dem Eltern-Bereich (Liste: ✏️ öffnet eine Lektion direkt). Version 0.10.0.
 **Prüfen:** Unit-Tests (Status-Filter, Text einfügen), Komponententests, E2E im Desktop- und Handy-Format; manuell am PC.
 **Abhängig von:** 17a, 17b
 **Dateien:** `src/lektionen/lektion.ts`, `src/eltern/Lerninhalte.tsx`, `src/eltern/LektionBearbeiten.tsx`, `src/vokabeln-en/quellen.ts`

@@ -317,8 +317,10 @@ describe('Lektionen (Ansicht)', () => {
     await zeige({ lektionen });
     const zeile = (await screen.findByText('Unit 1')).closest('li')!;
     expect(within(zeile).getByText('1 Wörter')).toBeInTheDocument();
-    await userEvent.click(within(zeile).getByRole('button', { name: 'Unit 1 löschen' }));
-    expect(await screen.findByText(/Noch keine Lektionen/)).toBeInTheDocument();
+    await userEvent.click(within(zeile).getByRole('button', { name: 'Unit 1 bearbeiten' }));
+    await userEvent.click(screen.getByRole('button', { name: '🗑️ Lektion löschen' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Schließen' }));
+    expect(await screen.findByText(/Noch keine Lektionen\. Bis dahin/)).toBeInTheDocument();
     expect((await lektionen.lade('a'))?.geloescht).toBe(true);
   });
 

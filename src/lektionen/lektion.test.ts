@@ -1,3 +1,4 @@
+import { erstelleEreignis } from '../daten/ereignisse.ts';
 import { wertImArbeitsspeicher } from '../daten/schluesselWert.ts';
 import {
   dropboxAttrappe,
@@ -12,7 +13,13 @@ import {
 } from '../sync/lektionenAbgleich.ts';
 import { berechneStaende, rundeAuswaehlen, extraRundeAuswaehlen } from '../vokabeln-en/leitner.ts';
 import { vokabelQuellen } from '../vokabeln-en/quellen.ts';
-import { hatVorrang, pruefeLektion, type Lektion } from './lektion.ts';
+import {
+  hatVorrang,
+  pruefeLektion,
+  sortiereLektionen,
+  verschiebe,
+  type Lektion,
+} from './lektion.ts';
 import { lektionenImArbeitsspeicher } from './speicher.ts';
 
 function lektion(id: string, ueber: Partial<Lektion> = {}): Lektion {
@@ -68,6 +75,39 @@ describe('pruefeLektion', () => {
   });
 });
 
+describe('Status und Reihenfolge', () => {
+  it('prüft Status und Reihenfolge', () => {
+    expect(pruefeLektion(lektion('a', { status: 'pausiert', reihenfolge: 2 }))).toBeNull();
+    expect(pruefeLektion({ ...lektion('a'), status: 'kaputt' })).toBe('Ungültige Daten');
+    expect(pruefeLektion(lektion('a', { reihenfolge: Number.NaN }))).toBe('Ungültige Daten');
+  });
+
+  it('sortiert nach Reihenfolge, ohne Angabe nach Erstellung', () => {
+    const liste = [
+      lektion('c', { erstellt: '2026-11-03T10:00:00Z' }),
+      lektion('b', { reihenfolge: 1 }),
+      lektion('a', { reihenfolge: 0 }),
+      lektion('d', { erstellt: '2026-11-02T10:00:00Z' }),
+    ];
+    expect(sortiereLektionen(liste).map((l) => l.id)).toEqual(['a', 'b', 'd', 'c']);
+  });
+
+  it('verschiebt eine Lektion und nummeriert die Gruppe neu', () => {
+    const gruppe = [
+      lektion('a', { reihenfolge: 0 }),
+      lektion('b', { reihenfolge: 1 }),
+      lektion('c'),
+    ];
+    const geaendert = verschiebe(gruppe, 'c', -1);
+    expect(geaendert.map((l) => [l.id, l.reihenfolge])).toEqual([
+      ['c', 1],
+      ['b', 2],
+    ]);
+    expect(verschiebe(gruppe, 'a', -1)).toEqual([]);
+    expect(verschiebe(gruppe, 'x', 1)).toEqual([]);
+  });
+});
+
 describe('hatVorrang', () => {
   it('gilt von heute bis 7 Tage vor der Klassenarbeit', () => {
     const l = lektion('a', { klassenarbeit: '2026-11-08' });
@@ -99,6 +139,30 @@ describe('vokabelQuellen', () => {
     );
     expect(listen.map((l) => l.id)).toEqual(['a', 'c']);
     expect([...vorrang]).toEqual(['c']);
+  });
+
+  it('übt pausierte gar nicht und archivierte nur bereits gelernte Wörter', () => {
+    const staende = berechneStaende([
+      erstelleEreignis(
+        { typ: 'antwort', listeId: 'arch', wortId: 'arch-1', richtig: true, uebung: 'erkennen' },
+        'kind',
+      ),
+    ]);
+    const { listen, vorrang } = vokabelQuellen(
+      [
+        lektion('aktiv', { reihenfolge: 1 }),
+        lektion('pause', { status: 'pausiert', klassenarbeit: '2026-11-02' }),
+        lektion('arch', { status: 'archiviert', reihenfolge: 0 }),
+        lektion('alt', { status: 'archiviert' }),
+      ],
+      '2026-11-01',
+      staende,
+    );
+    expect(listen.map((l) => [l.id, l.woerter.map((w) => w.id)])).toEqual([
+      ['arch', ['arch-1']],
+      ['aktiv', ['aktiv-1', 'aktiv-2']],
+    ]);
+    expect(vorrang.size).toBe(0);
   });
 });
 

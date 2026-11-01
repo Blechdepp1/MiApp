@@ -32,7 +32,7 @@ export function plusTage(tag: string, tage: number): string {
 const NEU: WortStand = { fach: 0, faelligAb: '0000-00-00', erkannt: 0 };
 
 export function wortStand(
-  staende: Map<string, WortStand>,
+  staende: ReadonlyMap<string, WortStand>,
   listeId: string,
   wortId: string,
 ): WortStand {

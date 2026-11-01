@@ -6,6 +6,15 @@ export type Fach = 'englisch' | 'deutsch' | 'mathe';
 
 export type VokabelInhalt = { art: 'vokabeln'; woerter: Vokabel[] };
 
+// aktiv = wird geübt, pausiert = noch nicht dran, archiviert = fertig, nur noch Wiederholung
+export type LektionStatus = 'aktiv' | 'pausiert' | 'archiviert';
+export const STATUS: readonly LektionStatus[] = ['aktiv', 'pausiert', 'archiviert'];
+export const STATUS_TEXT: Record<LektionStatus, string> = {
+  aktiv: 'Gerade dran',
+  pausiert: 'Noch nicht dran',
+  archiviert: 'Archiv',
+};
+
 export type Lektion = {
   id: string;
   // Unbekannte Fächer/Arten (von einer neueren App-Version) werden behalten, aber nicht geübt
@@ -15,6 +24,10 @@ export type Lektion = {
   klassenarbeit?: string;
   erstellt: string;
   geaendert: string;
+  // Fehlt bei älteren Lektionen und gilt dann als „aktiv“
+  status?: LektionStatus;
+  // Position innerhalb von Fach und Status; ohne Angabe nach Erstellungszeit
+  reihenfolge?: number;
   // Gelöschte Lektionen bleiben als Markierung, damit das Löschen auf allen Geräten ankommt
   geloescht?: boolean;
   inhalt: VokabelInhalt | { art: string };
@@ -61,6 +74,8 @@ export function pruefeLektion(wert: unknown): string | null {
   ) {
     return 'Das Datum der Klassenarbeit ist ungültig.';
   }
+  if (l.status !== undefined && !STATUS.includes(l.status)) return 'Ungültige Daten';
+  if (l.reihenfolge !== undefined && !Number.isFinite(l.reihenfolge)) return 'Ungültige Daten';
   if (typeof l.inhalt !== 'object' || l.inhalt === null || typeof l.inhalt.art !== 'string') {
     return 'Ungültige Daten';
   }
@@ -72,6 +87,34 @@ export function pruefeLektion(wert: unknown): string | null {
 
 export function istVokabelLektion(l: Lektion): l is Lektion & { inhalt: VokabelInhalt } {
   return !l.geloescht && l.fach === 'englisch' && l.inhalt.art === 'vokabeln';
+}
+
+export function statusVon(l: Lektion): LektionStatus {
+  return l.status ?? 'aktiv';
+}
+
+// Nach Reihenfolge, Lektionen ohne Angabe dahinter in der Reihenfolge ihrer Erstellung
+export function sortiereLektionen<T extends Lektion>(lektionen: readonly T[]): T[] {
+  return [...lektionen].sort(
+    (a, b) =>
+      (a.reihenfolge ?? Infinity) - (b.reihenfolge ?? Infinity) ||
+      a.erstellt.localeCompare(b.erstellt),
+  );
+}
+
+// Lektion innerhalb ihrer Gruppe um einen Platz verschieben. Liefert alle Lektionen der Gruppe
+// mit neuer, lückenloser Reihenfolge zurück, deren Position sich geändert hat.
+export function verschiebe<T extends Lektion>(
+  gruppe: readonly T[],
+  id: string,
+  richtung: -1 | 1,
+): T[] {
+  const sortiert = sortiereLektionen(gruppe);
+  const i = sortiert.findIndex((l) => l.id === id);
+  const j = i + richtung;
+  if (i < 0 || j < 0 || j >= sortiert.length) return [];
+  [sortiert[i], sortiert[j]] = [sortiert[j]!, sortiert[i]!];
+  return sortiert.flatMap((l, k) => (l.reihenfolge === k ? [] : [{ ...l, reihenfolge: k }]));
 }
 
 export function alsVokabelliste(l: Lektion & { inhalt: VokabelInhalt }): Vokabelliste {

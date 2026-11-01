@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { dexieWert, type GespeicherterWert } from '../daten/schluesselWert.ts';
-import { istVokabelLektion, MAX_TITEL, pruefeLektion, type Lektion } from '../lektionen/lektion.ts';
+import {
+  istVokabelLektion,
+  MAX_TITEL,
+  pruefeLektion,
+  sortiereLektionen,
+  STATUS_TEXT,
+  statusVon,
+  type Lektion,
+} from '../lektionen/lektion.ts';
 import { useLektionen, useLektionenSpeicher } from '../lektionen/LektionenKontext.tsx';
 import type { Vokabel } from '../vokabeln-en/typen.ts';
 import {
@@ -13,6 +21,7 @@ import {
 } from './fotoImport.ts';
 import { useGeraet } from './GeraetKontext.tsx';
 import { Kamera } from './Kamera.tsx';
+import { Lerninhalte } from './Lerninhalte.tsx';
 import { kameraVerfuegbar } from './kameraZugriff.ts';
 import { standardKiSchluessel } from './ki.ts';
 
@@ -96,6 +105,8 @@ export function Lektionen({
     vollbild.current?.scrollTo?.(0, 0);
   }, [schritt.art]);
   const [kameraOffen, setKameraOffen] = useState(false);
+  // null = zu, '' = Übersicht, sonst id der gewählten Lektion
+  const [verwalten, setVerwalten] = useState<string | null>(null);
   const [ohneKamera, setOhneKamera] = useState(!kamera);
 
   function fotoEntfernen(foto: Foto) {
@@ -159,11 +170,6 @@ export function Lektionen({
     zuruecksetzen();
   }
 
-  async function loeschen(lektion: Lektion) {
-    if (!window.confirm(`Lektion „${lektion.titel}“ wirklich löschen?`)) return;
-    await speicher.speichere({ ...lektion, geloescht: true, geaendert: new Date().toISOString() });
-  }
-
   return (
     <section className="verbinden verwalten">
       <h2>Lektionen</h2>
@@ -174,13 +180,14 @@ export function Lektionen({
             <p>Noch keine Lektionen. Bis dahin übt sie mit der eingebauten Beispielliste.</p>
           ) : (
             <ul className="verwalten-liste">
-              {lektionen.map((l) => (
+              {sortiereLektionen(lektionen).map((l) => (
                 <li key={l.id}>
                   <span aria-hidden="true">📘</span>
                   <span className="lektion-text">
                     <strong>{l.titel}</strong>
                     <span>
                       {istVokabelLektion(l) ? `${l.inhalt.woerter.length} Wörter` : l.fach}
+                      {statusVon(l) !== 'aktiv' && ` · ${STATUS_TEXT[statusVon(l)]}`}
                       {l.klassenarbeit &&
                         ` · Klassenarbeit ${new Date(l.klassenarbeit).toLocaleDateString('de-DE')}`}
                     </span>
@@ -188,11 +195,11 @@ export function Lektionen({
                   {istEltern && (
                     <button
                       type="button"
-                      className="verwalten-entfernen"
-                      aria-label={`${l.titel} löschen`}
-                      onClick={() => loeschen(l)}
+                      className="lektion-oeffnen"
+                      aria-label={`${l.titel} bearbeiten`}
+                      onClick={() => setVerwalten(l.id)}
                     >
-                      🗑️
+                      ✏️
                     </button>
                   )}
                 </li>
@@ -207,6 +214,9 @@ export function Lektionen({
                 onClick={() => setSchritt({ art: 'neu' })}
               >
                 📷 Neue Lektion aus Fotos
+              </button>
+              <button type="button" onClick={() => setVerwalten('')}>
+                📚 Lerninhalte verwalten
               </button>
             </div>
           ) : (
@@ -342,6 +352,9 @@ export function Lektionen({
             setOhneKamera(true);
           }}
         />
+      )}
+      {verwalten !== null && (
+        <Lerninhalte startId={verwalten || undefined} onSchliessen={() => setVerwalten(null)} />
       )}
     </section>
   );

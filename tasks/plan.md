@@ -49,7 +49,7 @@ Danach folgen Sync, Belohnungen einlösen und zuletzt der Foto-Import mit KI.
 - [x] 16. KI-Schlüssel hinterlegen
 - [x] 17a. Lektionen: Format, Speicherung, Abgleich (vorbereitet für Deutsch und Mathe)
 - [x] 17b. Lektion aus Fotos (Englisch)
-- [ ] 18a. Lerninhalte verwalten: Fach → Lektion → Wörter, Status (aktiv/pausiert/archiviert), bearbeiten, am PC zweispaltig
+- [x] 18a. Lerninhalte verwalten: Fach → Lektion → Wörter, Status (aktiv/pausiert/archiviert), bearbeiten, am PC zweispaltig
 - [ ] 18b. Fortschritt pro Lektion (neu / am Lernen / sicher), schwierige Wörter und Wochenübersicht
 - [ ] 19. End-to-End-Tests und Abnahme auf dem Gerät
 

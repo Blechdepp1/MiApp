@@ -370,3 +370,212 @@
   color: #fff;
   font-weight: 700;
 }
+
+/* Lerninhalte verwalten: Vollbild, am PC zweispaltig */
+.lerninhalte {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 1rem;
+  padding: 1rem max(1rem, calc((100vw - 72rem) / 2)) 2rem;
+  background: var(--farbe-hintergrund);
+  overscroll-behavior: contain;
+}
+
+.lerninhalte-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.lerninhalte-kopf h2,
+.lerninhalte h3,
+.lerninhalte h4 {
+  margin: 0;
+}
+
+.lerninhalte-liste {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.lerninhalte-liste section,
+.lerninhalte-gruppe {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.lerninhalte-gruppe h4 {
+  font-size: 0.95rem;
+  color: var(--farbe-text-leise);
+}
+
+.lerninhalte-gruppe ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.lerninhalte-gruppe li {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.lerninhalte .lerninhalte-eintrag {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  justify-items: start;
+  gap: 0.15rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  border: 3px solid transparent;
+  background: var(--farbe-flaeche);
+  color: var(--farbe-text);
+  text-align: left;
+  font-weight: 400;
+}
+
+.lerninhalte .lerninhalte-eintrag[aria-current='true'] {
+  border-color: var(--farbe-akzent);
+}
+
+.lerninhalte-eintrag span {
+  font-size: 0.9rem;
+  color: var(--farbe-text-leise);
+}
+
+.lerninhalte .lerninhalte-pfeil {
+  min-width: var(--touch);
+  padding: 0;
+}
+
+.lerninhalte-detail {
+  min-width: 0;
+}
+
+.bearbeiten {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.bearbeiten > label,
+.bearbeiten-einfuegen label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+.bearbeiten input:not([type='file']),
+.bearbeiten textarea {
+  min-height: var(--touch);
+  padding: 0.25rem 0.75rem;
+  border: 2px solid var(--farbe-text-leise);
+  border-radius: 10px;
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+}
+
+.bearbeiten h3 {
+  margin: 0.5rem 0 0;
+}
+
+.bearbeiten-status {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bearbeiten-status legend {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.bearbeiten-status div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bearbeiten-status button[aria-pressed='true'] {
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
+}
+
+.bearbeiten-einfuegen {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bearbeiten-einfuegen summary {
+  min-height: var(--touch);
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bearbeiten .bearbeiten-loeschen {
+  margin-left: auto;
+}
+
+/* Handy: entweder Liste oder Lektion */
+@media (max-width: 999px) {
+  .lerninhalte.mit-auswahl .lerninhalte-liste,
+  .lerninhalte:not(.mit-auswahl) .lerninhalte-detail {
+    display: none;
+  }
+}
+
+/* PC: Liste links, Lektion rechts */
+@media (min-width: 1000px) {
+  .lerninhalte {
+    grid-template-columns: 22rem minmax(0, 1fr);
+  }
+
+  .lerninhalte-kopf {
+    grid-column: 1 / -1;
+  }
+
+  .lerninhalte .nur-handy {
+    display: none;
+  }
+}
+
+.lerninhalte-kopf h2 {
+  white-space: nowrap;
+  font-size: 1.4rem;
+}
+
+/* Wortzeilen: Englisch, Deutsch und Löschen bleiben auch am Handy in einer Zeile */
+.bearbeiten-woerter li,
+.lektion-neu .verwalten-liste li {
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+}
+
+.lerninhalte .bearbeiten-woerter input:not([type='number']),
+.lektion-neu .verwalten-liste input:not([type='number']) {
+  flex: 1 1 0;
+  /* Eingabefelder haben sonst eine feste Mindestbreite und schieben die Zeile über den Rand */
+  width: 0;
+  min-width: 0;
+  padding-inline: 0.5rem;
+}
+
+.bearbeiten-woerter .verwalten-entfernen,
+.lektion-neu .verwalten-liste .verwalten-entfernen {
+  flex: none;
+}

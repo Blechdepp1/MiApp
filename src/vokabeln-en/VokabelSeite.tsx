@@ -4,6 +4,7 @@ import { tagVon } from '../belohnung/logik.ts';
 import { useEreignisse } from '../daten/ProtokollKontext.tsx';
 import type { LernEreignis } from '../daten/ereignisse.ts';
 import { useLektionen } from '../lektionen/LektionenKontext.tsx';
+import { berechneStaende } from './leitner.ts';
 import { vokabelQuellen } from './quellen.ts';
 import { Runde } from './Runde.tsx';
 import type { Zufall } from './runde.ts';
@@ -25,7 +26,11 @@ export function VokabelSeite({ zufall }: { zufall?: Zufall }) {
   // Stand zu Beginn der Runde einfrieren, damit neue Antworten oder ein Abgleich die laufende Runde nicht neu mischen
   const [start, setStart] = useState<Start | null>(null);
   if (ereignisse && lektionen && start?.runde !== runde) {
-    setStart({ runde, ereignisse, ...vokabelQuellen(lektionen, heute) });
+    setStart({
+      runde,
+      ereignisse,
+      ...vokabelQuellen(lektionen, heute, berechneStaende(ereignisse)),
+    });
   }
 
   return (
