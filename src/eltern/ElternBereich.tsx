@@ -1,4 +1,5 @@
 import { Seite } from '../basis/Seite.tsx';
+import { IST_VORSCHAU } from '../basis/kanal.ts';
 import { Version } from '../basis/Version.tsx';
 import type { Dropbox } from '../sync/dropbox.ts';
 import { useSync } from '../sync/SyncKontext.tsx';
@@ -10,6 +11,7 @@ import { ElternTuer } from './ElternTuer.tsx';
 import { KiEinstellungen } from './KiEinstellungen.tsx';
 import { Lektionen } from './Lektionen.tsx';
 import { LevelVerwalten } from './LevelVerwalten.tsx';
+import { LiveDatenUebernehmen } from './LiveDatenUebernehmen.tsx';
 import { useGeraet } from './GeraetKontext.tsx';
 
 export function ElternBereich({ dropbox }: { dropbox: Dropbox }) {
@@ -29,6 +31,7 @@ export function ElternBereich({ dropbox }: { dropbox: Dropbox }) {
         <BelohnungenVerwalten />
         <LevelVerwalten />
         <KiEinstellungen />
+        {IST_VORSCHAU && <LiveDatenUebernehmen />}
         <Version />
       </ElternTuer>
     </Seite>
