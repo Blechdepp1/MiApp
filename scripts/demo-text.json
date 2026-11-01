@@ -1,0 +1,54 @@
+{
+  "start": {
+    "sprechen": "Das ist unsere Lern-App für Englisch-Vokabeln. Auf der Startseite sieht sie sofort ihr Level, ihre Punkte, und wie weit sie mit dem Tagesziel ist.",
+    "zeigen": "Startseite: Level, Punkte, Tagesziel"
+  },
+  "vorlesen": {
+    "sprechen": "Überall gibt es diesen Lautsprecher-Knopf. Damit kann sie sich jeden Text vorlesen lassen. Lesen ist also nie die Hürde.",
+    "zeigen": "🔊 Jeder Text kann vorgelesen werden"
+  },
+  "einstellungen": {
+    "sprechen": "In den Einstellungen kann sie die Schrift größer machen, mehr Abstand einstellen, eine ruhigere Hintergrundfarbe wählen, oder eine besondere Lese-Schrift.",
+    "zeigen": "Schrift, Abstand, Farbe – so, wie sie am besten lesen kann"
+  },
+  "bekannt": {
+    "sprechen": "Jetzt wird geübt. Wörter, die sie schon kennt, kommen zuerst. Hier sieht sie das deutsche Wort und wählt das englische.",
+    "zeigen": "Bekanntes Wort: Deutsch sehen, Englisch wählen"
+  },
+  "schreiben": {
+    "sprechen": "Sitzt ein Wort schon gut, schreibt sie es selbst. Die Kästchen zeigen, wie viele Buchstaben es hat. Mit dem Hilfe-Knopf kommt ein Buchstabe dazu.",
+    "zeigen": "Schreiben – mit Kästchen und Buchstaben-Hilfe"
+  },
+  "fast": {
+    "sprechen": "Ein kleiner Tippfehler zählt trotzdem als richtig. Die App zeigt dann nur, wie man das Wort schreibt.",
+    "zeigen": "Kleiner Tippfehler? Zählt trotzdem!"
+  },
+  "neu": {
+    "sprechen": "Neue Wörter hört sie zuerst auf Englisch, und tippt die passende deutsche Übersetzung an. Auch die Antworten kann sie sich anhören.",
+    "zeigen": "Neues Wort: hören und die Übersetzung antippen"
+  },
+  "falsch": {
+    "sprechen": "Geht etwas daneben, gibt es kein Rot und keine Strafe. Die App zeigt freundlich die Lösung, und das Wort kommt am Ende der Runde noch einmal.",
+    "zeigen": "Daneben? Kein Rot, keine Strafe – das Wort kommt nochmal"
+  },
+  "wiederholen": {
+    "sprechen": "Welche Wörter wann wiederholt werden müssen, merkt sich die App ganz von selbst.",
+    "zeigen": "Die App merkt sich, was wann wiederholt wird"
+  },
+  "feier": {
+    "sprechen": "Am Ende der Runde gibt es Punkte. Und mit genug Punkten steigt sie ein Level auf, mit einer kleinen Feier.",
+    "zeigen": "Punkte und Level-Aufstieg 🎉"
+  },
+  "tagesziel": {
+    "sprechen": "Zwei Runden am Tag, also etwa zehn Minuten, sind das Tagesziel. Wenn sie mehr üben möchte, darf sie das jederzeit.",
+    "zeigen": "Tagesziel: 2 Runden – mehr ist immer erlaubt"
+  },
+  "belohnungen": {
+    "sprechen": "Die Punkte kann sie gegen Belohnungen eintauschen, die wir festlegen. Zum Beispiel Schwimmbad, Kino oder Freizeitpark. Bei jeder steht, wie viel Lernzeit ungefähr dahintersteckt.",
+    "zeigen": "Belohnungen, die wir festlegen – mit Lernzeit"
+  },
+  "ausblick": {
+    "sprechen": "Als Nächstes kommt: Belohnungen direkt in der App einlösen, und Vokabellisten aus der Schule einfach abfotografieren.",
+    "zeigen": "Demnächst: Belohnungen einlösen und Vokabeln per Foto 📸"
+  }
+}

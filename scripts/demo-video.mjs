@@ -1,18 +1,26 @@
-// Nimmt ein Demo-Video der Live-App in Handy-Größe auf: node scripts/demo-video.mjs <ausgabeordner>
+// Nimmt ein Demo-Video der Live-App in Handy-Größe auf, passend zu den Sprecher-Aufnahmen.
+// Aufruf: node scripts/demo-video.mjs <ausgabeordner> <sprecherordner>
 // Läuft in einem frischen Browser – berührt weder echte Geräte noch Dropbox.
 import { chromium } from '@playwright/test';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 const ADRESSE = 'https://blechdepp1.github.io/MiApp/';
-const ordner = process.argv[2] ?? 'demo';
+const [ordner = 'demo', sprecher = 'demo/sprecher'] = process.argv.slice(2);
+const TEXTE = JSON.parse(readFileSync(new URL('./demo-text.json', import.meta.url), 'utf8'));
+const DAUERN = JSON.parse(readFileSync(join(sprecher, 'dauern.json'), 'utf8'));
 const HANDY = { width: 412, height: 915 };
 
-// Erste fünf Wörter der Beispielliste
-const DEUTSCH = {
+// Wörter der Beispielliste, die in der Runde vorkommen (Englisch ↔ Deutsch)
+const WOERTER = {
+  friend: 'Freund, Freundin',
   house: 'Haus',
   school: 'Schule',
-  friend: 'Freund, Freundin',
   family: 'Familie',
   brother: 'Bruder',
+  sister: 'Schwester',
+  dog: 'Hund',
+  cat: 'Katze',
 };
 
 const browser = await chromium.launch();
@@ -24,10 +32,12 @@ const kontext = await browser.newContext({
   recordVideo: { dir: ordner, size: { width: 618, height: 1372 } },
 });
 const seite = await kontext.newPage();
+const t0 = Date.now();
+const jetzt = () => Date.now() - t0;
 const pause = (ms) => seite.waitForTimeout(ms);
+const zeiten = [];
 
-// Erklärtext oben einblenden (bleibt bei Seitenwechseln innerhalb der App stehen)
-async function untertitel(text, dauer = 2500) {
+async function untertitel(text) {
   await seite.evaluate((t) => {
     let el = document.getElementById('demo-untertitel');
     if (!el) {
@@ -49,55 +59,97 @@ async function untertitel(text, dauer = 2500) {
       });
       document.body.appendChild(el);
     }
-    el.textContent = t;
-    el.style.display = 'block';
+    el.textContent = t ?? '';
+    el.style.display = t ? 'block' : 'none';
   }, text);
-  await pause(dauer);
-  // Wieder ausblenden, damit der Text nicht über der nächsten Ansicht stehen bleibt
-  await seite.evaluate(() => {
-    const el = document.getElementById('demo-untertitel');
-    if (el) el.style.display = 'none';
-  });
+}
+
+// Ein gesprochener Abschnitt: Text einblenden, Aktionen ausführen, mindestens so lange wie die Stimme
+async function abschnitt(id, aktionen = async () => {}) {
+  const start = jetzt();
+  zeiten.push({ id, start });
+  await untertitel(TEXTE[id].zeigen);
+  await aktionen();
+  const rest = DAUERN[id] - (jetzt() - start);
+  if (rest > 0) await pause(rest);
+  await pause(500);
+  await untertitel(null);
 }
 
 async function tippe(locator, warten = 700) {
   await locator.scrollIntoViewIfNeeded();
-  // Nach Schriftgrößen-Wechseln verschiebt sich das Layout noch kurz; dann direkt auslösen
   await locator.click({ timeout: 3000 }).catch(() => locator.dispatchEvent('click'));
   await pause(warten);
 }
 
 async function pin(ziffern = '1234') {
-  for (const z of ziffern) await tippe(seite.getByRole('button', { name: z, exact: true }), 250);
+  for (const z of ziffern) await tippe(seite.getByRole('button', { name: z, exact: true }), 120);
 }
 
-// 1. Start und Einrichtung
-await seite.goto(ADRESSE);
-await pause(1500);
-await untertitel('MiApp – unsere Lern-App für Englisch-Vokabeln, LRS-gerecht 📚', 3000);
-await untertitel('Beim ersten Start: Gerät einrichten (Kind oder Eltern + Eltern-PIN)', 2500);
-await tippe(seite.getByRole('button', { name: /Wir Eltern/ }));
-await pin();
-await pin();
-await pause(1000);
+async function frage() {
+  return (await seite.locator('.uebung-frage > span').last().textContent()).trim();
+}
 
-// Demo-Punkte, damit gleich ein Level-Aufstieg passiert (nur in diesem Aufnahme-Browser)
+// Beantwortet die aktuelle Auswahl-Frage richtig oder absichtlich falsch
+async function waehle(richtig = true, warten = 1500) {
+  const gefragt = await frage();
+  const englisch = Object.keys(WOERTER).find((en) => en === gefragt || WOERTER[en] === gefragt);
+  const loesung = gefragt === englisch ? WOERTER[englisch] : englisch;
+  const optionen = seite.locator('.uebung-option');
+  const ziel = richtig
+    ? optionen.filter({ hasText: new RegExp(`^(✓ )?${loesung}$`) })
+    : optionen.filter({ hasNotText: loesung }).first();
+  await tippe(ziel, warten);
+}
+
+async function weiter(warten = 600) {
+  await tippe(seite.getByRole('button', { name: 'Weiter →' }), warten);
+}
+
+// --- Vorbereitung (wird später aus dem Video geschnitten) ---
+await seite.goto(ADRESSE);
+await pause(1200);
+await tippe(seite.getByRole('button', { name: /Wir Eltern/ }), 300);
+await pin();
+await pin();
+await pause(800);
+
+// Lernstand für die Demo: 130 Punkte, einige Wörter schon geübt (nur in diesem Aufnahme-Browser)
 await seite.evaluate(
   () =>
     new Promise((fertig) => {
-      const anfrage = indexedDB.open('miapp');
-      anfrage.onsuccess = () => {
-        const db = anfrage.result;
-        const tx = db.transaction(['ereignisse', 'schluessel'], 'readwrite');
-        tx.objectStore('ereignisse').put({
-          id: 'demo-start',
+      const tag = (n) => new Date(Date.now() - n * 86_400_000).toISOString();
+      const antwort = (id, wortId, uebung, n) => ({
+        id,
+        geraet: 'demo',
+        zeit: tag(n),
+        typ: 'antwort',
+        listeId: 'beispiel-1',
+        wortId,
+        uebung,
+        richtig: true,
+      });
+      const ereignisse = [
+        {
+          id: 'd0',
           geraet: 'demo',
-          zeit: new Date(Date.now() - 3 * 86_400_000).toISOString(),
+          zeit: tag(3),
           typ: 'runde-beendet',
           richtig: 60,
           mitHilfe: 0,
           verbessert: 0,
-        });
+        },
+        antwort('d1', 'house', 'erkennen', 3),
+        antwort('d2', 'house', 'waehlen-de-en', 2),
+        antwort('d3', 'school', 'erkennen', 3),
+        antwort('d4', 'school', 'waehlen-de-en', 2),
+        antwort('d5', 'friend', 'erkennen', 2),
+      ];
+      const anfrage = indexedDB.open('miapp');
+      anfrage.onsuccess = () => {
+        const db = anfrage.result;
+        const tx = db.transaction(['ereignisse', 'schluessel'], 'readwrite');
+        for (const e of ereignisse) tx.objectStore('ereignisse').put(e);
         tx.objectStore('schluessel').put({ id: 'gesehenes-level', wert: 1000 });
         tx.oncomplete = () => {
           db.close();
@@ -108,80 +160,121 @@ await seite.evaluate(
 );
 await seite.reload();
 await pause(1500);
+const schnitt = jetzt();
 
-// 2. Startseite
-await untertitel('Startseite: Level, Punkte und Tagesziel – alles mit 🔊 vorlesbar', 3500);
+// --- Demo ---
+await abschnitt('start');
 
-// 3. Einstellungen
-await tippe(seite.getByRole('link', { name: 'Einstellungen' }));
-await untertitel(
-  'Einstellungen: Schriftgröße, Abstände, Hintergrund, Schrift, Vorlese-Tempo',
-  2000,
-);
-await tippe(seite.getByRole('radio', { name: 'Groß', exact: true }), 900);
-await tippe(seite.getByRole('radio', { name: 'Hellblau' }), 1200);
-await tippe(seite.getByRole('radio', { name: 'OpenDyslexic' }), 1500);
-await tippe(seite.getByRole('radio', { name: 'Standard', exact: true }), 400);
-await tippe(seite.getByRole('radio', { name: 'Creme', exact: true }), 400);
-await tippe(
-  seite.getByRole('radiogroup', { name: 'Schriftgröße' }).getByRole('radio', { name: 'Normal' }),
-  600,
-);
-await tippe(seite.getByRole('link', { name: /Zurück/ }), 800);
+await abschnitt('vorlesen', async () => {
+  await pause(1500);
+  await tippe(seite.locator('.fortschritt .vorlese-knopf button'), 2500);
+  await tippe(seite.locator('.kachel .vorlese-knopf button').first(), 1500);
+});
 
-// 4. Vokabelrunde
+await tippe(seite.getByRole('link', { name: 'Einstellungen' }), 500);
+await abschnitt('einstellungen', async () => {
+  await tippe(seite.getByRole('radio', { name: 'Groß', exact: true }), 1500);
+  await tippe(seite.getByRole('radio', { name: 'Weit', exact: true }), 1500);
+  await tippe(seite.getByRole('radio', { name: 'Hellblau', exact: true }), 1500);
+  await tippe(seite.getByRole('radio', { name: 'OpenDyslexic', exact: true }), 1500);
+});
+// Ohne Kommentar wieder zurückstellen
+for (const [gruppe, wert] of [
+  ['Schrift', 'Standard'],
+  ['Hintergrund', 'Creme'],
+  ['Abstand', 'Normal'],
+  ['Schriftgröße', 'Normal'],
+]) {
+  await tippe(
+    seite.getByRole('radiogroup', { name: gruppe }).getByRole('radio', { name: wert }),
+    150,
+  );
+}
+await tippe(seite.getByRole('link', { name: /Zurück/ }), 400);
 await tippe(seite.getByRole('link', { name: 'Vokabeln' }), 1000);
-await untertitel(
-  'Vokabeln: Das englische Wort wird vorgelesen – richtige Übersetzung antippen',
-  3000,
-);
 
-let schritt = 0;
-while (!(await seite.getByRole('button', { name: 'Noch eine Runde' }).isVisible())) {
-  const englisch = (await seite.locator('.uebung-frage > span').last().textContent()).trim();
-  const richtig = DEUTSCH[englisch] ?? Object.values(DEUTSCH).find((d) => d === englisch);
-  schritt++;
-  if (schritt === 2) {
-    // Einmal absichtlich daneben, um die freundliche Rückmeldung zu zeigen
-    const falsch = seite.locator('.uebung-option').filter({ hasNotText: richtig }).first();
-    await tippe(falsch, 600);
-    await untertitel(
-      'Daneben? Kein Rot, keine Strafe: Die Lösung wird gezeigt und vorgelesen',
-      3000,
-    );
-    await untertitel('… und das Wort kommt am Ende der Runde noch einmal', 2200);
-  } else {
-    await tippe(seite.locator('.uebung-option', { hasText: richtig }), 1100);
+// Bekanntes Wort (friend): Deutsch sehen, Englisch wählen
+await abschnitt('bekannt', async () => {
+  await pause(3500);
+  await waehle(true, 2500);
+});
+await weiter();
+
+// Schreiben mit Hilfe (house)
+await abschnitt('schreiben', async () => {
+  await pause(3500);
+  await tippe(seite.getByRole('button', { name: '💡 Hilfe' }), 1500);
+  await seite.getByRole('textbox').pressSequentially('house', { delay: 220 });
+  await pause(600);
+  await tippe(seite.getByRole('button', { name: 'Prüfen' }), 1200);
+});
+await weiter();
+
+// Kleiner Tippfehler (school → scool)
+await abschnitt('fast', async () => {
+  await seite.getByRole('textbox').pressSequentially('scool', { delay: 220 });
+  await pause(500);
+  await tippe(seite.getByRole('button', { name: 'Prüfen' }), 2000);
+});
+await weiter();
+
+// Neues Wort: hören und Deutsch antippen
+await abschnitt('neu', async () => {
+  await pause(4500);
+  await waehle(true, 2000);
+});
+await weiter();
+
+// Absichtlich daneben
+await abschnitt('falsch', async () => {
+  await pause(1500);
+  await waehle(false, 1000);
+});
+await weiter();
+
+// Restliche Wörter zügig
+await abschnitt('wiederholen', async () => {
+  while (await seite.locator('.uebung-option').count()) {
+    await waehle(true, 700);
+    await weiter(500);
   }
-  await tippe(seite.getByRole('button', { name: 'Weiter →' }), 700);
-}
+});
 
-// 5. Zusammenfassung und Level-Feier
-await untertitel('Geschafft! Punkte für die Runde, Fortschritt beim Tagesziel', 2500);
-const feier = seite.getByRole('dialog', { name: 'Neues Level!' });
-if (await feier.isVisible()) {
-  await untertitel('Level-Aufstieg: kleine Feier mit Fanfare 🎉', 3500);
-  await tippe(seite.getByRole('button', { name: /Juhu/ }), 800);
-}
-await tippe(seite.getByRole('link', { name: 'Zur Startseite' }), 1200);
-await untertitel('Zurück auf der Startseite: neues Level, neue Punkte', 2500);
+await abschnitt('feier', async () => {
+  await pause(3500);
+  const juhu = seite.getByRole('button', { name: /Juhu/ });
+  if (await juhu.isVisible()) {
+    await pause(1500);
+    await tippe(juhu, 300);
+  }
+});
 
-// 6. Eltern-Bereich
-await untertitel('Oben rechts 🔒: der Eltern-Bereich', 1800);
+await tippe(seite.getByRole('link', { name: 'Zur Startseite' }), 800);
+await abschnitt('tagesziel');
+
+// Eltern-Bereich ohne Kommentar öffnen
 await tippe(seite.getByRole('link', { name: 'Eltern-Bereich' }), 300);
-await untertitel('Er öffnet sich nur mit der Eltern-PIN', 1800);
 await pin();
-await pause(800);
-await untertitel('Dropbox: gleicht Punkte und Einstellungen zwischen unseren Handys ab', 3000);
-await seite.getByRole('heading', { name: 'Belohnungen' }).scrollIntoViewIfNeeded();
 await pause(500);
-await untertitel('Belohnungen festlegen – mit ungefährer Lernzeit pro Belohnung', 4000);
-await seite.getByRole('heading', { name: 'Level' }).scrollIntoViewIfNeeded();
-await pause(500);
-await untertitel('Level-Titel und Punkte-Schwellen selbst anpassen', 3000);
-await untertitel('Als Nächstes: Belohnungen einlösen und Vokabeln per Foto importieren 📸', 3500);
+await seite
+  .getByRole('heading', { name: 'Belohnungen' })
+  .evaluate((h) => h.scrollIntoView({ block: 'start' }));
+await abschnitt('belohnungen', async () => {
+  await pause(5000);
+  await seite.mouse.wheel(0, 260);
+  await pause(3500);
+  await seite.mouse.wheel(0, 260);
+});
+
+await tippe(seite.getByRole('link', { name: /Zurück/ }), 500);
+await abschnitt('ausblick');
 
 const video = seite.video();
 await kontext.close();
-console.log(await video.path());
+const pfad = await video.path();
+writeFileSync(
+  join(ordner, 'zeiten.json'),
+  JSON.stringify({ video: pfad, schnitt, ende: jetzt(), zeiten }, null, 2),
+);
+console.log(pfad);
 await browser.close();
