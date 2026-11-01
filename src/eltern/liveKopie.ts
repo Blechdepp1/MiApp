@@ -2,6 +2,7 @@ import { INHALTE, type InhaltName } from '../belohnung/inhalte.ts';
 import { gesamtPunkte, level, rang } from '../belohnung/logik.ts';
 import { LEVEL_START, type Levelstufe } from '../belohnung/werte.ts';
 import { db } from '../daten/db.ts';
+import { dexieWert } from '../daten/schluesselWert.ts';
 import type { LernEreignis } from '../daten/ereignisse.ts';
 import type { InhaltEintrag } from '../daten/inhalte.ts';
 import type { Lektion } from '../lektionen/lektion.ts';
@@ -110,14 +111,52 @@ export function istLeer(live: LiveDaten): boolean {
   return live.lektionen.length + live.inhalte.length + live.ereignisse.length === 0;
 }
 
+// Was zuletzt übernommen wurde, damit man im Testkanal sieht, auf welchem Stand er ist
+export type KopieStand = {
+  // Zeitpunkt der Übernahme
+  zeit: string;
+  quelle: string;
+  lektionen: number;
+  runden: number;
+  // Letzte Runde in Milenas App zum Zeitpunkt der Übernahme
+  letzteRunde?: string;
+};
+
+export const standardKopieStand = dexieWert<KopieStand>('live-kopie');
+
+export function kopieStand(live: LiveDaten, jetzt: string): KopieStand {
+  const runden = live.ereignisse.filter((e) => e.typ === 'runde-beendet');
+  const letzteRunde = runden
+    .map((e) => e.zeit)
+    .sort()
+    .at(-1);
+  return {
+    zeit: jetzt,
+    quelle: live.quelle,
+    lektionen: live.lektionen.filter((l) => !l.geloescht).length,
+    runden: runden.length,
+    ...(letzteRunde && { letzteRunde }),
+  };
+}
+
+export function zeitText(iso: string): string {
+  return new Date(iso).toLocaleString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 export function zusammenfassung(live: LiveDaten): string {
   const lektionen = live.lektionen.filter((l) => !l.geloescht).length;
   const runden = live.ereignisse.filter((e) => e.typ === 'runde-beendet').length;
   return `${lektionen} Lektionen, ${live.inhalte.length} Listen (Belohnungen/Level), ${runden} Runden`;
 }
 
-// Ersetzt die Lerndaten des Testkanals durch die Kopie
-export async function schreibeInVorschau(daten: LiveDaten): Promise<void> {
+// Ersetzt die Lerndaten des Testkanals durch die Kopie und merkt sich den Stand
+export async function schreibeInVorschau(daten: LiveDaten, stand: KopieStand): Promise<void> {
   await db.transaction('rw', [db.lektionen, db.inhalte, db.ereignisse, db.schluessel], async () => {
     await Promise.all([db.lektionen.clear(), db.inhalte.clear(), db.ereignisse.clear()]);
     await db.lektionen.bulkPut(daten.lektionen);
@@ -126,6 +165,7 @@ export async function schreibeInVorschau(daten: LiveDaten): Promise<void> {
     if (daten.gesehenesLevel !== undefined) {
       await db.schluessel.put({ id: 'gesehenes-level', wert: daten.gesehenesLevel });
     }
+    await db.schluessel.put({ id: 'live-kopie', wert: stand });
     // Abgleich mit dem Dropbox-Ordner des Testkanals beginnt von vorn
     await db.schluessel.bulkDelete(['abgleich-stand', 'inhalte-stand', 'lektionen-stand']);
   });

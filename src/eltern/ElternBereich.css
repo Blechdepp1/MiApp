@@ -1,0 +1,125 @@
+/* Übersicht des Eltern-Bereichs: Gruppen mit Zeilen wie in den System-Einstellungen */
+.eltern-uebersicht {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 40rem;
+}
+
+.eltern-geraet {
+  margin: 0;
+  color: var(--farbe-text-leise);
+}
+
+.eltern-gruppe {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.eltern-gruppe h2 {
+  margin: 0 0 0 0.25rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--farbe-text-leise);
+}
+
+.eltern-gruppe ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+  overflow: hidden;
+}
+
+.eltern-gruppe li + li {
+  border-top: 1px solid color-mix(in srgb, var(--farbe-text-leise) 25%, transparent);
+}
+
+.eltern-zeile {
+  width: 100%;
+  min-height: calc(var(--touch) + 0.75rem);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--farbe-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.eltern-zeile:active {
+  background: color-mix(in srgb, var(--farbe-akzent) 12%, transparent);
+}
+
+.eltern-zeile:focus-visible {
+  outline: 3px solid var(--farbe-akzent);
+  outline-offset: -3px;
+}
+
+.eltern-zeile-symbol {
+  font-size: 1.4rem;
+}
+
+.eltern-zeile-text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.eltern-zeile-text span {
+  font-size: 0.9rem;
+  color: var(--farbe-text-leise);
+}
+
+.eltern-zeile-text .eltern-zeile-warnung {
+  color: var(--farbe-text);
+  font-weight: 700;
+}
+
+.eltern-zeile-zahl {
+  min-width: 1.6rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--farbe-belohnung);
+  color: var(--farbe-auf-belohnung);
+  font-weight: 700;
+  text-align: center;
+}
+
+.eltern-zeile-pfeil {
+  font-size: 1.5rem;
+  color: var(--farbe-text-leise);
+}
+
+/* Unterseite: Die Seite trägt den Titel, die erste Überschrift des Abschnitts wäre doppelt */
+.eltern-unterseite {
+  display: grid;
+  gap: 1rem;
+  max-width: 40rem;
+}
+
+.eltern-unterseite > section:first-child > h2:first-child {
+  display: none;
+}
+
+/* Stand des Testkanals */
+.kopie-stand {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1rem;
+  margin: 0;
+}
+
+.kopie-stand dt {
+  color: var(--farbe-text-leise);
+}
+
+.kopie-stand dd {
+  margin: 0;
+  font-weight: 700;
+}

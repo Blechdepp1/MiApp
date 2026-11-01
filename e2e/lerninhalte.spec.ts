@@ -41,6 +41,7 @@ async function oeffneLerninhalte(page: Page) {
   await page.reload();
   await page.getByRole('link', { name: 'Eltern-Bereich' }).click();
   await tippePin(page);
+  await page.getByRole('button', { name: /Lektionen/ }).click();
   await page.getByRole('button', { name: '📚 Lerninhalte verwalten' }).click();
   return page.getByRole('dialog', { name: 'Lerninhalte' });
 }

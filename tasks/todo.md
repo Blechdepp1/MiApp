@@ -254,6 +254,7 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 - [ ] Änderungen erscheinen nach dem Abgleich auf Milenas Gerät (Abgleich unverändert „neueste Änderung gewinnt“; auf den Geräten prüfen).
 - [x] Am PC (Breite ≥ 1000 px) zweispaltig, am Handy einspaltig ohne waagerechtes Scrollen (E2E in beiden Größen).
 **Umsetzung:** Vollbild „📚 Lerninhalte“ aus dem Eltern-Bereich (Liste: ✏️ öffnet eine Lektion direkt). Version 0.10.0.
+**Dazu nach Rückmeldung:** Eltern-Bereich als Übersicht mit Gruppen und Unterseiten (Muster der System-Einstellungen; Zurück-Taste und Neuladen bleiben auf der Unterseite). Testkanal: Daten aus Milenas App übernehmen (aus Dropbox oder vom Gerät) mit Anzeige des übernommenen Stands, Umschalter Kind/Eltern.
 **Prüfen:** Unit-Tests (Status-Filter, Text einfügen), Komponententests, E2E im Desktop- und Handy-Format; manuell am PC.
 **Abhängig von:** 17a, 17b
 **Dateien:** `src/lektionen/lektion.ts`, `src/eltern/Lerninhalte.tsx`, `src/eltern/LektionBearbeiten.tsx`, `src/vokabeln-en/quellen.ts`

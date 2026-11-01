@@ -4,11 +4,11 @@ import type { Page } from '@playwright/test';
 test('Eltern-Bereich öffnet sich nur mit PIN', async ({ page }) => {
   await page.goto('./#/eltern');
   await expect(page.getByRole('heading', { name: 'Eltern-PIN eingeben' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Dropbox' })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: 'Verbindung' })).toHaveCount(0);
   await tippePin(page, '9999');
   await expect(page.getByRole('alert')).toContainText('Die PIN stimmt nicht.');
   await tippePin(page);
-  await expect(page.getByRole('heading', { name: 'Dropbox' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Verbindung' })).toBeVisible();
 });
 
 // Liest die gespeicherten Einstellungen direkt aus IndexedDB

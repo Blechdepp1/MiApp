@@ -1,4 +1,5 @@
 import { act, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { speicherImArbeitsspeicher } from './basis/einstellungen.ts';
 import { pfad, ZIELE, type Ziel } from './basis/navigation.ts';
 import { inhalteImArbeitsspeicher } from './daten/inhalte.ts';
@@ -121,6 +122,33 @@ describe('App', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Einstellungen' }),
     ).toBeInTheDocument();
+  });
+
+  it('zeigt im Eltern-Bereich eine Übersicht und öffnet Unterseiten', async () => {
+    await zeige();
+    gehe('eltern');
+    await screen.findByRole('heading', { name: 'Eltern-PIN eingeben' });
+    for (const z of '1234') await userEvent.click(screen.getByRole('button', { name: z }));
+    const verbindung = await screen.findByRole('region', { name: 'Verbindung' });
+    expect(within(verbindung).getByText('Nicht verbunden')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Info' })).toHaveTextContent('Version');
+
+    act(() =>
+      within(verbindung)
+        .getByRole('button', { name: /Dropbox & Abgleich/ })
+        .click(),
+    );
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Dropbox & Abgleich' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mit Dropbox verbinden' })).toBeInTheDocument();
+
+    // Zurück-Taste führt zur Übersicht, nicht aus dem Eltern-Bereich
+    act(() => window.history.back());
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Eltern-Bereich' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Verbindung' })).toBeInTheDocument();
   });
 
   it('öffnet den Eltern-Bereich auch per Adresse nur mit PIN', async () => {

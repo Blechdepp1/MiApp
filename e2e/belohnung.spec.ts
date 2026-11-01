@@ -21,8 +21,10 @@ test('Belohnung einlösen und im Eltern-Bereich bestätigen', async ({ page }) =
   // Eltern bestätigen
   await page.getByRole('link', { name: 'Eltern-Bereich' }).click();
   await tippePin(page);
+  await page.getByRole('button', { name: /Einlösungen bestätigen/ }).click();
   await page.getByRole('button', { name: 'Bestätigen' }).click();
   await expect(page.getByText(/Gerade wartet nichts/)).toBeVisible();
+  await page.getByRole('button', { name: /Eltern-Bereich/ }).click();
 
   // Kind sieht die Bestätigung
   await page.getByRole('link', { name: /Zurück/ }).click();

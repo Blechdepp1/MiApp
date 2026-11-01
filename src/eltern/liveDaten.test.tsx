@@ -10,8 +10,10 @@ import {
   istLeer,
   leseLiveDatenAusDropbox,
   zusammenfassung,
+  type KopieStand,
   type LiveDaten,
 } from './liveKopie.ts';
+import { wertImArbeitsspeicher } from '../daten/schluesselWert.ts';
 import type { Lektion } from '../lektionen/lektion.ts';
 import { LiveDatenUebernehmen } from './LiveDatenUebernehmen.tsx';
 
@@ -99,6 +101,7 @@ describe('LiveDatenUebernehmen', () => {
     expect(frage.mock.calls[0]![0]).toContain('Aus Dropbox-Ordner Apps/MiApp übernehmen');
     expect(schreiben).toHaveBeenCalledWith(
       expect.objectContaining({ lektionen: expect.any(Array), gesehenesLevel: 1000 }),
+      expect.objectContaining({ quelle: 'Dropbox-Ordner Apps/MiApp', lektionen: 1, runden: 1 }),
     );
   });
 
@@ -116,6 +119,21 @@ describe('LiveDatenUebernehmen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Daten übernehmen' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Keine Daten aus Milenas App');
     expect(screen.getByRole('alert')).toHaveTextContent('mit Dropbox verbinden');
+  });
+
+  it('zeigt, welcher Stand zuletzt übernommen wurde', async () => {
+    const standSpeicher = wertImArbeitsspeicher<KopieStand>({
+      zeit: '2026-11-01T13:32:00Z',
+      quelle: 'Dropbox-Ordner Apps/MiApp',
+      lektionen: 3,
+      runden: 12,
+      letzteRunde: '2026-10-31T17:05:00Z',
+    });
+    render(<LiveDatenUebernehmen standSpeicher={standSpeicher} />);
+    expect(await screen.findByText('3 Lektionen, 12 Runden')).toBeInTheDocument();
+    expect(screen.getByText('Dropbox-Ordner Apps/MiApp')).toBeInTheDocument();
+    expect(screen.getByText('Letzte Runde von Milena')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Neu übernehmen' })).toBeInTheDocument();
   });
 
   it('übernimmt keine leeren Daten', async () => {
