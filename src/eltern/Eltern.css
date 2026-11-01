@@ -107,6 +107,12 @@
   width: 6.5rem;
 }
 
+.verwalten-lernzeit {
+  flex-basis: 100%;
+  font-size: 0.9rem;
+  color: var(--farbe-text-leise);
+}
+
 .verwalten-nr {
   min-width: 1.5rem;
   font-weight: 700;

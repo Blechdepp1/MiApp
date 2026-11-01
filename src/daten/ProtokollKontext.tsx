@@ -27,9 +27,15 @@ export function useEreignisse(): LernEreignis[] | undefined {
   useEffect(() => {
     let aktiv = true;
     const laden = () =>
-      protokoll.alle().then((alle) => {
-        if (aktiv) setEreignisse(alle);
-      });
+      protokoll
+        .alle()
+        .then((alle) => {
+          if (aktiv) setEreignisse(alle);
+        })
+        .catch(() => {
+          // Speicher nicht lesbar (z. B. privater Modus): als leer behandeln statt hängen zu bleiben
+          if (aktiv) setEreignisse([]);
+        });
     laden();
     const abmelden = protokoll.beobachte(laden);
     return () => {

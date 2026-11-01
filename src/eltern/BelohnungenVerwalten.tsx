@@ -6,7 +6,9 @@ import {
   SYMBOLE,
   type Belohnung,
 } from '../belohnung/inhalte.ts';
+import { lernrate, lernzeitText, MIN_RUNDEN_FUER_MESSUNG } from '../belohnung/lernzeit.ts';
 import { useInhalt } from '../daten/InhalteKontext.tsx';
+import { useEreignisse } from '../daten/ProtokollKontext.tsx';
 import { useGeraet } from './GeraetKontext.tsx';
 
 // Belohnungen anlegen, ändern, löschen – gespeichert wird erst mit „Speichern“
@@ -16,6 +18,7 @@ export function BelohnungenVerwalten() {
   const [entwurf, setEntwurf] = useState<Belohnung[] | null>(null);
   const [meldung, setMeldung] = useState<{ ok: boolean; text: string } | null>(null);
   const liste = entwurf ?? belohnungen;
+  const rate = lernrate(useEreignisse() ?? []);
 
   function aendere(i: number, aenderung: Partial<Belohnung>) {
     setMeldung(null);
@@ -95,9 +98,19 @@ export function BelohnungenVerwalten() {
                 🗑️
               </button>
             )}
+            {b.preis > 0 && (
+              <span className="verwalten-lernzeit">
+                {lernzeitText(b.preis, rate.punkteProMinute)} Lernzeit
+              </span>
+            )}
           </li>
         ))}
       </ul>
+      <p className="eltern-hinweis">
+        {rate.gemessen
+          ? `Lernzeit gemessen aus ${rate.runden} Runden: etwa ${Math.round(rate.punkteProMinute)} Punkte pro Minute.`
+          : `Lernzeit geschätzt (etwa ${rate.punkteProMinute} Punkte pro Minute). Nach ${MIN_RUNDEN_FUER_MESSUNG} Runden wird mit echten Werten gerechnet.`}
+      </p>
       {darfAendern && (
         <div className="verbinden-knoepfe">
           <button type="button" onClick={hinzufuegen}>

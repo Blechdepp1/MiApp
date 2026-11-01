@@ -4,6 +4,8 @@ import { BELOHNUNGEN_START } from '../belohnung/inhalte.ts';
 import { LEVEL_START } from '../belohnung/werte.ts';
 import { inhalteImArbeitsspeicher, type InhalteSpeicher } from '../daten/inhalte.ts';
 import { InhalteProvider } from '../daten/InhalteKontext.tsx';
+import { protokollImArbeitsspeicher } from '../daten/protokoll.ts';
+import { ProtokollProvider } from '../daten/ProtokollKontext.tsx';
 import { BelohnungenVerwalten } from './BelohnungenVerwalten.tsx';
 import { geraetImArbeitsspeicher, type Rolle } from './geraet.ts';
 import { GeraetProvider } from './GeraetKontext.tsx';
@@ -13,13 +15,15 @@ import { erzeugePruefwert } from './pin.ts';
 async function zeige(ansicht: 'belohnungen' | 'level', rolle: Rolle = 'eltern') {
   const inhalte: InhalteSpeicher = inhalteImArbeitsspeicher();
   render(
-    <InhalteProvider speicher={inhalte}>
-      <GeraetProvider
-        speicher={geraetImArbeitsspeicher({ rolle, pin: await erzeugePruefwert('1234') })}
-      >
-        {ansicht === 'belohnungen' ? <BelohnungenVerwalten /> : <LevelVerwalten />}
-      </GeraetProvider>
-    </InhalteProvider>,
+    <ProtokollProvider protokoll={protokollImArbeitsspeicher()}>
+      <InhalteProvider speicher={inhalte}>
+        <GeraetProvider
+          speicher={geraetImArbeitsspeicher({ rolle, pin: await erzeugePruefwert('1234') })}
+        >
+          {ansicht === 'belohnungen' ? <BelohnungenVerwalten /> : <LevelVerwalten />}
+        </GeraetProvider>
+      </InhalteProvider>
+    </ProtokollProvider>,
   );
   await screen.findByRole('heading');
   return inhalte;
@@ -31,6 +35,13 @@ describe('BelohnungenVerwalten', () => {
     expect(
       screen.getAllByRole('textbox', { name: 'Name' }).map((e) => (e as HTMLInputElement).value),
     ).toEqual(BELOHNUNGEN_START.map((b) => b.name));
+  });
+
+  it('zeigt die ungefähre Lernzeit je Belohnung', async () => {
+    await zeige('belohnungen');
+    // Schätzung 9 Punkte/Minute: 900 Punkte ≈ 100 Minuten
+    expect(screen.getByText('≈ 1 Std. 40 Min. Lernzeit')).toBeInTheDocument();
+    expect(screen.getByText(/Lernzeit geschätzt/)).toBeInTheDocument();
   });
 
   it('legt eine Belohnung an und speichert', async () => {
