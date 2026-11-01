@@ -3,7 +3,9 @@ import { punkteFuerRunde, tagesziel } from '../belohnung/logik.ts';
 import { PUNKTE } from '../belohnung/werte.ts';
 import { useProtokoll } from '../daten/ProtokollKontext.tsx';
 import type { LernEreignis, Uebung } from '../daten/ereignisse.ts';
+import { useVerlassenBestaetigen } from '../basis/verlassen.ts';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
+import { AufhoerenFrage } from './AufhoerenFrage.tsx';
 import {
   berechneStaende,
   extraRundeAuswaehlen,
@@ -79,6 +81,9 @@ export function Runde({
     gelernt: [] as Vokabel[],
   });
   const [ergebnis, setErgebnis] = useState<Ergebnis | null>(null);
+  // Nachfragen, sobald die erste Antwort gegeben ist und solange die Runde läuft
+  const angefangen = aktuell !== null && (aktuell.nr > 0 || antwort !== null);
+  const verlassen = useVerlassenBestaetigen(angefangen && !ergebnis);
 
   if (ergebnis) return <Zusammenfassung ergebnis={ergebnis} onNochEinmal={onNochEinmal} />;
 
@@ -151,6 +156,13 @@ export function Runde({
 
   return (
     <div className="runde">
+      {verlassen.frage && (
+        <AufhoerenFrage
+          uebrig={schritte.length - aktuell.nr - (antwort ? 1 : 0)}
+          onBleiben={verlassen.bleiben}
+          onAufhoeren={verlassen.verlassen}
+        />
+      )}
       {auswahl.extra && aktuell.nr === 0 && <ExtraHinweis />}
       <Fortschritt aktuell={aktuell.nr + 1} gesamt={schritte.length} />
       {aktuell.uebung === 'schreiben' ? (

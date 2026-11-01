@@ -20,11 +20,23 @@ function meldeWechsel() {
   window.dispatchEvent(new HashChangeEvent('hashchange'));
 }
 
+// Eine Seite (z. B. eine laufende Runde) kann das Verlassen erst bestätigen lassen
+type Wache = (ziel: Ziel) => void;
+let wache: Wache | null = null;
+
+export function setzeWache(neu: Wache | null): void {
+  wache = neu;
+}
+
 // Der Verlauf bleibt flach: höchstens [Startseite, eine Unterseite].
 // So führt die Zurück-Taste von Android immer direkt zur Startseite und dort aus der App.
-export function navigiere(ziel: Ziel): void {
+export function navigiere(ziel: Ziel, { ohneWache = false } = {}): void {
   const aktuell = zielAusHash(window.location.hash);
   if (ziel === aktuell) return;
+  if (wache && !ohneWache) {
+    wache(ziel);
+    return;
+  }
   const zustand = window.history.state as VerlaufsZustand;
 
   if (ziel === 'start') {

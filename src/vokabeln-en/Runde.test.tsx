@@ -1,4 +1,5 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
+import { navigiere } from '../basis/navigation.ts';
 import userEvent from '@testing-library/user-event';
 import { erstelleEreignis, type LernEreignis } from '../daten/ereignisse.ts';
 import { protokollImArbeitsspeicher, type Protokoll } from '../daten/protokoll.ts';
@@ -169,6 +170,62 @@ describe('Runde', () => {
       for (let i = 0; i < 3; i++) await antworte(container, true);
       await userEvent.click(await screen.findByRole('button', { name: 'Noch eine Runde' }));
       expect(nochEinmal).toHaveBeenCalled();
+    });
+  });
+
+  describe('Aufhören mitten in der Runde', () => {
+    beforeEach(() => {
+      window.history.replaceState(null, '', '#/');
+      window.history.pushState({ ueberStart: true }, '', '#/vokabeln');
+    });
+
+    // Erste Frage richtig beantworten, ohne auf „Weiter“ zu tippen
+    async function ersteAntwort(container: HTMLElement) {
+      const loesung = LISTE.woerter.find((w) => w.en === frage(container))!.de;
+      const optionen = [...container.querySelectorAll<HTMLButtonElement>('.uebung-option')];
+      await userEvent.click(optionen.find((o) => o.textContent === loesung)!);
+    }
+
+    it('fragt nicht, solange noch nichts beantwortet ist', () => {
+      zeige();
+      act(() => navigiere('start'));
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+
+    it('fragt beim App-Zurück nach und bleibt bei „Weiter üben“', async () => {
+      const { container } = zeige();
+      await ersteAntwort(container);
+      act(() => navigiere('start'));
+      const frage = screen.getByRole('dialog', { name: 'Möchtest du wirklich aufhören?' });
+      expect(frage).toHaveTextContent('keine Punkte');
+      expect(frage).toHaveTextContent('Nur noch 2 Wörter!');
+      await userEvent.click(screen.getByRole('button', { name: 'Weiter üben' }));
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(window.location.hash).toBe('#/vokabeln');
+    });
+
+    it('geht bei „Aufhören“ zur Startseite', async () => {
+      const { container } = zeige();
+      await ersteAntwort(container);
+      act(() => navigiere('start'));
+      await userEvent.click(screen.getByRole('button', { name: 'Aufhören' }));
+      await vi.waitFor(() => expect(window.location.hash).toBe('#/'));
+    });
+
+    it('fragt auch bei der Zurück-Taste des Handys nach', async () => {
+      const { container } = zeige();
+      await ersteAntwort(container);
+      act(() => window.history.back());
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      expect(window.location.hash).toBe('#/vokabeln');
+    });
+
+    it('fragt nach dem Ende der Runde nicht mehr', async () => {
+      const { container } = zeige();
+      for (let i = 0; i < 3; i++) await antworte(container, true);
+      await screen.findByText(/Punkte/);
+      act(() => navigiere('start'));
+      expect(screen.queryByRole('dialog')).toBeNull();
     });
   });
 
