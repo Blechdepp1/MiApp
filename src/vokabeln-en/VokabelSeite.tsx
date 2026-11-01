@@ -4,9 +4,9 @@ import { tagVon } from '../belohnung/logik.ts';
 import { useEreignisse } from '../daten/ProtokollKontext.tsx';
 import type { LernEreignis } from '../daten/ereignisse.ts';
 import { useLektionen } from '../lektionen/LektionenKontext.tsx';
-import { testVorrang } from '../klassenarbeiten/logik.ts';
+import { alleTests, sichtbareTests, testVorrang } from '../klassenarbeiten/logik.ts';
 import { berechneStaende } from './leitner.ts';
-import { vokabelQuellen } from './quellen.ts';
+import { endspurt, vokabelQuellen, type Endspurt } from './quellen.ts';
 import { Runde } from './Runde.tsx';
 import type { Zufall } from './runde.ts';
 import type { Vokabelliste } from './typen.ts';
@@ -17,6 +17,7 @@ type Start = {
   ereignisse: LernEreignis[];
   listen: Vokabelliste[];
   vorrang: Set<string>;
+  endspurt: Endspurt[];
 };
 
 export function VokabelSeite({ zufall }: { zufall?: Zufall }) {
@@ -31,7 +32,16 @@ export function VokabelSeite({ zufall }: { zufall?: Zufall }) {
     const fuerTests = testVorrang(ereignisse, heute);
     const quellen = vokabelQuellen(lektionen, heute, berechneStaende(ereignisse), fuerTests);
     const vorrang = new Set([...quellen.vorrang, ...fuerTests]);
-    setStart({ runde, ereignisse, listen: quellen.listen, vorrang });
+    const termine = sichtbareTests(alleTests(ereignisse)).flatMap((t) =>
+      t.lektionId ? [{ lektionId: t.lektionId, datum: t.datum }] : [],
+    );
+    setStart({
+      runde,
+      ereignisse,
+      listen: quellen.listen,
+      vorrang,
+      endspurt: endspurt(lektionen, termine, heute),
+    });
   }
 
   return (
@@ -45,6 +55,7 @@ export function VokabelSeite({ zufall }: { zufall?: Zufall }) {
           ereignisse={start.ereignisse}
           heute={heute}
           vorrang={start.vorrang}
+          endspurt={start.endspurt}
           zufall={zufall}
           onNochEinmal={() => setRunde((r) => r + 1)}
         />

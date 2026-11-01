@@ -26,7 +26,9 @@ describe('UebungSchreiben', () => {
   it('bewertet eine richtige Antwort ohne Hilfe', async () => {
     const { onAntwort } = zeige();
     await userEvent.type(screen.getByRole('textbox'), 'House{Enter}');
-    expect(onAntwort).toHaveBeenCalledWith({ bewertung: 'richtig', mitHilfe: false });
+    expect(onAntwort).toHaveBeenCalledWith(
+      expect.objectContaining({ bewertung: 'richtig', mitHilfe: false }),
+    );
     expect(screen.getByRole('textbox')).toBeDisabled();
   });
 
@@ -34,7 +36,9 @@ describe('UebungSchreiben', () => {
     const { onAntwort } = zeige();
     await userEvent.type(screen.getByRole('textbox'), 'hous');
     await userEvent.click(screen.getByRole('button', { name: 'Prüfen' }));
-    expect(onAntwort).toHaveBeenCalledWith({ bewertung: 'fast', mitHilfe: false });
+    expect(onAntwort).toHaveBeenCalledWith(
+      expect.objectContaining({ bewertung: 'fast', mitHilfe: false }),
+    );
   });
 
   it('deckt mit Hilfe Buchstabe für Buchstabe auf und merkt sich die Hilfe', async () => {
@@ -43,7 +47,9 @@ describe('UebungSchreiben', () => {
     await userEvent.click(screen.getByRole('button', { name: '💡 Hilfe' }));
     expect(kaestchen(container)).toEqual(['h', 'o', '', '', '']);
     await userEvent.type(screen.getByRole('textbox'), 'house{Enter}');
-    expect(onAntwort).toHaveBeenCalledWith({ bewertung: 'richtig', mitHilfe: true });
+    expect(onAntwort).toHaveBeenCalledWith(
+      expect.objectContaining({ bewertung: 'richtig', mitHilfe: true }),
+    );
   });
 
   it('überspringt Leerzeichen und lässt Optionales weg', async () => {

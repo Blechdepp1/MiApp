@@ -19,8 +19,11 @@ import {
   type RundenWort,
   type WortStand,
 } from './leitner.ts';
+import { endspurtText, type Endspurt } from './quellen.ts';
 import { antwortOptionen, sprechtext, type Zufall } from './runde.ts';
 import type { Vokabel, Vokabelliste } from './typen.ts';
+import { hauptform } from './bewertung.ts';
+import { Nachschreiben } from './Nachschreiben.tsx';
 import { UebungSchreiben } from './UebungSchreiben.tsx';
 import { UebungWaehlen } from './UebungWaehlen.tsx';
 import { Zusammenfassung, type Ergebnis } from './Zusammenfassung.tsx';
@@ -44,7 +47,8 @@ function vorbereiten(
   return { nr, uebung, optionen: antwortOptionen(wort, alleWoerter, feld, zufall) };
 }
 
-type Antwort = { richtig: boolean; fast?: boolean; mitHilfe?: boolean };
+// eingabe: in der Schreibübung Getipptes (für die Markierung der Fehlerstelle)
+type Antwort = { richtig: boolean; fast?: boolean; mitHilfe?: boolean; eingabe?: string };
 
 export function Runde({
   listen,
@@ -54,6 +58,7 @@ export function Runde({
   zufall = Math.random,
   onNochEinmal,
   sprich = vorlesen,
+  endspurt = [],
 }: {
   listen: Vokabelliste[];
   ereignisse: LernEreignis[];
@@ -63,6 +68,8 @@ export function Runde({
   zufall?: Zufall;
   onNochEinmal: () => void;
   sprich?: typeof vorlesen;
+  // Hinweis am Rundenstart, wenn eine Arbeit ansteht
+  endspurt?: Endspurt[];
 }) {
   const protokoll = useProtokoll();
   const { einstellungen } = useEinstellungen();
@@ -108,11 +115,11 @@ export function Runde({
   const schritt = schritte[aktuell.nr]!;
   const { liste, wort } = schritt.eintrag;
 
-  function beantworten({ richtig, fast = false, mitHilfe = false }: Antwort) {
+  function beantworten({ richtig, fast = false, mitHilfe = false, eingabe }: Antwort) {
     const stand = wortStand(staende, liste.id, wort.id);
     const { stand: neu, verbessert } = naechsterStand(
       stand,
-      { richtig, uebung: aktuell!.uebung },
+      { richtig, uebung: aktuell!.uebung, mitHilfe },
       heute,
     );
     setStaende((alt) => new Map(alt).set(schluessel(liste.id, wort.id), neu));
@@ -127,7 +134,7 @@ export function Runde({
     if (!richtig && !schritt.wiederholung) {
       setSchritte((s) => [...s, { eintrag: schritt.eintrag, wiederholung: true }]);
     }
-    setAntwort({ richtig, fast, mitHilfe });
+    setAntwort({ richtig, fast, mitHilfe, ...(eingabe !== undefined && { eingabe }) });
     // Das englische Wort gleich noch einmal hören, während es zu sehen ist (Klang, Schriftbild und
     // Bedeutung zusammen; bei LRS besonders hilfreich). Abschaltbar in den Einstellungen.
     if (einstellungen.wortVorsagen === 'an') {
@@ -177,13 +184,28 @@ export function Runde({
         />
       )}
       {auswahl.extra && aktuell.nr === 0 && <ExtraHinweis />}
+      {aktuell.nr === 0 &&
+        endspurt.map((e) => {
+          const text = endspurtText(e);
+          return (
+            <p key={e.lektionId} className="runde-extra">
+              <VorleseKnopf text={text} />
+              <span>📝 {text}</span>
+            </p>
+          );
+        })}
       <Fortschritt aktuell={aktuell.nr + 1} gesamt={schritte.length} />
       {aktuell.uebung === 'schreiben' ? (
         <UebungSchreiben
           key={aktuell.nr}
           wort={wort}
-          onAntwort={({ bewertung, mitHilfe }) =>
-            beantworten({ richtig: bewertung !== 'falsch', fast: bewertung === 'fast', mitHilfe })
+          onAntwort={({ bewertung, mitHilfe, eingabe }) =>
+            beantworten({
+              richtig: bewertung !== 'falsch',
+              fast: bewertung === 'fast',
+              mitHilfe,
+              eingabe,
+            })
           }
         />
       ) : (
@@ -239,6 +261,7 @@ function Rueckmeldung({
   kommtNochmal: boolean;
   onWeiter: () => void;
 }) {
+  const { einstellungen } = useEinstellungen();
   const kasten = useRef<HTMLDivElement>(null);
   useEffect(() => {
     kasten.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
@@ -284,6 +307,17 @@ function Rueckmeldung({
           </>
         )}
       </div>
+      {antwort.eingabe !== undefined && (antwort.fast || !antwort.richtig) && (
+        <Nachschreiben eingabe={antwort.eingabe} wort={wort} />
+      )}
+      {einstellungen.nachsprechen === 'an' && (
+        <p className="runde-nachsprechen">
+          <VorleseKnopf text={sprechtext(wort.en)} sprache="en" />
+          <span>
+            🗣️ Sag es laut: <strong lang="en">{hauptform(wort.en)}</strong>
+          </span>
+        </p>
+      )}
       <button type="button" className="runde-weiter" onClick={onWeiter}>
         Weiter →
       </button>

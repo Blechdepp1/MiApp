@@ -319,6 +319,22 @@ describe('Runde', () => {
       expect((await protokoll.alle()).at(-1)).toMatchObject({ richtig: true, fastRichtig: true });
     });
 
+    it('zeigt nach einem Schreibfehler die Stelle und lässt freiwillig nachschreiben', async () => {
+      const { protokoll } = zeige(zweimalErkannt);
+      await schreibe('hose');
+      expect(document.querySelector('.schreib-anders')?.textContent).toBe('u');
+      expect(screen.getByText(/Sag es laut/)).toHaveTextContent('house');
+      const vorher = (await protokoll.alle()).length;
+
+      await userEvent.click(screen.getByRole('button', { name: 'Bereit' }));
+      // Das Wort ist versteckt, sie schreibt es aus dem Kopf
+      expect(document.querySelector('.schreib-vergleich')).toBeNull();
+      await userEvent.type(screen.getByLabelText('Wort noch einmal schreiben'), 'house{Enter}');
+      expect(screen.getByText(/jetzt richtig geschrieben/)).toBeInTheDocument();
+      // Nachschreiben ändert weder Punkte noch Lernstand
+      expect((await protokoll.alle()).length).toBe(vorher);
+    });
+
     it('gibt mit Hilfe 1 statt 2 Punkte, aber nie Abzug', async () => {
       const { container, protokoll } = zeige(zweimalErkannt);
       for (let i = 0; i < 3; i++) {

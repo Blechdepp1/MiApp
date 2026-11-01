@@ -3,6 +3,13 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.13.0 – 01.11.2026
+
+- Ein paar Tage vor einer Englisch-Arbeit kommen alle Wörter der Lektion noch einmal dran. Die App sagt dir am Anfang der Runde, wie viele Tage es noch sind.
+- Nach jeder Antwort steht „🗣️ Sag es laut“: Sprich das Wort einfach nach.
+- Hast du ein Wort falsch geschrieben, siehst du genau, welche Buchstaben anders sind. Wenn du willst, schreibst du es gleich noch einmal aus dem Kopf.
+- Wörter, die du nur mit Hilfe geschafft hast, kommen am nächsten Tag noch einmal.
+
 ## 0.12.0 – 01.11.2026
 
 - Für Eltern: Wochenübersicht mit Lerntagen, Runden und Minuten der letzten 7 Tage.

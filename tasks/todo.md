@@ -350,6 +350,13 @@ Offen (Entscheidung der Eltern): Testkanal unter eigener Adresse (anderer Urspru
 - Behoben: größte Schrift + OpenDyslexic macht keine Seite mehr breiter als das Handy (Überschriften an Bildschirmbreite begrenzt, Umbruch langer Wörter, Raster mit `minmax(0, 1fr)`); Dialoge als `<dialog>` (Fokus bleibt drin, Escape, Fokus zurück); ermutigende Texte („Nicht schlimm!“, „Später weiter“); mehr Vorlesen (Rückmeldung, Diktat-Fehler, Listen); Smileys beschriftet; Antwort-Rückmeldung verdeckt die Antworten nicht mehr; Gold-Kontrast (Sterne, Ring, Fokusrahmen); Notenknöpfe umbrechend; Hinweise bei ausgegrauten Knöpfen.
 - Offen (niedrig): Pfeiltasten in den Einstellungs-Auswahlen.
 
+### Englisch nach Forschungsstand, erste Stufe (docs/spec-englisch-entwurf.md) ✅ (im Testkanal)
+- V5 Hilfe zählt als Üben: mit Hilfe bleibt das Fach, morgen wieder (gilt rückwirkend, einige Wörter rutschen einmalig ein Fach tiefer).
+- V1 Endspurt: vor Klassenarbeit/Test (7 Tage) wird jedes geübte Wort der Lektion nach 2 Tagen Pause wieder abgefragt, ohne Hochstufen; Hinweis am Rundenstart.
+- V2 „🗣️ Sag es laut“ nach jeder Antwort (abschaltbar), ohne Aufnahme.
+- V3 Fehlerstelle sanft markieren und freiwillig nachschreiben (ansehen – abdecken – schreiben – vergleichen), ohne Einfluss auf Punkte und Lernstand.
+- Offen aus dem Entwurf: V4 Verben, V6 Sprechkarte (Ereignisformat 🔒), V7 Buchstabieren, V8 Tempo neuer Wörter; Fragen an die Eltern dort.
+
 ### ✅ Checkpoint E
 - [ ] Neue Versionen gehen zuerst in den Testkanal
 - [ ] Milena kann Feedback geben und Tests eintragen; Bonus und Bestätigung funktionieren

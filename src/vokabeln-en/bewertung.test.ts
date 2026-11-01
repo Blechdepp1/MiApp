@@ -1,4 +1,9 @@
-import { abstand, bewerteSchreiben, erlaubteAntworten } from './bewertung.ts';
+import { abstand, bewerteSchreiben, erlaubteAntworten, unterschiede } from './bewertung.ts';
+
+const markiert = (eingabe: string, loesung: string) =>
+  unterschiede(eingabe, loesung)
+    .map((b) => (b.anders ? `[${b.zeichen}]` : b.zeichen))
+    .join('');
 
 describe('bewerteSchreiben', () => {
   it.each([
@@ -47,5 +52,27 @@ describe('abstand', () => {
     expect(abstand('house', 'house')).toBe(0);
     expect(abstand('', 'abc')).toBe(3);
     expect(abstand('kitten', 'sitting')).toBe(3);
+  });
+});
+
+describe('unterschiede', () => {
+  it('markiert die Stelle, die anders ist', () => {
+    expect(markiert('nite', 'night')).toBe('ni[g][h]t');
+    expect(markiert('frend', 'friend')).toBe('fr[i]end');
+  });
+
+  it('markiert fehlende, zusätzliche und vertauschte Buchstaben', () => {
+    expect(markiert('hose', 'house')).toBe('ho[u]se');
+    expect(markiert('housse', 'house')).toBe('hou[s]e');
+    expect(markiert('hosue', 'house')).toBe('ho[u]s[e]');
+  });
+
+  it('markiert nichts, wenn alles stimmt, auch bei Großschreibung', () => {
+    expect(markiert('Monday', 'Monday')).toBe('Monday');
+    expect(markiert('monday', 'Monday')).toBe('Monday');
+  });
+
+  it('markiert alles bei ganz anderem Wort', () => {
+    expect(markiert('x', 'night')).toBe('[n][i][g][h][t]');
   });
 });

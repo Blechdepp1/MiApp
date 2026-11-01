@@ -6,7 +6,7 @@ import { bewerteSchreiben, hauptform, type Bewertung } from './bewertung.ts';
 import { sprechtext } from './runde.ts';
 import type { Vokabel } from './typen.ts';
 
-export type SchreibErgebnis = { bewertung: Bewertung; mitHilfe: boolean };
+export type SchreibErgebnis = { bewertung: Bewertung; mitHilfe: boolean; eingabe: string };
 
 // Deutsches Wort sehen und hören, englisches Wort schreiben; Kästchen zeigen die Länge
 export function UebungSchreiben({
@@ -41,7 +41,11 @@ export function UebungSchreiben({
     e.preventDefault();
     if (fertig || !eingabe.trim()) return;
     setFertig(true);
-    onAntwort({ bewertung: bewerteSchreiben(eingabe, wort.en), mitHilfe: aufgedeckt > 0 });
+    onAntwort({
+      bewertung: bewerteSchreiben(eingabe, wort.en),
+      mitHilfe: aufgedeckt > 0,
+      eingabe: eingabe.trim(),
+    });
   }
 
   return (

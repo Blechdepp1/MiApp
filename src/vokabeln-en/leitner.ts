@@ -18,6 +18,8 @@ export type WortStand = {
   erkannt: number;
   // Tag des letzten noch nicht korrigierten Fehlers
   fehlerTag?: string;
+  // Tag der letzten Abfrage (für die Auffrischung vor einer Klassenarbeit)
+  zuletzt?: string;
 };
 
 export function schluessel(listeId: string, wortId: string): string {
@@ -42,23 +44,37 @@ export function wortStand(
 // Ergebnis einer Antwort auf den Stand eines Wortes anwenden
 export function naechsterStand(
   stand: WortStand,
-  antwort: { richtig: boolean; uebung: Uebung },
+  antwort: { richtig: boolean; uebung: Uebung; mitHilfe?: boolean },
   tag: string,
 ): { stand: WortStand; verbessert: boolean } {
   if (!antwort.richtig) {
     return {
-      stand: { ...stand, fach: 1, faelligAb: plusTage(tag, 1), fehlerTag: tag },
+      stand: { ...stand, fach: 1, faelligAb: plusTage(tag, 1), fehlerTag: tag, zuletzt: tag },
       verbessert: false,
     };
   }
   const erkannt = antwort.uebung === 'schreiben' ? stand.erkannt : stand.erkannt + 1;
-  // Noch nicht fällig (Extra-Runde, oder Fehler von heute): üben ja, hochstufen erst am Fälligkeitstag
+  // Mit Hilfe geschafft: gut geübt, aber noch nicht aus dem Kopf gekonnt. Fach bleibt, morgen wieder.
+  if (antwort.mitHilfe) {
+    return {
+      stand: {
+        ...stand,
+        fach: Math.max(stand.fach, 1),
+        faelligAb: plusTage(tag, 1),
+        erkannt,
+        zuletzt: tag,
+      },
+      verbessert: false,
+    };
+  }
+  // Noch nicht fällig (Extra-Runde, Auffrischung vor einer Arbeit oder Fehler von heute):
+  // üben ja, hochstufen erst am Fälligkeitstag
   if (tag < stand.faelligAb) {
-    return { stand: { ...stand, erkannt }, verbessert: false };
+    return { stand: { ...stand, erkannt, zuletzt: tag }, verbessert: false };
   }
   const fach = Math.min(Math.max(stand.fach, 0) + 1, FAECHER);
   return {
-    stand: { fach, faelligAb: plusTage(tag, PAUSE_TAGE[fach]!), erkannt },
+    stand: { fach, faelligAb: plusTage(tag, PAUSE_TAGE[fach]!), erkannt, zuletzt: tag },
     verbessert: stand.fehlerTag !== undefined,
   };
 }
@@ -87,6 +103,19 @@ function vorrangZuerst(vorrang: ReadonlySet<string>) {
     Number(vorrang.has(b.liste.id)) - Number(vorrang.has(a.liste.id));
 }
 
+// Vor einer Klassenarbeit (Vorrang) wird jedes schon geübte Wort der Lektion wieder abgefragt,
+// wenn es mindestens so lange her ist – auch wenn es nach Leitner noch Pause hätte
+export const AUFFRISCHEN_NACH_TAGEN = 2;
+
+function istFaellig(w: RundenWort, heute: string, vorrang: ReadonlySet<string>): boolean {
+  if (w.stand.fach === 0) return false;
+  if (w.stand.faelligAb <= heute) return true;
+  return (
+    vorrang.has(w.liste.id) &&
+    (w.stand.zuletzt ?? '0000-00-00') <= plusTage(heute, -AUFFRISCHEN_NACH_TAGEN)
+  );
+}
+
 // Fällige Wörter zuerst (schwierigste zuerst), dann neue, insgesamt höchstens RUNDE_MAX
 export function rundeAuswaehlen(
   listen: readonly Vokabelliste[],
@@ -99,7 +128,7 @@ export function rundeAuswaehlen(
     liste.woerter.map((wort) => ({ liste, wort, stand: wortStand(staende, liste.id, wort.id) })),
   );
   const faellig = alle
-    .filter((w) => w.stand.fach > 0 && w.stand.faelligAb <= heute)
+    .filter((w) => istFaellig(w, heute, vorrang))
     .sort(
       (a, b) =>
         zuerst(a, b) ||

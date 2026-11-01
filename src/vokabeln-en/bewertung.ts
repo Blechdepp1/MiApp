@@ -62,3 +62,46 @@ export function bewerteSchreiben(eingabe: string, loesung: string): Bewertung {
   const fast = erlaubt.some((l) => l.length >= MIN_LAENGE_FUER_FAST && abstand(antwort, l) === 1);
   return fast ? 'fast' : 'falsch';
 }
+
+export type Buchstabe = { zeichen: string; anders: boolean };
+
+// Welche Buchstaben der Lösung hat die Eingabe nicht getroffen? Für die sanfte Markierung nach
+// einem Schreibfehler. Vergleich ohne Groß-/Kleinschreibung; zu viel getippte Buchstaben
+// markieren den Buchstaben der Lösung an dieser Stelle.
+export function unterschiede(eingabe: string, loesung: string): Buchstabe[] {
+  const a = eingabe.trim().toLowerCase();
+  const b = loesung.toLowerCase();
+  const d: number[][] = Array.from({ length: a.length + 1 }, (_, i) =>
+    Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
+  );
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const kosten = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i]![j] = Math.min(d[i - 1]![j]! + 1, d[i]![j - 1]! + 1, d[i - 1]![j - 1]! + kosten);
+    }
+  }
+  const anders = new Array<boolean>(b.length).fill(false);
+  let i = a.length;
+  let j = b.length;
+  // Rückwärts den günstigsten Weg gehen; bei Gleichstand erst Treffer, dann zusätzliche bzw.
+  // fehlende Buchstaben, zuletzt Ersetzungen (so wird „nite“ zu ni[gh]t statt ni[ght])
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && a[i - 1] === b[j - 1] && d[i]![j] === d[i - 1]![j - 1]) {
+      i--;
+      j--;
+    } else if (i > 0 && d[i]![j] === d[i - 1]![j]! + 1) {
+      // Zu viel getippt: den folgenden Buchstaben der Lösung markieren (am Ende nichts)
+      if (j < b.length) anders[j] = true;
+      i--;
+    } else if (j > 0 && d[i]![j] === d[i]![j - 1]! + 1) {
+      // Buchstabe der Lösung fehlt in der Eingabe
+      anders[j - 1] = true;
+      j--;
+    } else {
+      anders[j - 1] = true;
+      i--;
+      j--;
+    }
+  }
+  return [...loesung].map((zeichen, k) => ({ zeichen, anders: anders[k]! }));
+}

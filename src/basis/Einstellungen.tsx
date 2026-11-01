@@ -85,6 +85,12 @@ export function Einstellungen() {
         wert={einstellungen.wortVorsagen}
         waehlen={(wortVorsagen) => aendern({ wortVorsagen })}
       />
+      <Auswahl
+        titel="„Sag es laut“ nach der Antwort"
+        optionen={VORSAGEN}
+        wert={einstellungen.nachsprechen}
+        waehlen={(nachsprechen) => aendern({ nachsprechen })}
+      />
 
       <div className="einstellungen-gruppe">
         <Titel

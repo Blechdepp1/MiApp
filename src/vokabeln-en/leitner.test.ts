@@ -46,7 +46,7 @@ describe('plusTage', () => {
 describe('naechsterStand', () => {
   it('stuft ein neues Wort bei richtig in Fach 1 ein, morgen wieder', () => {
     const { stand } = naechsterStand(NEU, { richtig: true, uebung: 'erkennen' }, '2026-11-01');
-    expect(stand).toEqual({ fach: 1, faelligAb: '2026-11-02', erkannt: 1 });
+    expect(stand).toEqual({ fach: 1, faelligAb: '2026-11-02', erkannt: 1, zuletzt: '2026-11-01' });
   });
 
   it('wartet in höheren Fächern länger', () => {
@@ -97,7 +97,7 @@ describe('naechsterStand', () => {
   it('stuft ein noch nicht fälliges Wort bei richtig nicht hoch (Extra-Runde)', () => {
     const stand: WortStand = { fach: 3, faelligAb: '2026-11-05', erkannt: 2 };
     const ergebnis = naechsterStand(stand, { richtig: true, uebung: 'schreiben' }, '2026-11-01');
-    expect(ergebnis).toEqual({ stand, verbessert: false });
+    expect(ergebnis).toEqual({ stand: { ...stand, zuletzt: '2026-11-01' }, verbessert: false });
   });
 
   it('setzt ein noch nicht fälliges Wort bei falsch trotzdem zurück', () => {
@@ -113,6 +113,74 @@ describe('naechsterStand', () => {
   it('zählt Schreiben nicht als Erkennen', () => {
     const { stand } = naechsterStand(NEU, { richtig: true, uebung: 'schreiben' }, '2026-11-01');
     expect(stand.erkannt).toBe(0);
+  });
+});
+
+describe('Hilfe zählt als Üben, nicht als gekonnt', () => {
+  it('lässt das Fach mit Hilfe gleich und fragt morgen wieder', () => {
+    const vorher: WortStand = { fach: 2, faelligAb: '2026-11-01', erkannt: 2 };
+    const { stand, verbessert } = naechsterStand(
+      vorher,
+      { richtig: true, uebung: 'schreiben', mitHilfe: true },
+      '2026-11-01',
+    );
+    expect(stand).toMatchObject({ fach: 2, faelligAb: '2026-11-02', zuletzt: '2026-11-01' });
+    expect(verbessert).toBe(false);
+  });
+
+  it('ein neues Wort mit Hilfe kommt in Fach 1', () => {
+    const { stand } = naechsterStand(
+      NEU,
+      { richtig: true, uebung: 'erkennen', mitHilfe: true },
+      '2026-11-01',
+    );
+    expect(stand).toMatchObject({ fach: 1, faelligAb: '2026-11-02' });
+  });
+
+  it('liest „mit Hilfe“ aus dem Protokoll', () => {
+    const e = erstelleEreignis(
+      {
+        typ: 'antwort',
+        listeId: 'l',
+        wortId: 'w0',
+        uebung: 'schreiben',
+        richtig: true,
+        mitHilfe: true,
+      },
+      'kind',
+      new Date('2026-11-01T12:00:00'),
+    );
+    const staende = berechneStaende([antwort('2026-10-31', 'w0', true), e]);
+    expect(staende.get(schluessel('l', 'w0'))).toMatchObject({ fach: 1, faelligAb: '2026-11-02' });
+  });
+});
+
+describe('Auffrischen vor einer Klassenarbeit', () => {
+  // w0 sitzt in Fach 3 (Pause bis 06.11.), zuletzt am 03.11. geübt
+  const staende = berechneStaende([
+    antwort('2026-11-01', 'w0', true),
+    antwort('2026-11-02', 'w0', true),
+    antwort('2026-11-03', 'w0', true),
+  ]);
+
+  it('fragt geübte Wörter der Lektion ab 2 Tagen Pause wieder ab, auch vor ihrem Termin', () => {
+    expect(staende.get(schluessel('l', 'w0'))).toMatchObject({ fach: 3, faelligAb: '2026-11-06' });
+    // Ohne Arbeit: nicht dran; mit Arbeit: am 05.11. dran (2 Tage nach dem 03.11.)
+    expect(rundeAuswaehlen([liste(1)], staende, '2026-11-05').map((r) => r.wort.id)).toEqual([]);
+    expect(
+      rundeAuswaehlen([liste(1)], staende, '2026-11-05', new Set(['l'])).map((r) => r.wort.id),
+    ).toEqual(['w0']);
+    // Am Tag nach der letzten Abfrage noch nicht
+    expect(rundeAuswaehlen([liste(1)], staende, '2026-11-04', new Set(['l']))).toEqual([]);
+  });
+
+  it('stuft beim Auffrischen nicht hoch', () => {
+    const { stand } = naechsterStand(
+      staende.get(schluessel('l', 'w0'))!,
+      { richtig: true, uebung: 'schreiben' },
+      '2026-11-05',
+    );
+    expect(stand).toMatchObject({ fach: 3, faelligAb: '2026-11-06', zuletzt: '2026-11-05' });
   });
 });
 

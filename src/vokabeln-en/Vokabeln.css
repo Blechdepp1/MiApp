@@ -285,3 +285,37 @@
   align-items: center;
   gap: 1rem;
 }
+
+/* Nach einem Schreibfehler: Fehlerstelle sanft markieren und nachschreiben */
+.schreib-vergleich {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.schreib-anders {
+  text-decoration: underline wavy var(--farbe-akzent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+.nachschreiben {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  background: var(--farbe-hintergrund);
+}
+
+.nachschreiben input {
+  min-height: var(--touch);
+  padding: 0.25rem 0.75rem;
+  border: 2px solid var(--farbe-text-leise);
+  border-radius: 10px;
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+}
+
+.runde-nachsprechen {
+  font-weight: 700;
+}

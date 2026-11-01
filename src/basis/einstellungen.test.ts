@@ -18,6 +18,7 @@ describe('bereinige', () => {
       schrift: 'opendyslexic',
       tempo: 0.7,
       wortVorsagen: 'aus',
+      nachsprechen: 'aus',
     };
     expect(bereinige(gespeichert)).toEqual(gespeichert);
   });

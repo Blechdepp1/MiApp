@@ -14,6 +14,8 @@ export type Einstellungen = {
   tempo: number;
   // Nach jeder Antwort das englische Wort einmal vorsprechen (Klang + Schriftbild + Bedeutung)
   wortVorsagen: AnAus;
+  // Nach jeder Antwort „Sag es laut“ zeigen (laut Sprechen hilft beim Behalten)
+  nachsprechen: AnAus;
 };
 
 export const STANDARD: Einstellungen = {
@@ -23,6 +25,7 @@ export const STANDARD: Einstellungen = {
   schrift: 'standard',
   tempo: 0.9,
   wortVorsagen: 'an',
+  nachsprechen: 'an',
 };
 
 export const TEMPO_MIN = 0.5;
@@ -39,6 +42,7 @@ const ERLAUBT = {
   hintergrund: ['creme', 'weiss', 'hellblau', 'dunkel'],
   schrift: ['standard', 'opendyslexic'],
   wortVorsagen: ['an', 'aus'],
+  nachsprechen: ['an', 'aus'],
 } as const;
 
 // Gespeicherte Werte prüfen, damit alte oder kaputte Daten nie die Darstellung zerstören
