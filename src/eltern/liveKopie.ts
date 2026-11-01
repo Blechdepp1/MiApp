@@ -13,7 +13,7 @@ import { INHALT_ORDNER, liesInhalt } from '../sync/inhalteAbgleich.ts';
 import { LEKTION_ORDNER, liesLektion } from '../sync/lektionenAbgleich.ts';
 
 // Testkanal: Lektionen, Belohnungen, Level und Punkte aus Milenas App übernehmen – aus dem
-// Dropbox-Ordner der Live-App (Apps/MiApp) oder, ohne Dropbox, aus der Datenbank der Live-App
+// Dropbox-Ordner der Live-App (Apps/MiApp-Lernen) oder, ohne Dropbox, aus der Datenbank der Live-App
 // auf demselben Gerät. Beides wird nur gelesen. Geschrieben wird nur in den Testkanal;
 // Schlüssel, PIN, Dropbox-Zugang und KI-Schlüssel werden nicht kopiert.
 
@@ -60,7 +60,7 @@ export async function leseLiveDatenAusDropbox(dropbox: LiveDropbox): Promise<Liv
     if (text !== undefined) ereignisse.push(...ausJsonl(text));
   }
 
-  return { quelle: 'Dropbox-Ordner Apps/MiApp', lektionen, inhalte, ereignisse };
+  return { quelle: 'Dropbox-Ordner Apps/MiApp-Lernen', lektionen, inhalte, ereignisse };
 }
 
 export const LIVE_DATENBANK = 'miapp';

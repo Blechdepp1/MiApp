@@ -33,7 +33,7 @@ const dropboxAttrappeOhneVerbindung = {
 };
 
 const LIVE: LiveDaten = {
-  quelle: 'Dropbox-Ordner Apps/MiApp',
+  quelle: 'Dropbox-Ordner Apps/MiApp-Lernen',
   lektionen: [LEKTION, { ...LEKTION, id: 'alt', geloescht: true }],
   inhalte: [{ name: 'belohnungen', daten: [], geaendert: '2026-10-31T10:00:00Z' }],
   ereignisse: [
@@ -98,10 +98,14 @@ describe('LiveDatenUebernehmen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Daten übernehmen' }));
     await vi.waitFor(() => expect(neuLaden).toHaveBeenCalled());
     expect(frage.mock.calls[0]![0]).toContain('1 Lektionen');
-    expect(frage.mock.calls[0]![0]).toContain('Aus Dropbox-Ordner Apps/MiApp übernehmen');
+    expect(frage.mock.calls[0]![0]).toContain('Aus Dropbox-Ordner Apps/MiApp-Lernen übernehmen');
     expect(schreiben).toHaveBeenCalledWith(
       expect.objectContaining({ lektionen: expect.any(Array), gesehenesLevel: 1000 }),
-      expect.objectContaining({ quelle: 'Dropbox-Ordner Apps/MiApp', lektionen: 1, runden: 1 }),
+      expect.objectContaining({
+        quelle: 'Dropbox-Ordner Apps/MiApp-Lernen',
+        lektionen: 1,
+        runden: 1,
+      }),
     );
   });
 
@@ -124,14 +128,14 @@ describe('LiveDatenUebernehmen', () => {
   it('zeigt, welcher Stand zuletzt übernommen wurde', async () => {
     const standSpeicher = wertImArbeitsspeicher<KopieStand>({
       zeit: '2026-11-01T13:32:00Z',
-      quelle: 'Dropbox-Ordner Apps/MiApp',
+      quelle: 'Dropbox-Ordner Apps/MiApp-Lernen',
       lektionen: 3,
       runden: 12,
       letzteRunde: '2026-10-31T17:05:00Z',
     });
     render(<LiveDatenUebernehmen standSpeicher={standSpeicher} />);
     expect(await screen.findByText('3 Lektionen, 12 Runden')).toBeInTheDocument();
-    expect(screen.getByText('Dropbox-Ordner Apps/MiApp')).toBeInTheDocument();
+    expect(screen.getByText('Dropbox-Ordner Apps/MiApp-Lernen')).toBeInTheDocument();
     expect(screen.getByText('Letzte Runde von Milena')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Neu übernehmen' })).toBeInTheDocument();
   });

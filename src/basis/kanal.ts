@@ -6,5 +6,5 @@ export const KANAL = IST_VORSCHAU
   ? { datenbank: 'miapp-vorschau', dropboxOrdner: '/vorschau', speicherPraefix: 'miapp-vorschau' }
   : { datenbank: 'miapp', dropboxOrdner: '', speicherPraefix: 'miapp' };
 
-// So sieht man den Ordner in der eigenen Dropbox (App-Ordner der Dropbox-App „MiApp“)
-export const DROPBOX_ORDNER_ANZEIGE = `Apps/MiApp${KANAL.dropboxOrdner}`;
+// So heißt der Ordner in der eigenen Dropbox (App-Ordner der Dropbox-App „MiApp-Lernen“)
+export const DROPBOX_ORDNER_ANZEIGE = `Apps/MiApp-Lernen${KANAL.dropboxOrdner}`;

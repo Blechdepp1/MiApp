@@ -20,7 +20,7 @@ Diese Anleitung steht absichtlich nicht in der App.
 
 ## Datenschutz
 
-- **Dropbox:** Punkte, Lektionen, Noten von Tests und Rückmeldungen liegen in eurer Dropbox unter `Apps/MiApp` (Testkanal: `Apps/MiApp/vorschau`).
+- **Dropbox:** Punkte, Lektionen, Noten von Tests und Rückmeldungen liegen in eurer Dropbox unter `Apps/MiApp-Lernen` (Testkanal: `Apps/MiApp-Lernen/vorschau`).
 - **Fotos für Lektionen** gehen zur Auswertung an Anthropic (Claude) und werden in der App nicht gespeichert. Am besten nur die Wortliste fotografieren, ohne Namen.
 - **„🎤 Sprechen“** nutzt die Spracherkennung von Chrome. Dafür schickt Chrome die Aufnahme an Google, genau wie bei der Diktierfunktion der Tastatur.
 - **Fehlermeldungen** enthalten nur die Fehlermeldung, die Seite, die Version und eine grobe Geräteangabe (z. B. „Android 14 · Chrome 141“).
