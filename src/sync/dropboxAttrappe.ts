@@ -11,6 +11,12 @@ export function dropboxAttrappe({ eintraegeProSeite = 2 } = {}) {
   let tokenZaehler = 1;
   let revZaehler = 0;
   let offline = false;
+  // Offene Longpoll-Anfragen, die bei der nächsten Änderung antworten
+  const wartende = new Set<() => void>();
+  const geaendert = () => {
+    for (const antworte of wartende) antworte();
+    wartende.clear();
+  };
 
   const abrufen = vi.fn(async (eingabe: RequestInfo | URL, init: RequestInit = {}) => {
     if (offline) throw new TypeError('Failed to fetch');
@@ -34,6 +40,20 @@ export function dropboxAttrappe({ eintraegeProSeite = 2 } = {}) {
       });
     }
 
+    if (url.endsWith('/files/list_folder/longpoll')) {
+      // Wie bei Dropbox: Ist die Marke schon veraltet, kommt die Antwort sofort
+      const { cursor } = JSON.parse(String(init.body)) as { cursor: string };
+      if (cursor !== `stand-${revZaehler}`) return Response.json({ changes: true });
+      return new Promise<Response>((antworte, abbrechen) => {
+        const fertig = () => antworte(Response.json({ changes: true }));
+        wartende.add(fertig);
+        init.signal?.addEventListener('abort', () => {
+          wartende.delete(fertig);
+          abbrechen(new DOMException('abgebrochen', 'AbortError'));
+        });
+      });
+    }
+
     if (header.Authorization !== `Bearer ${gueltigerToken}`) {
       return new Response('{"error":"expired_access_token"}', { status: 401 });
     }
@@ -41,6 +61,7 @@ export function dropboxAttrappe({ eintraegeProSeite = 2 } = {}) {
     if (url.endsWith('/files/upload')) {
       const inhalt = new TextDecoder().decode(init.body as Uint8Array);
       dateien.set(arg.path!, { inhalt, rev: `rev${++revZaehler}` });
+      geaendert();
       return Response.json({ path_display: arg.path });
     }
     if (url.endsWith('/files/download')) {
@@ -70,6 +91,9 @@ export function dropboxAttrappe({ eintraegeProSeite = 2 } = {}) {
         has_more: start + eintraegeProSeite < passend.length,
       });
     }
+    if (url.endsWith('/files/list_folder/get_latest_cursor')) {
+      return Response.json({ cursor: `stand-${revZaehler}` });
+    }
     if (url.endsWith('/auth/token/revoke')) return new Response(null);
     return new Response('unbekannt', { status: 404 });
   });
@@ -80,6 +104,11 @@ export function dropboxAttrappe({ eintraegeProSeite = 2 } = {}) {
     abrufen,
     widerrufeToken() {
       gueltigerToken = 'neu-und-unbekannt';
+    },
+    // Wie eine Änderung von einem anderen Gerät: weckt wartende Geräte auf
+    legeAb(pfad: string, inhalt: string) {
+      dateien.set(pfad, { inhalt, rev: `rev${++revZaehler}` });
+      geaendert();
     },
     setzeOffline(wert: boolean) {
       offline = wert;

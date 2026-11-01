@@ -7,6 +7,7 @@ const AUTORISIEREN = 'https://www.dropbox.com/oauth2/authorize';
 const TOKEN = 'https://api.dropboxapi.com/oauth2/token';
 const API = 'https://api.dropboxapi.com/2';
 const INHALT = 'https://content.dropboxapi.com/2';
+const BENACHRICHTIGUNG = 'https://notify.dropboxapi.com/2';
 
 // Token erst kurz vor Ablauf erneuern, aber nie auf den letzten Drücker
 const PUFFER_MS = 60_000;
@@ -215,6 +216,35 @@ export function erstelleDropbox({
         url = `${API}/files/list_folder/continue`;
         koerper = { cursor: seite.cursor };
       }
+    },
+
+    // Merkmal für den jetzigen Stand des ganzen Ordners samt Unterordnern (für warteAufAenderung)
+    async aenderungsMarke(): Promise<string> {
+      const antwort = await mitAnmeldung(`${API}/files/list_folder/get_latest_cursor`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: ordner, recursive: true }),
+      });
+      if (!antwort.ok) throw new DropboxFehler('Ordner lesen fehlgeschlagen', antwort.status);
+      return ((await antwort.json()) as { cursor: string }).cursor;
+    },
+
+    // Hält eine Anfrage offen, bis sich im Ordner etwas ändert oder die Zeit um ist (Dropbox
+    // „longpoll“, braucht keine Anmeldung). pauseSekunden: so lange soll man vor der nächsten warten.
+    async warteAufAenderung(
+      marke: string,
+      { sekunden = 90, signal }: { sekunden?: number; signal?: AbortSignal } = {},
+    ): Promise<{ geaendert: boolean; pauseSekunden: number }> {
+      const antwort = await abrufen(`${BENACHRICHTIGUNG}/files/list_folder/longpoll`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cursor: marke, timeout: sekunden }),
+        signal,
+      });
+      if (!antwort.ok)
+        throw new DropboxFehler('Warten auf Änderungen fehlgeschlagen', antwort.status);
+      const wert = (await antwort.json()) as { changes: boolean; backoff?: number };
+      return { geaendert: wert.changes, pauseSekunden: wert.backoff ?? 0 };
     },
 
     async trennen(): Promise<void> {

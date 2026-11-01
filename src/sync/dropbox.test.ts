@@ -209,3 +209,38 @@ describe('trennen', () => {
     expect(await a.dropbox.verbunden()).toBe(false);
   });
 });
+
+describe('Warten auf Änderungen', () => {
+  it('wartet ohne Anmeldung, bis ein anderes Gerät etwas ablegt', async () => {
+    const a = aufbau(Date.now());
+    await verbinde(a);
+    const marke = await a.dropbox.aenderungsMarke();
+    const warten = a.dropbox.warteAufAenderung(marke, { sekunden: 60 });
+    a.dropboxSeite.legeAb('/inhalte/belohnungen.json', '{}');
+    expect(await warten).toEqual({ geaendert: true, pauseSekunden: 0 });
+    const aufruf = a.dropboxSeite.aufrufe.find((x) => x.url.endsWith('/longpoll'))!;
+    expect(aufruf.url).toBe('https://notify.dropboxapi.com/2/files/list_folder/longpoll');
+    expect((aufruf.init.headers as Record<string, string>).Authorization).toBeUndefined();
+    expect(JSON.parse(String(aufruf.init.body))).toEqual({ cursor: marke, timeout: 60 });
+  });
+
+  it('holt die Marke für den ganzen Unterordner samt Unterordnern', async () => {
+    const a = aufbau(Date.now(), '/vorschau');
+    await verbinde(a);
+    await a.dropbox.aenderungsMarke();
+    const aufruf = a.dropboxSeite.aufrufe.at(-1)!;
+    expect(aufruf.url).toMatch(/get_latest_cursor$/);
+    expect(JSON.parse(String(aufruf.init.body))).toEqual({ path: '/vorschau', recursive: true });
+  });
+
+  it('lässt sich abbrechen', async () => {
+    const a = aufbau(Date.now());
+    await verbinde(a);
+    const steuerung = new AbortController();
+    const warten = a.dropbox.warteAufAenderung(await a.dropbox.aenderungsMarke(), {
+      signal: steuerung.signal,
+    });
+    steuerung.abort();
+    await expect(warten).rejects.toThrow('abgebrochen');
+  });
+});

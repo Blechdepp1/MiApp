@@ -30,6 +30,14 @@ function attrappe(verbunden: boolean): DropboxAttrappe {
       datei = inhalt;
     }),
     herunterladen: vi.fn(async () => datei),
+    aenderungsMarke: vi.fn(async () => 'marke'),
+    // Lauschen endet hier nie von selbst; der Test braucht keine Änderungen anderer Geräte
+    warteAufAenderung: vi.fn(
+      (_marke: string, { signal }: { signal?: AbortSignal } = {}) =>
+        new Promise<never>((_, abbrechen) =>
+          signal?.addEventListener('abort', () => abbrechen(new Error('abgebrochen'))),
+        ),
+    ),
     liste: vi.fn(async () => []),
     trennen: vi.fn(async () => {
       istVerbunden = false;

@@ -3,6 +3,11 @@ import { LEVEL_START, type Levelstufe } from './werte.ts';
 // Echte Belohnungen, die die Eltern festlegen und das Kind mit Punkten einlöst
 export type Belohnung = { id: string; symbol: string; name: string; preis: number };
 
+// Günstigste zuerst; bei gleichem Preis bleibt die Reihenfolge der Eltern
+export function nachPreis(belohnungen: Belohnung[]): Belohnung[] {
+  return [...belohnungen].sort((a, b) => a.preis - b.preis);
+}
+
 export const BELOHNUNGEN_START: Belohnung[] = [
   { id: 'schwimmbad', symbol: '🏊', name: 'Schwimmbad', preis: 900 },
   { id: 'kino', symbol: '🎬', name: 'Kino', preis: 1300 },

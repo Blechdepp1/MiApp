@@ -9,7 +9,8 @@ import { lektionenImArbeitsspeicher } from '../lektionen/speicher.ts';
 import type { InhalteStand } from './inhalteAbgleich.ts';
 import type { LektionenStand } from './lektionenAbgleich.ts';
 import { wertImArbeitsspeicher } from '../daten/schluesselWert.ts';
-import { ausJsonl, eigeneDatei, type AbgleichStand } from './abgleich.ts';
+import { ausJsonl, eigeneDatei, zuJsonl, type AbgleichStand } from './abgleich.ts';
+import { erstelleEreignis } from '../daten/ereignisse.ts';
 import { erstelleDropbox, type Dropbox } from './dropbox.ts';
 import { dropboxAttrappe, verbundenesDropbox } from './dropboxAttrappe.ts';
 import { SyncProvider } from './SyncKontext.tsx';
@@ -81,6 +82,52 @@ describe('SyncProvider', () => {
       window.dispatchEvent(new Event('online'));
     });
     expect(await screen.findByText(/Zuletzt abgeglichen um/)).toBeInTheDocument();
+  });
+
+  it('gleicht sofort ab, wenn ein anderes Gerät etwas in Dropbox ablegt', async () => {
+    const seite = dropboxAttrappe();
+    const protokoll = zeige(await verbundenesDropbox(seite));
+    await screen.findByText(/Zuletzt abgeglichen um/);
+    await vi.waitFor(() =>
+      expect(seite.aufrufe.some((a) => a.url.endsWith('/list_folder/longpoll'))).toBe(true),
+    );
+    const vonEltern = erstelleEreignis({ typ: 'bestaetigt', einloesungId: 'e1' }, 'eltern-1');
+    await act(async () => seite.legeAb(eigeneDatei('eltern-1'), zuJsonl([vonEltern])));
+    // Das Intervall (60 s) greift im Test nicht: nur das Lauschen kann das geholt haben
+    await vi.waitFor(async () => expect(await protokoll.alle()).toHaveLength(1));
+  });
+
+  it('lädt beim Verlassen der App sofort hoch, statt auf den Zeitgeber zu warten', async () => {
+    const seite = dropboxAttrappe();
+    const protokoll = protokollImArbeitsspeicher([], 'kind-1');
+    render(
+      <ProtokollProvider protokoll={protokoll}>
+        <InhalteProvider speicher={inhalteImArbeitsspeicher()}>
+          <LektionenProvider speicher={lektionenImArbeitsspeicher()}>
+            <SyncProvider
+              dropbox={await verbundenesDropbox(seite)}
+              stand={wertImArbeitsspeicher<AbgleichStand>()}
+              inhalteStand={wertImArbeitsspeicher<InhalteStand>()}
+              lektionenStand={wertImArbeitsspeicher<LektionenStand>()}
+              intervallMs={60_000}
+              verzoegerungMs={60_000}
+            >
+              <SyncStatus />
+            </SyncProvider>
+          </LektionenProvider>
+        </InhalteProvider>
+      </ProtokollProvider>,
+    );
+    await screen.findByText(/Zuletzt abgeglichen um/);
+    await act(() => protokoll.hinzufuegen(RUNDE));
+    const sichtbarkeit = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await vi.waitFor(() =>
+      expect(ausJsonl(seite.dateien.get(eigeneDatei('kind-1'))?.inhalt ?? '')).toHaveLength(1),
+    );
+    sichtbarkeit.mockRestore();
   });
 
   it('zeigt nichts und tut nichts, solange Dropbox nicht verbunden ist', async () => {

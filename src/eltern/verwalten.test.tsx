@@ -44,7 +44,7 @@ describe('BelohnungenVerwalten', () => {
     expect(screen.getByText(/Lernzeit geschätzt/)).toBeInTheDocument();
   });
 
-  it('legt eine Belohnung an und speichert', async () => {
+  it('legt eine Belohnung an und speichert sie nach Punkten sortiert', async () => {
     const inhalte = await zeige('belohnungen');
     await vi.waitFor(() =>
       expect(screen.getByRole('button', { name: '+ Belohnung' })).not.toBeDisabled(),
@@ -59,7 +59,8 @@ describe('BelohnungenVerwalten', () => {
 
     expect(await screen.findByRole('status')).toHaveTextContent('Gespeichert');
     const gespeichert = await inhalte.lade('belohnungen');
-    expect(gespeichert?.daten.at(-1)).toMatchObject({ name: 'Eis essen', preis: 300 });
+    expect(gespeichert?.daten[0]).toMatchObject({ name: 'Eis essen', preis: 300 });
+    expect(screen.getAllByRole('textbox', { name: 'Name' })[0]).toHaveValue('Eis essen');
   });
 
   it('lehnt einen Preis von 0 verständlich ab', async () => {

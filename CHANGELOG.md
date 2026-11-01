@@ -3,6 +3,11 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.15.0 – 01.11.2026
+
+- Die Belohnungen stehen nach Punkten sortiert: die günstigste zuerst.
+- Ändern deine Eltern etwas, zum Beispiel eine neue Belohnung, siehst du es nach wenigen Sekunden, ohne die App neu zu öffnen.
+
 ## 0.14.0 – 01.11.2026
 
 - Die wichtigen Knöpfe sind jetzt unten, wo dein Daumen sie gut erreicht – egal ob du links oder rechts hältst.

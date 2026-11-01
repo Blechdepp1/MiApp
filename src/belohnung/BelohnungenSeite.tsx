@@ -4,7 +4,7 @@ import { Dialog } from '../basis/Dialog.tsx';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 import { useInhalt } from '../daten/InhalteKontext.tsx';
 import { useEreignisse, useProtokoll } from '../daten/ProtokollKontext.tsx';
-import type { Belohnung } from './inhalte.ts';
+import { nachPreis, type Belohnung } from './inhalte.ts';
 import { einloesungen, guthaben } from './logik.ts';
 import './Belohnung.css';
 
@@ -69,7 +69,7 @@ export function BelohnungenSeite() {
         </p>
       ) : (
         <ul className="belohnungen-liste">
-          {belohnungen.map((b) => {
+          {nachPreis(belohnungen).map((b) => {
             const fehlt = Math.max(0, b.preis - punkte);
             const vorlesen =
               fehlt > 0

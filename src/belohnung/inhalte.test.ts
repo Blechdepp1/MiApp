@@ -1,4 +1,4 @@
-import { BELOHNUNGEN_START, pruefeBelohnungen, pruefeLevel } from './inhalte.ts';
+import { BELOHNUNGEN_START, nachPreis, pruefeBelohnungen, pruefeLevel } from './inhalte.ts';
 import { LEVEL_START } from './werte.ts';
 
 describe('pruefeBelohnungen', () => {
@@ -53,5 +53,17 @@ describe('pruefeLevel', () => {
     [[{ ab: 0, titel: 'x'.repeat(41) }], 'höchstens'],
   ])('lehnt %o ab', (stufen, teil) => {
     expect(pruefeLevel(stufen)).toContain(teil);
+  });
+});
+
+describe('nachPreis', () => {
+  it('sortiert die günstigste Belohnung nach vorn und ändert die Liste nicht', () => {
+    const liste = [
+      { id: 'a', symbol: '🎬', name: 'Kino', preis: 1300 },
+      { id: 'b', symbol: '🍦', name: 'Eis', preis: 300 },
+      { id: 'c', symbol: '🎮', name: 'Spiel', preis: 1300 },
+    ];
+    expect(nachPreis(liste).map((b) => b.id)).toEqual(['b', 'a', 'c']);
+    expect(liste[0]!.id).toBe('a');
   });
 });

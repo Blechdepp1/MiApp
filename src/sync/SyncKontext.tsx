@@ -37,11 +37,15 @@ const standardInhalteStand = dexieWert<InhalteStand>('inhalte-stand');
 const standardLektionenStand = dexieWert<LektionenStand>('lektionen-stand');
 
 export const INTERVALL_MS = 30_000;
+// Nach einem Fehler beim Warten auf Änderungen (z. B. kein Netz) erst so viel später wieder lauschen
+export const LAUSCH_PAUSE_MS = 30_000;
 // Kurz warten, damit nach einer Antwort nicht sofort und mehrfach übertragen wird
 export const VERZOEGERUNG_MS = 3_000;
 
 // Gleicht automatisch ab: beim Start, nach neuen Ereignissen, wenn das Netz zurückkommt,
-// beim Zurückkehren in die App und alle 30 Sekunden, solange sie sichtbar ist
+// beim Zurückkehren in die App und alle 30 Sekunden, solange sie sichtbar ist. Außerdem lauscht die
+// sichtbare App bei Dropbox auf Änderungen anderer Geräte und gleicht dann sofort ab (fast wie Push).
+// Beim Verlassen der App wird ein noch ausstehender Abgleich sofort erledigt.
 export function SyncProvider({
   dropbox,
   stand = standardStand,
@@ -49,6 +53,7 @@ export function SyncProvider({
   lektionenStand = standardLektionenStand,
   intervallMs = INTERVALL_MS,
   verzoegerungMs = VERZOEGERUNG_MS,
+  lauschPauseMs = LAUSCH_PAUSE_MS,
   children,
 }: {
   dropbox: Dropbox;
@@ -57,6 +62,7 @@ export function SyncProvider({
   lektionenStand?: GespeicherterWert<LektionenStand>;
   intervallMs?: number;
   verzoegerungMs?: number;
+  lauschPauseMs?: number;
   children: ReactNode;
 }) {
   const protokoll = useProtokoll();
@@ -117,10 +123,19 @@ export function SyncProvider({
     let verzoegert: ReturnType<typeof setTimeout> | undefined;
     const spaeter = () => {
       clearTimeout(verzoegert);
-      verzoegert = setTimeout(abgleichen, verzoegerungMs);
+      verzoegert = setTimeout(() => {
+        verzoegert = undefined;
+        abgleichen();
+      }, verzoegerungMs);
     };
     const wennSichtbar = () => {
       if (document.visibilityState === 'visible') abgleichen();
+      else if (verzoegert !== undefined) {
+        // Im Hintergrund laufen Zeitgeber oft nicht weiter: Änderungen gleich hochladen
+        clearTimeout(verzoegert);
+        verzoegert = undefined;
+        abgleichen();
+      }
     };
 
     abgleichen();
@@ -140,6 +155,54 @@ export function SyncProvider({
       document.removeEventListener('visibilitychange', wennSichtbar);
     };
   }, [abgleichen, protokoll, inhalte, lektionen, intervallMs, verzoegerungMs]);
+
+  // Lauschen auf Änderungen anderer Geräte, solange die App sichtbar und verbunden ist
+  const verbunden = zustand.verbunden;
+  useEffect(() => {
+    if (!verbunden) return;
+    let steuerung: AbortController | undefined;
+
+    async function lauschen(signal: AbortSignal) {
+      const pause = (ms: number) =>
+        new Promise<void>((weiter) => {
+          const zeit = setTimeout(weiter, ms);
+          signal.addEventListener('abort', () => {
+            clearTimeout(zeit);
+            weiter();
+          });
+        });
+      let marke: string | undefined;
+      while (!signal.aborted) {
+        try {
+          marke ??= await dropbox.aenderungsMarke();
+          const { geaendert, pauseSekunden } = await dropbox.warteAufAenderung(marke, { signal });
+          if (geaendert) {
+            // Neue Marke vor dem Abgleich holen, damit keine Änderung dazwischen verloren geht
+            marke = await dropbox.aenderungsMarke();
+            await abgleichen();
+          }
+          if (pauseSekunden > 0) await pause(pauseSekunden * 1000);
+        } catch {
+          marke = undefined;
+          await pause(lauschPauseMs);
+        }
+      }
+    }
+
+    const starten = () => {
+      steuerung?.abort();
+      steuerung = undefined;
+      if (document.visibilityState !== 'visible') return;
+      steuerung = new AbortController();
+      void lauschen(steuerung.signal);
+    };
+    starten();
+    document.addEventListener('visibilitychange', starten);
+    return () => {
+      steuerung?.abort();
+      document.removeEventListener('visibilitychange', starten);
+    };
+  }, [verbunden, dropbox, abgleichen, lauschPauseMs]);
 
   return <Kontext.Provider value={{ ...zustand, abgleichen }}>{children}</Kontext.Provider>;
 }

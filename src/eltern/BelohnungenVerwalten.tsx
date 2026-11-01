@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   MAX_NAME,
   MAX_PREIS,
+  nachPreis,
   pruefeBelohnungen,
   SYMBOLE,
   type Belohnung,
@@ -11,7 +12,7 @@ import { useInhalt } from '../daten/InhalteKontext.tsx';
 import { useEreignisse } from '../daten/ProtokollKontext.tsx';
 import { useGeraet } from './GeraetKontext.tsx';
 
-// Belohnungen anlegen, ändern, löschen – gespeichert wird erst mit „Speichern“
+// Belohnungen anlegen, ändern, löschen – gespeichert wird erst mit „Speichern“, nach Punkten sortiert
 export function BelohnungenVerwalten() {
   const [belohnungen, speichern] = useInhalt('belohnungen');
   const darfAendern = useGeraet().geraet?.rolle === 'eltern';
@@ -41,7 +42,7 @@ export function BelohnungenVerwalten() {
       setMeldung({ ok: false, text: fehler });
       return;
     }
-    await speichern(liste.map((b) => ({ ...b, name: b.name.trim() })));
+    await speichern(nachPreis(liste.map((b) => ({ ...b, name: b.name.trim() }))));
     setEntwurf(null);
     setMeldung({ ok: true, text: 'Gespeichert ✓' });
   }
