@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Einstellungen } from './basis/Einstellungen.tsx';
 import { EinstellungenProvider } from './basis/EinstellungenKontext.tsx';
 import { dexieSpeicher } from './basis/einstellungenSpeicher.ts';
@@ -9,7 +10,10 @@ import { LevelFeier } from './belohnung/LevelFeier.tsx';
 import { dexieProtokoll, type Protokoll } from './daten/protokoll.ts';
 import type { GespeicherterWert } from './daten/schluesselWert.ts';
 import { ProtokollProvider } from './daten/ProtokollKontext.tsx';
+import { Einrichtung } from './eltern/Einrichtung.tsx';
 import { ElternBereich } from './eltern/ElternBereich.tsx';
+import { dexieGeraetSpeicher, type GeraetSpeicher } from './eltern/geraet.ts';
+import { GeraetProvider, useGeraet } from './eltern/GeraetKontext.tsx';
 import type { Dropbox } from './sync/dropbox.ts';
 import { dropbox as standardDropbox } from './sync/verbindung.ts';
 import { VokabelSeite } from './vokabeln-en/VokabelSeite.tsx';
@@ -21,22 +25,42 @@ export function App({
   protokoll = dexieProtokoll,
   dropbox = standardDropbox,
   gesehenesLevel,
+  geraet = dexieGeraetSpeicher,
 }: {
   speicher?: EinstellungsSpeicher;
   protokoll?: Protokoll;
   dropbox?: Dropbox;
   gesehenesLevel?: GespeicherterWert<number>;
+  geraet?: GeraetSpeicher;
 }) {
   return (
     <EinstellungenProvider speicher={speicher}>
       <ProtokollProvider protokoll={protokoll}>
-        <main>
-          <Inhalt dropbox={dropbox} />
-        </main>
-        <LevelFeier gesehen={gesehenesLevel} />
+        <GeraetProvider speicher={geraet}>
+          <Eingerichtet>
+            <main>
+              <Inhalt dropbox={dropbox} />
+            </main>
+            <LevelFeier gesehen={gesehenesLevel} />
+          </Eingerichtet>
+        </GeraetProvider>
       </ProtokollProvider>
     </EinstellungenProvider>
   );
+}
+
+// Beim ersten Start richten die Eltern das Gerät ein (Rolle und PIN)
+function Eingerichtet({ children }: { children: ReactNode }) {
+  const { geraet } = useGeraet();
+  if (geraet === undefined) return null;
+  if (geraet === null) {
+    return (
+      <main>
+        <Einrichtung />
+      </main>
+    );
+  }
+  return <>{children}</>;
 }
 
 function Inhalt({ dropbox }: { dropbox: Dropbox }) {

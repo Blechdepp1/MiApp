@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './basis.ts';
 
 // Die Zurück-Taste des Handys (Browser-Zurück) führt immer direkt zur Startseite
 test('Zurück-Taste führt von jeder Unterseite direkt zur Startseite', async ({ page }) => {

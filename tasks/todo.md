@@ -154,11 +154,12 @@ Für jede Aufgabe gilt zusätzlich: `npm run typecheck`, `npm run lint` und `npm
 
 ## Phase 3: Sync und Belohnungen
 
-### Aufgabe 12: Geräte-Rolle und Eltern-PIN
+### Aufgabe 12: Geräte-Rolle und Eltern-PIN ✅ (Gerätetest offen)
 **Beschreibung:** Bei der Ersteinrichtung „Das ist das Gerät von: Kind / Eltern“ wählen. Auf jedem Gerät eine 4-stellige PIN festlegen, die lokal gehasht gespeichert wird. Das Eltern-Schloss auf der Startseite öffnet den Eltern-Bereich nur mit PIN.
 **Akzeptanz:**
-- [ ] Ohne PIN ist der Eltern-Bereich nicht erreichbar, auch nicht per URL.
-- [ ] Wer die PIN vergisst, kann sie nur zurücksetzen, indem die lokalen Daten gelöscht und neu synchronisiert werden.
+- [x] Ohne PIN ist der Eltern-Bereich nicht erreichbar, auch nicht per URL (Unit- und E2E-Test).
+- [x] Wer die PIN vergisst, kann sie nur zurücksetzen, indem die lokalen Daten gelöscht und neu synchronisiert werden („PIN vergessen?“ erklärt das).
+**Ergänzt:** Zahlenfeld statt Tastatur; gesalzener SHA-256-Prüfwert; nach 5 Fehlversuchen 1 Minute Sperre.
 **Prüfen:** Komponententests; Playwright „Eltern-Bereich ohne PIN gesperrt“.
 **Abhängig von:** 5
 **Dateien:** `src/eltern/rolle.ts`, `src/eltern/Pin.tsx`, `src/eltern/ElternBereich.tsx`

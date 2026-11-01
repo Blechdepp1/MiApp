@@ -1,8 +1,10 @@
 import { act, render, screen, within } from '@testing-library/react';
 import { speicherImArbeitsspeicher } from './basis/einstellungen.ts';
+import { pfad, ZIELE, type Ziel } from './basis/navigation.ts';
 import { protokollImArbeitsspeicher } from './daten/protokoll.ts';
 import { wertImArbeitsspeicher } from './daten/schluesselWert.ts';
-import { pfad, ZIELE, type Ziel } from './basis/navigation.ts';
+import { geraetImArbeitsspeicher, type GeraetSpeicher } from './eltern/geraet.ts';
+import { erzeugePruefwert } from './eltern/pin.ts';
 import { App } from './App.tsx';
 
 function gehe(ziel: Ziel) {
@@ -12,21 +14,35 @@ function gehe(ziel: Ziel) {
   });
 }
 
-function zeige() {
+async function eingerichtet(): Promise<GeraetSpeicher> {
+  return geraetImArbeitsspeicher({ rolle: 'kind', pin: await erzeugePruefwert('1234') });
+}
+
+// Rendert die App und wartet, bis das Gerät geladen ist
+async function zeige(geraet?: GeraetSpeicher) {
   render(
     <App
       speicher={speicherImArbeitsspeicher()}
       protokoll={protokollImArbeitsspeicher()}
       gesehenesLevel={wertImArbeitsspeicher<number>()}
+      geraet={geraet ?? (await eingerichtet())}
     />,
   );
+  await screen.findAllByRole('heading', { level: 1 });
 }
 
 afterEach(() => gehe('start'));
 
 describe('App', () => {
-  it('zeigt auf der Startseite Kacheln mit Vorlese-Knopf', () => {
-    zeige();
+  it('zeigt beim ersten Start die Einrichtung', async () => {
+    await zeige(geraetImArbeitsspeicher());
+    expect(
+      screen.getByRole('heading', { name: 'Willkommen! Wer benutzt dieses Gerät?' }),
+    ).toBeInTheDocument();
+  });
+
+  it('zeigt auf der Startseite Kacheln mit Vorlese-Knopf', async () => {
+    await zeige();
     for (const name of ['Vokabeln', 'Belohnungen', 'Einstellungen']) {
       const kachel = screen.getByRole('link', { name }).closest('li')!;
       expect(within(kachel).getByRole('button', { name: 'Vorlesen' })).toBeInTheDocument();
@@ -34,8 +50,8 @@ describe('App', () => {
     expect(screen.getByRole('link', { name: 'Eltern-Bereich' })).toBeInTheDocument();
   });
 
-  it.each(ZIELE)('Seite „%s“ hat einen vorlesbaren Titel', (ziel) => {
-    zeige();
+  it.each(ZIELE)('Seite „%s“ hat einen vorlesbaren Titel', async (ziel) => {
+    await zeige();
     gehe(ziel);
     const titel = screen.getByRole('heading', { level: 1 });
     expect(
@@ -45,20 +61,27 @@ describe('App', () => {
 
   it.each(ZIELE.filter((z) => z !== 'start'))(
     'Seite „%s“ führt mit Zurück zur Startseite',
-    (ziel) => {
-      zeige();
+    async (ziel) => {
+      await zeige();
       gehe(ziel);
       expect(screen.getByRole('link', { name: /Zurück/ })).toHaveAttribute('href', pfad('start'));
     },
   );
 
-  it('erreicht die Einstellungen von der Startseite mit einem Tipp', () => {
-    zeige();
+  it('erreicht die Einstellungen von der Startseite mit einem Tipp', async () => {
+    await zeige();
     expect(screen.getByRole('link', { name: 'Einstellungen' })).toHaveAttribute(
       'href',
       pfad('einstellungen'),
     );
     gehe('einstellungen');
     expect(screen.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeInTheDocument();
+  });
+
+  it('öffnet den Eltern-Bereich auch per Adresse nur mit PIN', async () => {
+    await zeige();
+    gehe('eltern');
+    expect(screen.getByRole('heading', { name: 'Eltern-PIN eingeben' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Dropbox' })).toBeNull();
   });
 });

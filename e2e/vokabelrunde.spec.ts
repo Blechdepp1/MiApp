@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './basis.ts';
 
 // Erste Runde mit der Beispielliste: 5 neue Wörter, alles richtig beantworten
 const DEUTSCH: Record<string, string> = {

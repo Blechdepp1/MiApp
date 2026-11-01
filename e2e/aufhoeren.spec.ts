@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './basis.ts';
 
 test('Nachfrage beim Verlassen einer angefangenen Runde', async ({ page }) => {
   await page.goto('./');
