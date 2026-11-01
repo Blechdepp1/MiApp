@@ -102,11 +102,11 @@ describe('App', () => {
   });
 
   it.each(ZIELE.filter((z) => z !== 'start'))(
-    'Seite „%s“ führt mit Zurück zur Startseite',
+    'Seite „%s“ führt unten mit „Startseite“ zur Startseite',
     async (ziel) => {
       await zeige();
       gehe(ziel);
-      expect(await screen.findByRole('link', { name: /Zurück/ })).toHaveAttribute(
+      expect(await screen.findByRole('link', { name: 'Startseite' })).toHaveAttribute(
         'href',
         pfad('start'),
       );

@@ -52,7 +52,7 @@ test('Einstellungen öffnen und zurück zur Startseite', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('link', { name: 'Einstellungen' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeVisible();
-  await page.getByRole('link', { name: /Zurück/ }).click();
+  await page.getByRole('link', { name: 'Startseite' }).click();
   await expect(page.getByRole('link', { name: 'Vokabeln' })).toBeVisible();
 });
 

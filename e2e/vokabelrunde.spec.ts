@@ -23,6 +23,6 @@ test('eine Vokabelrunde durchspielen', async ({ page }) => {
 
   await expect(page.getByText('+20 Punkte')).toBeVisible();
   await expect(page.getByText(/Tagesziel: 1 von 2 Runden/)).toBeVisible();
-  await page.getByRole('link', { name: 'Zur Startseite' }).click();
+  await page.getByRole('link', { name: 'Startseite' }).click();
   await expect(page.getByRole('link', { name: 'Vokabeln' })).toBeVisible();
 });

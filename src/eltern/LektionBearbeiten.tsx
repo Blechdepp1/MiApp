@@ -191,12 +191,19 @@ export function LektionBearbeiten({
         </div>
       </details>
 
-      {meldung && (
-        <p className={meldung.fehler ? 'verbinden-fehler' : 'verbinden-ok'} role="status">
-          {meldung.text}
-        </p>
-      )}
-      <div className="verbinden-knoepfe">
+      <div className="bearbeiten-loeschen-bereich">
+        <button type="button" className="bearbeiten-loeschen" onClick={onLoeschen}>
+          🗑️ Lektion löschen
+        </button>
+      </div>
+
+      {/* Speichern bleibt unten im Daumen-Bereich sichtbar, auch bei langen Wortlisten */}
+      <div className="bearbeiten-leiste">
+        {meldung && (
+          <p className={meldung.fehler ? 'verbinden-fehler' : 'verbinden-ok'} role="status">
+            {meldung.text}
+          </p>
+        )}
         <button
           type="button"
           className="verbinden-haupt"
@@ -207,9 +214,6 @@ export function LektionBearbeiten({
         </button>
         <button type="button" disabled={!ungespeichert} onClick={() => setStand(start)}>
           Änderungen verwerfen
-        </button>
-        <button type="button" className="bearbeiten-loeschen" onClick={onLoeschen}>
-          🗑️ Lektion löschen
         </button>
       </div>
     </div>

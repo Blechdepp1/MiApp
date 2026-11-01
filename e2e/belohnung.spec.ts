@@ -15,7 +15,7 @@ test('Belohnung einlösen und im Eltern-Bereich bestätigen', async ({ page }) =
   await expect(page.getByText('⏳ wartet auf Bestätigung')).toBeVisible();
 
   // Level bleibt: Startseite zeigt weiter Level 3 mit 1000 Punkten
-  await page.getByRole('link', { name: /Zurück/ }).click();
+  await page.getByRole('link', { name: 'Startseite' }).click();
   await expect(page.getByText('Level 3')).toBeVisible();
 
   // Eltern bestätigen (auf einem Eltern-Gerät)
@@ -28,7 +28,7 @@ test('Belohnung einlösen und im Eltern-Bereich bestätigen', async ({ page }) =
   await page.getByRole('button', { name: /Eltern-Bereich/ }).click();
 
   // Kind sieht die Bestätigung
-  await page.getByRole('link', { name: /Zurück/ }).click();
+  await page.getByRole('link', { name: 'Startseite' }).click();
   await page.getByRole('link', { name: 'Belohnungen' }).click();
   await expect(page.getByText('✓ bestätigt')).toBeVisible();
 });

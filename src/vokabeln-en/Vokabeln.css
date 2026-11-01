@@ -92,17 +92,36 @@
 }
 
 /* Bleibt am unteren Bildschirmrand, damit „Weiter“ auf dem Handy ohne Scrollen sichtbar ist */
-/* Steht unter den Antworten (nicht darüber geschoben); beim Erscheinen wird sie ins Bild
-   gescrollt, damit „Weiter“ sichtbar ist und die gewählte Antwort sichtbar bleibt */
+/* Rückmeldung nach einer Antwort: fest unten im Daumen-Bereich, „Weiter“ immer an derselben
+   Stelle über die volle Breite. Die Antworten darüber bleiben sichtbar. */
 .runde-rueckmeldung {
-  scroll-margin-bottom: 0.5rem;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  max-height: 70vh;
+  overflow-y: auto;
   display: grid;
   gap: 0.75rem;
-  padding: 1rem;
-  border-radius: var(--radius);
+  padding: 1rem max(1rem, calc((100vw - 40rem) / 2))
+    calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  border-radius: var(--radius) var(--radius) 0 0;
   background: var(--farbe-flaeche);
-  border-left: 8px solid var(--farbe-belohnung);
+  border-top: 8px solid var(--farbe-belohnung);
   box-shadow: 0 -4px 16px rgb(0 0 0 / 0.18);
+}
+
+.runde-rueckmeldung .runde-weiter {
+  position: sticky;
+  bottom: 0;
+  justify-self: stretch;
+  min-height: 3.5rem;
+}
+
+/* Platz unter den Antworten, solange die Rückmeldung unten steht */
+.runde-platz-rueckmeldung {
+  height: 45vh;
 }
 
 .runde-rueckmeldung > [role='status'] {
@@ -111,7 +130,7 @@
 }
 
 .runde-rueckmeldung[data-richtig='true'] {
-  border-left-color: var(--farbe-akzent);
+  border-top-color: var(--farbe-akzent);
 }
 
 .schreib-kaestchen {
@@ -145,10 +164,16 @@
   font-size: 1.4rem;
 }
 
+/* „Prüfen“ über die volle Breite direkt unter dem Feld, Hilfen daneben-darunter; bei offener
+   Tastatur bleibt die Gruppe zusammen im Bild */
 .schreib-knoepfe {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.schreib-knoepfe .runde-weiter {
+  grid-column: 1 / -1;
 }
 
 .schreib-hilfe {
@@ -188,7 +213,7 @@
 }
 
 .runde-weiter {
-  justify-self: start;
+  justify-self: stretch;
   min-height: 3.5rem;
   padding: 0.5rem 1.5rem;
   border: none;
@@ -210,9 +235,10 @@
   height: var(--sichtbar-hoehe, 100%);
   z-index: 10;
   display: grid;
-  place-items: safe center;
+  /* Unten verankert (Daumen-Bereich), bei wenig Platz scrollbar */
+  place-items: safe end center;
   overflow-y: auto;
-  padding: 1rem;
+  padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
   background: rgb(0 0 0 / 0.45);
 }
 
@@ -251,9 +277,12 @@
 }
 
 .aufhoeren-knoepfe {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 0.75rem;
+}
+
+.aufhoeren-knoepfe button {
+  width: 100%;
 }
 
 .zusammenfassung-jubel {

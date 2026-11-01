@@ -6,10 +6,10 @@ test('Zurück-Taste führt von jeder Unterseite direkt zur Startseite', async ({
   const vokabeln = page.getByRole('link', { name: 'Vokabeln' });
   await expect(vokabeln).toBeVisible();
 
-  // Startseite → Einstellungen → (App-Zurück) → Startseite → Vokabeln
+  // Startseite → Einstellungen → (Startseite-Knopf unten) → Startseite → Vokabeln
   await page.getByRole('link', { name: 'Einstellungen' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeVisible();
-  await page.getByRole('link', { name: /Zurück/ }).click();
+  await page.getByRole('link', { name: 'Startseite' }).click();
   await expect(vokabeln).toBeVisible();
   await vokabeln.click();
   await expect(page.getByRole('heading', { level: 1, name: 'Vokabeln' })).toBeVisible();

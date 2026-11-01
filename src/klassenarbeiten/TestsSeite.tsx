@@ -2,6 +2,7 @@ import { useId, useState, type ReactNode } from 'react';
 import { Diktat } from '../basis/Diktat.tsx';
 import { KANAL } from '../basis/kanal.ts';
 import { Seite } from '../basis/Seite.tsx';
+import { UntenAktionen } from '../basis/UntenAktionen.tsx';
 import { insBildHolen } from '../basis/sichtbarerBereich.ts';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 import { tagVon } from '../belohnung/logik.ts';
@@ -311,17 +312,19 @@ function TestEintragen({ onFertig }: { onFertig: (meldung?: string) => void }) {
           {!fach ? 'Tipp erst ein Fach an.' : 'Wähl noch aus, wann der Test ist.'}
         </p>
       )}
-      <button
-        type="button"
-        className="tests-haupt"
-        disabled={!fach || !datum || sendet}
-        onClick={speichern}
-      >
-        Eintragen
-      </button>
-      <button type="button" className="tests-leise" onClick={() => onFertig()}>
-        Abbrechen
-      </button>
+      <UntenAktionen>
+        <button
+          type="button"
+          className="haupt"
+          disabled={!fach || !datum || sendet}
+          onClick={speichern}
+        >
+          Eintragen
+        </button>
+        <button type="button" onClick={() => onFertig()}>
+          Abbrechen
+        </button>
+      </UntenAktionen>
     </section>
   );
 }

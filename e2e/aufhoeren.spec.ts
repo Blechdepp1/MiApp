@@ -14,7 +14,9 @@ test('Nachfrage beim Verlassen einer angefangenen Runde', async ({ page }) => {
   // Weiter üben: Runde läuft weiter, Nachfrage kommt beim nächsten Mal wieder
   await page.getByRole('button', { name: 'Weiter üben' }).click();
   await expect(frage).toBeHidden();
-  await page.getByRole('link', { name: /Zurück/ }).click();
+  // Die Rückmeldung unten deckt die Leiste ab; nach „Weiter“ ist „Startseite“ wieder da
+  await page.getByRole('button', { name: 'Weiter →' }).click();
+  await page.getByRole('link', { name: 'Startseite' }).click();
   await expect(frage).toBeVisible();
 
   // Später weiter: zur Startseite, danach verlässt Zurück die App

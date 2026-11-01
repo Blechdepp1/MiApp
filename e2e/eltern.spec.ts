@@ -23,7 +23,7 @@ test('Eltern-Bereich bleibt nach einem Neuladen offen, nach dem Verlassen nicht'
   await page.getByRole('button', { name: /Eltern-Bereich/ }).click();
   await expect(page.getByRole('region', { name: 'Verbindung' })).toBeVisible();
 
-  await page.getByRole('link', { name: /Zurück/ }).click();
+  await page.getByRole('link', { name: 'Startseite' }).click();
   await page.getByRole('link', { name: 'Eltern-Bereich' }).click();
   await expect(page.getByRole('heading', { name: 'Eltern-PIN eingeben' })).toBeVisible();
 });

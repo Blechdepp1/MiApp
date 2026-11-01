@@ -22,7 +22,7 @@ test('Test eintragen, Note nachtragen, Eltern bestätigen', async ({ page }) => 
   await expect(page.getByText(/wartet auf Bestätigung/)).toBeVisible();
 
   // Eltern bestätigen (auf einem Eltern-Gerät)
-  await page.getByRole('link', { name: /Zurück/ }).click();
+  await page.getByRole('link', { name: 'Startseite' }).click();
   await werdeEltern(page);
   await page.getByRole('link', { name: 'Eltern-Bereich' }).click();
   await tippePin(page);
@@ -30,7 +30,7 @@ test('Test eintragen, Note nachtragen, Eltern bestätigen', async ({ page }) => 
   await page.getByRole('button', { name: 'Bestätigen' }).click();
   await expect(page.getByText(/Gerade wartet keine Note/)).toBeVisible();
   await page.getByRole('button', { name: /Eltern-Bereich/ }).click();
-  await page.getByRole('link', { name: /Zurück/ }).click();
+  await page.getByRole('link', { name: 'Startseite' }).click();
   // 20 fürs Eintragen + 30 fürs Ergebnis
   await expect(page.getByText(/50 Punkte/)).toBeVisible();
 });

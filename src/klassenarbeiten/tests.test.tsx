@@ -44,12 +44,12 @@ describe('Meine Tests (Kind)', () => {
     mit(protokoll, <TestsSeite heute="2026-11-02" />);
     await userEvent.click(await screen.findByRole('button', { name: '➕ Test eintragen' }));
     const form = screen.getByRole('region', { name: 'Test eintragen' });
-    expect(within(form).getByRole('button', { name: 'Eintragen' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Eintragen' })).toBeDisabled();
     await userEvent.click(within(form).getByRole('button', { name: /Englisch/ }));
     await userEvent.click(within(form).getByRole('button', { name: 'Vokabeltest' }));
     await userEvent.type(within(form).getByLabelText(/Wann/), '2026-11-06');
     await userEvent.selectOptions(within(form).getByLabelText(/Welche Lektion/), 'unit-5');
-    await userEvent.click(within(form).getByRole('button', { name: 'Eintragen' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Eintragen' }));
 
     expect(await screen.findByRole('status')).toHaveTextContent(`+${TEST_PUNKTE.eintragen} Punkte`);
     const [t] = alleTests(await protokoll.alle());

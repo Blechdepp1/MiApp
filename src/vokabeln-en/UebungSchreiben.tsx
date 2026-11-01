@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useEinstellungen } from '../basis/EinstellungenKontext.tsx';
+import { insBildHolen } from '../basis/sichtbarerBereich.ts';
 import { vorlesen } from '../basis/vorlesen.ts';
 import { VorleseKnopf } from '../basis/VorleseKnopf.tsx';
 import { bewerteSchreiben, hauptform, type Bewertung } from './bewertung.ts';
@@ -89,8 +90,11 @@ export function UebungSchreiben({
           autoCorrect="off"
           autoCapitalize="none"
           spellCheck={false}
-          enterKeyHint="done"
+          enterKeyHint="go"
           placeholder="Hier schreiben …"
+          onFocus={(e) =>
+            insBildHolen(e.currentTarget.closest('form') ?? e.currentTarget, 300, 'end')
+          }
         />
       </label>
 

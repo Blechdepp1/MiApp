@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { punkteFuerRunde, tagesziel } from '../belohnung/logik.ts';
 import { PUNKTE } from '../belohnung/werte.ts';
 import { useEinstellungen } from '../basis/EinstellungenKontext.tsx';
@@ -217,6 +217,7 @@ export function Runde({
           onAntwort={(richtig) => beantworten({ richtig })}
         />
       )}
+      {antwort && <div className="runde-platz-rueckmeldung" aria-hidden="true" />}
       {antwort && (
         <Rueckmeldung
           antwort={antwort}
@@ -262,14 +263,10 @@ function Rueckmeldung({
   onWeiter: () => void;
 }) {
   const { einstellungen } = useEinstellungen();
-  const kasten = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    kasten.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
-  }, []);
   const lob = 'Richtig! Super gemacht!';
   const fast = 'Fast richtig! Das zählt. So schreibt man es:';
   return (
-    <div ref={kasten} className="runde-rueckmeldung" data-richtig={antwort.richtig}>
+    <div className="runde-rueckmeldung" data-richtig={antwort.richtig}>
       <div role="status">
         {antwort.fast ? (
           <>

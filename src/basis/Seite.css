@@ -10,23 +10,6 @@
   gap: 0.75rem;
 }
 
-.seite-zurueck {
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: var(--touch);
-  padding: 0.25rem 1rem;
-  border-radius: var(--radius);
-  background: var(--farbe-flaeche);
-  color: var(--farbe-text);
-  border: none;
-  font: inherit;
-  text-decoration: none;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 .seite-titel {
   display: flex;
   align-items: center;
@@ -36,4 +19,80 @@
 .seite-titel h1 {
   min-width: 0;
   margin: 0;
+}
+
+/* Untere Leiste: fest im Daumen-Bereich, Knöpfe über die volle Breite */
+.aktionsleiste {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.6rem max(1rem, calc((100vw - 40rem) / 2))
+    calc(0.6rem + env(safe-area-inset-bottom, 0px));
+  background: var(--farbe-hintergrund);
+  box-shadow: 0 -2px 12px rgb(0 0 0 / 0.12);
+}
+
+/* Platzhalter, damit nichts dauerhaft unter der Leiste verschwindet */
+.aktionsleiste-platz {
+  height: 4.5rem;
+}
+
+.aktionsleiste-eigene {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.aktionsleiste-eigene:empty {
+  display: none;
+}
+
+/* Eigene Hauptknöpfe da: der Weg zur Startseite tritt zurück (Zurück-Geste geht weiter) */
+.aktionsleiste-eigene:not(:empty) + .aktionsleiste-weg {
+  display: none;
+}
+
+.aktionsleiste-weg,
+.aktionsleiste-eigene button,
+.aktionsleiste-ersatz button {
+  width: 100%;
+  min-height: 3.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  border: 3px solid var(--farbe-akzent);
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.aktionsleiste-eigene .haupt,
+.aktionsleiste-ersatz .haupt {
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
+}
+
+.aktionsleiste-eigene button:disabled,
+.aktionsleiste-ersatz button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.aktionsleiste-ersatz {
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* Bei offener Handy-Tastatur stört die Leiste nur */
+html[data-tastatur='offen'] .aktionsleiste {
+  display: none;
 }

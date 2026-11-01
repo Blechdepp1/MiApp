@@ -3,6 +3,14 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.14.0 – 01.11.2026
+
+- Die wichtigen Knöpfe sind jetzt unten, wo dein Daumen sie gut erreicht – egal ob du links oder rechts hältst.
+- Statt „Zurück“ oben links gibt es unten „⌂ Startseite“. Die Zurück-Geste des Handys geht weiterhin.
+- Nach einer Antwort kommt die Rückmeldung von unten, und „Weiter“ ist ein großer Knopf ganz unten.
+- Beim Schreiben bleibt das Eingabefeld über der Tastatur sichtbar.
+- Für Eltern: Beim Bearbeiten einer Lektion bleiben „Speichern“ und „Verwerfen“ immer sichtbar. „Lektion löschen“ steht getrennt ganz unten.
+
 ## 0.13.0 – 01.11.2026
 
 - Ein paar Tage vor einer Englisch-Arbeit kommen alle Wörter der Lektion noch einmal dran. Die App sagt dir am Anfang der Runde, wie viele Tage es noch sind.
