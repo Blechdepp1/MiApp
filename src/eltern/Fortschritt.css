@@ -1,4 +1,4 @@
-.fortschritt-balken {
+.lernstand-balken {
   display: flex;
   height: 0.8rem;
   border-radius: 999px;
@@ -7,7 +7,7 @@
   border: 1px solid color-mix(in srgb, var(--farbe-text-leise) 40%, transparent);
 }
 
-.fortschritt-balken span {
+.lernstand-balken span {
   display: block;
   height: 100%;
 }
@@ -33,7 +33,7 @@
   vertical-align: middle;
 }
 
-.fortschritt-legende {
+.lernstand-legende {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem 1rem;
@@ -134,7 +134,7 @@
 }
 
 /* In der Liste der Lerninhalte über die ganze Breite des Eintrags */
-.lerninhalte-eintrag .fortschritt-balken {
+.lerninhalte-eintrag .lernstand-balken {
   justify-self: stretch;
   height: 0.5rem;
 }

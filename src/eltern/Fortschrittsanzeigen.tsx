@@ -18,7 +18,7 @@ export function FortschrittBalken({ f }: { f: Fortschritt }) {
   const anteil = (n: number) => (f.gesamt ? `${(n / f.gesamt) * 100}%` : '0');
   const text = `${f.sicher} sicher, ${f.lernt} am Lernen, ${f.neu} neu`;
   return (
-    <div className="fortschritt-balken" role="img" aria-label={text} title={text}>
+    <div className="lernstand-balken" role="img" aria-label={text} title={text}>
       <span className="fb-sicher" style={{ width: anteil(f.sicher) }} />
       <span className="fb-lernt" style={{ width: anteil(f.lernt) }} />
       <span className="fb-neu" style={{ width: anteil(f.neu) }} />
@@ -28,7 +28,7 @@ export function FortschrittBalken({ f }: { f: Fortschritt }) {
 
 export function FortschrittLegende({ f }: { f: Fortschritt }) {
   return (
-    <p className="fortschritt-legende">
+    <p className="lernstand-legende">
       <span>
         <i className="fl fb-sicher" aria-hidden="true" /> {f.sicher} sicher
       </span>
