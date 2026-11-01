@@ -284,3 +284,11 @@
   opacity: 0.5;
   cursor: default;
 }
+
+/* Übersetzung von der KI ergänzt: bitte besonders prüfen */
+.lektion-ergaenzt {
+  padding: 0.35rem;
+  border-left: 4px solid var(--farbe-akzent);
+  border-radius: 10px;
+  background: var(--farbe-flaeche);
+}

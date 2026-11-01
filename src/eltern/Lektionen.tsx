@@ -20,7 +20,7 @@ type Schritt =
   | { art: 'liste' }
   | { art: 'neu'; fehler?: string }
   | { art: 'auswerten' }
-  | { art: 'vorschau'; woerter: Vokabel[]; hinweis: string; fehler?: string };
+  | { art: 'vorschau'; woerter: Vokabel[]; hinweis: string; ergaenzt: string[]; fehler?: string };
 
 // Lektionen ansehen und neue aus Fotos anlegen (Englisch-Vokabeln in Version 1)
 export function Lektionen({
@@ -76,8 +76,8 @@ export function Lektionen({
     setSchritt({ art: 'auswerten' });
     try {
       const bilder = await Promise.all(fotos.map((f) => leseBild(f.datei)));
-      const { woerter, hinweis } = await erkenne(schluessel, bilder);
-      setSchritt({ art: 'vorschau', woerter, hinweis });
+      const { woerter, hinweis, ergaenzt } = await erkenne(schluessel, bilder);
+      setSchritt({ art: 'vorschau', woerter, hinweis, ergaenzt });
     } catch (fehler) {
       // Fotos bleiben erhalten, damit man es direkt noch einmal versuchen kann
       const art = fehler instanceof FotoImportFehler ? fehler.art : 'fehler';
@@ -101,7 +101,7 @@ export function Lektionen({
     };
     const fehler = pruefeLektion(lektion);
     if (fehler) {
-      setSchritt({ art: 'vorschau', woerter, hinweis, fehler });
+      setSchritt({ art: 'vorschau', woerter, hinweis, ergaenzt: [], fehler });
       return;
     }
     await speicher.speichere(lektion);
@@ -257,6 +257,7 @@ export function Lektionen({
         <Vorschau
           woerter={schritt.woerter}
           hinweis={schritt.hinweis}
+          ergaenzt={schritt.ergaenzt}
           fehler={schritt.fehler}
           titel={titel}
           setTitel={setTitel}
@@ -271,6 +272,7 @@ export function Lektionen({
 function Vorschau({
   woerter: start,
   hinweis,
+  ergaenzt: startErgaenzt,
   fehler,
   titel,
   setTitel,
@@ -279,6 +281,7 @@ function Vorschau({
 }: {
   woerter: Vokabel[];
   hinweis: string;
+  ergaenzt: string[];
   fehler?: string;
   titel: string;
   setTitel: (t: string) => void;
@@ -286,8 +289,15 @@ function Vorschau({
   onVerwerfen: () => void;
 }) {
   const [woerter, setWoerter] = useState(start);
+  // Markierung verschwindet, sobald die Eltern die Übersetzung selbst anpassen
+  const [ergaenzt, setErgaenzt] = useState(() => new Set(startErgaenzt));
+  const anzahlErgaenzt = woerter.filter((w) => ergaenzt.has(w.id)).length;
 
   function aendere(i: number, feld: 'en' | 'de', wert: string) {
+    const id = woerter[i]!.id;
+    if (feld === 'de' && ergaenzt.has(id)) {
+      setErgaenzt(new Set([...ergaenzt].filter((e) => e !== id)));
+    }
     setWoerter(woerter.map((w, j) => (j === i ? { ...w, [feld]: wert } : w)));
   }
 
@@ -296,6 +306,12 @@ function Vorschau({
       <p role="status">
         ✓ {woerter.length} Wörter erkannt. Bitte kurz prüfen und bei Bedarf korrigieren.
       </p>
+      {anzahlErgaenzt > 0 && (
+        <p className="eltern-hinweis">
+          ✨ {anzahlErgaenzt === 1 ? '1 Übersetzung hat' : `${anzahlErgaenzt} Übersetzungen hat`}{' '}
+          die KI ergänzt, weil sie im Heft noch fehlte. Sie sind markiert, bitte besonders prüfen.
+        </p>
+      )}
       {hinweis && <p className="eltern-hinweis">Hinweis der KI: {hinweis}</p>}
       <label>
         <span>Titel</span>
@@ -303,7 +319,7 @@ function Vorschau({
       </label>
       <ul className="verwalten-liste">
         {woerter.map((w, i) => (
-          <li key={w.id}>
+          <li key={w.id} className={ergaenzt.has(w.id) ? 'lektion-ergaenzt' : undefined}>
             <input
               aria-label={`Englisch ${i + 1}`}
               lang="en"
@@ -315,6 +331,11 @@ function Vorschau({
               value={w.de}
               onChange={(e) => aendere(i, 'de', e.target.value)}
             />
+            {ergaenzt.has(w.id) && (
+              <span role="img" aria-label="Von der KI ergänzt" title="Von der KI ergänzt">
+                ✨
+              </span>
+            )}
             <button
               type="button"
               className="verwalten-entfernen"

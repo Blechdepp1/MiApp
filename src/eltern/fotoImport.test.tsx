@@ -41,7 +41,7 @@ describe('erkenneVokabeln', () => {
   it('schickt die Fotos mit Modell, festem Format und Rückfallebene', async () => {
     const { f, anfragen } = fabrik({
       stop_reason: 'end_turn',
-      parsed_output: { woerter: [{ en: 'house', de: 'Haus' }], hinweis: '' },
+      parsed_output: { woerter: [{ en: 'house', de: 'Haus', ergaenzt: false }], hinweis: '' },
     });
     const ergebnis = await erkenneVokabeln('sk-ant-x', [BILD, BILD], f);
     expect(ergebnis.woerter.map((w) => [w.en, w.de])).toEqual([['house', 'Haus']]);
@@ -94,6 +94,19 @@ describe('bereinige', () => {
     expect(hinweis).toBe('Zeile 3 unleserlich');
   });
 
+  it('merkt sich, welche Übersetzungen die KI ergänzt hat', () => {
+    let n = 0;
+    const { ergaenzt } = bereinige(
+      [
+        { en: 'began', de: 'anfangen, beginnen', ergaenzt: false },
+        { en: 'came', de: 'kommen', ergaenzt: true },
+      ],
+      '',
+      () => `id${++n}`,
+    );
+    expect(ergaenzt).toEqual(['id2']);
+  });
+
   it('meldet, wenn nichts erkannt wurde', () => {
     expect(() => bereinige([{ en: ' ', de: '' }])).toThrow(FotoImportFehler);
   });
@@ -106,6 +119,7 @@ describe('Lektionen (Ansicht)', () => {
       { id: 'w2', en: 'scool', de: 'Schule' },
     ],
     hinweis: 'Ein Wort war schwer zu lesen.',
+    ergaenzt: [],
   };
 
   async function zeige({
@@ -174,6 +188,23 @@ describe('Lektionen (Ansicht)', () => {
         { en: 'teacher', de: 'Lehrer' },
       ],
     });
+  });
+
+  it('markiert von der KI ergänzte Übersetzungen, bis sie angepasst werden', async () => {
+    const erkenne = vi.fn(async () => ({ ...ERKANNT, ergaenzt: ['w2'] }));
+    await zeige({ erkenne });
+    await userEvent.click(await screen.findByRole('button', { name: '📷 Neue Lektion aus Fotos' }));
+    await fotoHochladen();
+    await userEvent.click(screen.getByRole('button', { name: 'Fotos auswerten' }));
+
+    expect(await screen.findByText(/1 Übersetzung hat die KI ergänzt/)).toBeInTheDocument();
+    const zeile = screen.getByLabelText('Deutsch 2').closest('li')!;
+    expect(within(zeile).getByRole('img', { name: 'Von der KI ergänzt' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Deutsch 1').closest('li')).not.toHaveClass('lektion-ergaenzt');
+
+    await userEvent.type(screen.getByLabelText('Deutsch 2'), ', Unterricht');
+    expect(screen.queryByRole('img', { name: 'Von der KI ergänzt' })).toBeNull();
+    expect(screen.queryByText(/die KI ergänzt/)).toBeNull();
   });
 
   it('verlangt vor der Freigabe einen Titel', async () => {

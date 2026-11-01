@@ -5,7 +5,8 @@ import { erzeugeKiClient, KI_MODELL, type KiClientFabrik } from './ki.ts';
 // Ein Foto, bereit für die API: verkleinertes JPEG als Base64 (ohne „data:“-Präfix)
 export type Bild = { base64: string; medienTyp: 'image/jpeg' };
 
-export type Erkennung = { woerter: Vokabel[]; hinweis: string };
+// ergaenzt: ids der Wörter, deren Übersetzung im Heft fehlte und von der KI stammt
+export type Erkennung = { woerter: Vokabel[]; hinweis: string; ergaenzt: string[] };
 
 export type ErkennungsFehler =
   'kein-schluessel' | 'kein-netz' | 'abgelehnt' | 'nichts-erkannt' | 'fehler';
@@ -48,10 +49,12 @@ const SYSTEM = `Du liest Vokabellisten aus englischen Schulbüchern, Arbeitsheft
 Die Eltern prüfen dein Ergebnis anschließend, bevor ihr Kind damit übt.
 
 So gehst du vor:
-- Gib jedes Wortpaar Englisch–Deutsch genau einmal aus, in der Reihenfolge der Vorlage.
+- Gib jedes englische Wort genau einmal aus, in der Reihenfolge der Vorlage.
 - Übernimm die englische Schreibweise exakt, inklusive Großschreibung (z. B. Wochentage) und Angaben wie „(to) play“.
 - Mehrere deutsche Bedeutungen trennst du mit Komma.
 - Lass Lautschrift, Beispielsätze, Seitenzahlen, Überschriften und Übungsanweisungen weg.
+- Oft hat das Kind die deutsche Seite noch nicht (ganz) ausgefüllt. Fehlt die Übersetzung oder ist sie nur angefangen, übernimm das englische Wort trotzdem und ergänze die naheliegendste deutsche Bedeutung, wie sie im Englischunterricht der 6. Klasse gelernt wird. Setze dann „ergaenzt“ auf true, sonst auf false.
+- Richte ergänzte Übersetzungen nach denen, die schon auf der Seite stehen: Werden dort z. B. Vergangenheitsformen wie „began“ mit dem deutschen Infinitiv („anfangen, beginnen“) übersetzt, machst du es bei den anderen genauso.
 - Ist ein Wort unleserlich oder abgeschnitten, lass es weg, statt zu raten, und nenne es im Hinweis.
 - Der Hinweis ist ein kurzer deutscher Satz für die Eltern (z. B. was unsicher war). Ist alles klar, bleibt er leer.`;
 
@@ -62,8 +65,12 @@ const SCHEMA = {
       type: 'array',
       items: {
         type: 'object',
-        properties: { en: { type: 'string' }, de: { type: 'string' } },
-        required: ['en', 'de'],
+        properties: {
+          en: { type: 'string' },
+          de: { type: 'string' },
+          ergaenzt: { type: 'boolean' },
+        },
+        required: ['en', 'de', 'ergaenzt'],
         additionalProperties: false,
       },
     },
@@ -127,20 +134,23 @@ export async function erkenneVokabeln(
 
 // Leere und doppelte Paare entfernen, ids vergeben
 export function bereinige(
-  roh: readonly { en: string; de: string }[],
+  roh: readonly { en: string; de: string; ergaenzt?: boolean }[],
   hinweis = '',
   neueId: () => string = () => crypto.randomUUID(),
 ): Erkennung {
   const gesehen = new Set<string>();
   const woerter: Vokabel[] = [];
-  for (const { en, de } of roh) {
+  const ergaenzt: string[] = [];
+  for (const { en, de, ergaenzt: vonKi } of roh) {
     const e = en.trim().replace(/\s+/g, ' ');
     const d = de.trim().replace(/\s+/g, ' ');
     const schluessel = `${e.toLowerCase()}|${d.toLowerCase()}`;
     if (!e || !d || gesehen.has(schluessel)) continue;
     gesehen.add(schluessel);
-    woerter.push({ id: neueId(), en: e, de: d });
+    const id = neueId();
+    woerter.push({ id, en: e, de: d });
+    if (vonKi) ergaenzt.push(id);
   }
   if (woerter.length === 0) throw new FotoImportFehler('nichts-erkannt');
-  return { woerter, hinweis: hinweis.trim() };
+  return { woerter, hinweis: hinweis.trim(), ergaenzt };
 }
