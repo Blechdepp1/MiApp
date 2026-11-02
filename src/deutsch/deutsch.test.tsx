@@ -155,10 +155,27 @@ const KLEIN: Thema[] = [
 ];
 
 describe('deutschAuswahl', () => {
-  it('nimmt im Mix zuerst höchstens fünf neue Aufgaben, in Heft-Reihenfolge', () => {
+  it('nimmt im Mix zuerst höchstens fünf neue Aufgaben aus dem ersten Thema', () => {
     const woerter = deutschAuswahl({ art: 'mix' }, THEMEN, new Map(), HEUTE);
     expect(woerter).toHaveLength(NEU_PRO_RUNDE);
-    expect(woerter[0]!.liste.id).toBe('de-wortarten');
+    expect(woerter.every((w) => w.liste.id === 'de-wortarten')).toBe(true);
+  });
+
+  // Rückmeldung der Eltern: Vorher kamen zehnmal hintereinander Nomen
+  it('mischt die Aufgaben, damit nicht immer dieselbe Antwort richtig ist', () => {
+    let saat = 7;
+    const zufall = () => ((saat = (saat * 16807) % 2147483647) - 1) / 2147483646;
+    for (let versuch = 0; versuch < 20; versuch++) {
+      const woerter = deutschAuswahl(
+        { art: 'thema', id: 'de-wortarten' },
+        THEMEN,
+        new Map(),
+        HEUTE,
+        zufall,
+      );
+      const antworten = woerter.map((w) => (w.wort.art === 'waehlen' ? w.wort.richtig[0] : ''));
+      expect(new Set(antworten).size, antworten.join()).toBeGreaterThan(1);
+    }
   });
 
   it('nimmt bei einem Thema nur dessen Aufgaben', () => {
@@ -172,7 +189,8 @@ describe('DeutschSeite', () => {
     const protokoll = protokollImArbeitsspeicher();
     render(
       <ProtokollProvider protokoll={protokoll}>
-        <DeutschSeite themen={KLEIN} zufall={() => 0.5} />
+        {/* Zufall knapp unter 1: Mischen lässt die Reihenfolge unverändert */}
+        <DeutschSeite themen={KLEIN} zufall={() => 0.9999} />
       </ProtokollProvider>,
     );
     await userEvent.click(await screen.findByRole('button', { name: /Testthema/ }));

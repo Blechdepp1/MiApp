@@ -110,7 +110,8 @@ const ANSICHTEN: Record<string, (page: Page, darstellung: Darstellung) => Promis
   'Deutsch, Rückmeldung': async (page, d) => {
     await startseite(page, d);
     await page.getByRole('link', { name: 'Deutsch' }).click();
-    await page.getByRole('button', { name: /Verben: beugen/ }).click();
+    await page.getByRole('button', { name: /Adjektive: Gegenteil/ }).click();
+    // Die Aufgaben sind gemischt: Im Adjektiv-Thema wird immer geschrieben
     await page.getByRole('textbox').fill('xyz');
     await page.getByRole('button', { name: 'Prüfen' }).click();
     await expect(page.getByRole('button', { name: 'Weiter →' })).toBeVisible();

@@ -11,6 +11,7 @@ Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei F
 - Bei jeder Aufgabe hilft dir ein 💡 Tipp, und zu jedem Thema gibt es das Merkwissen zum Anhören.
 - Wörter im Satz tippst du einfach an, zum Beispiel das Subjekt.
 - Deutsch-Runden bringen dieselben Punkte wie Vokabelrunden und zählen fürs Tagesziel.
+- Die Aufgaben kommen gemischt, damit du bei jeder Aufgabe neu überlegst.
 
 ## 0.17.1 – 02.11.2026
 

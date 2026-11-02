@@ -8,7 +8,7 @@ import {
   type RundenWort,
   type WortStand,
 } from '../vokabeln-en/leitner.ts';
-import type { Zufall } from '../vokabeln-en/runde.ts';
+import { mische, type Zufall } from '../vokabeln-en/runde.ts';
 import { loesungText } from './bewertung.ts';
 import type { Aufgabe, Thema } from './typen.ts';
 
@@ -23,8 +23,11 @@ export function fortschrittThema(
   return f;
 }
 
-// Mix: was fällig ist und ein paar neue Aufgaben aus allen Themen (in Heft-Reihenfolge);
-// ist nichts mehr fällig, eine Extra-Runde mit schon Geübtem. Ein Thema: wie eine Lektion.
+// Mix: was fällig ist und ein paar neue Aufgaben, Themen in Heft-Reihenfolge; ist nichts mehr
+// fällig, eine Extra-Runde mit schon Geübtem. Ein Thema: wie eine Lektion.
+// Innerhalb eines Themas werden neue Aufgaben zufällig gezogen und die Runde gemischt
+// (Interleaving). Sonst kämen z. B. zehnmal hintereinander Nomen, und man könnte ohne
+// Nachdenken immer dieselbe Antwort tippen.
 export function deutschAuswahl(
   wahl: Wahl,
   themen: readonly Thema[],
@@ -32,12 +35,16 @@ export function deutschAuswahl(
   heute: string,
   zufall: Zufall = Math.random,
 ): RundenWort<Thema>[] {
+  const gemischt = themen.map((t) => ({ ...t, woerter: mische(t.woerter, zufall) }));
+  let auswahl: RundenWort<Thema>[];
   if (wahl.art === 'thema') {
-    const thema = themen.find((t) => t.id === wahl.id);
-    return thema ? lektionsRundeAuswaehlen(thema, staende, heute, zufall) : [];
+    const thema = gemischt.find((t) => t.id === wahl.id);
+    auswahl = thema ? lektionsRundeAuswaehlen(thema, staende, heute, zufall) : [];
+  } else {
+    const normal = rundeAuswaehlen(gemischt, staende, heute);
+    auswahl = normal.length > 0 ? normal : extraRundeAuswaehlen(gemischt, staende, zufall);
   }
-  const normal = rundeAuswaehlen(themen, staende, heute);
-  return normal.length > 0 ? normal : extraRundeAuswaehlen(themen, staende, zufall);
+  return mische(auswahl, zufall);
 }
 
 export function loesungVon(a: Aufgabe): string {
