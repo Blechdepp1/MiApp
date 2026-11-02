@@ -67,10 +67,29 @@ describe('erkenneVokabeln', () => {
     await expect(erkenneVokabeln('k', [BILD], f)).rejects.toMatchObject({ art: 'kein-netz' });
   });
 
-  it('meldet sonstige API-Fehler', async () => {
-    const fehler = Anthropic.APIError.generate(500, { error: {} }, 'x', new Headers());
+  it.each([
+    [401, 'authentication_error', 'schluessel-ungueltig'],
+    [429, 'rate_limit_error', 'limit'],
+    [413, 'request_too_large', 'zu-viel'],
+    [529, 'overloaded_error', 'ueberlastet'],
+    [400, 'invalid_request_error', 'fehler'],
+  ])('übersetzt API-Fehler %i in eine verständliche Meldung', async (status, typ, art) => {
+    const fehler = Anthropic.APIError.generate(
+      status,
+      { type: 'error', error: { type: typ, message: 'x' } },
+      'x',
+      new Headers(),
+    );
     const { f } = fabrik(null, fehler);
-    await expect(erkenneVokabeln('k', [BILD], f)).rejects.toMatchObject({ art: 'fehler' });
+    await expect(erkenneVokabeln('k', [BILD], f)).rejects.toMatchObject({
+      art,
+      detail: `${status} ${typ}`,
+    });
+  });
+
+  it('meldet eine abgeschnittene Antwort als „zu viel auf einmal“', async () => {
+    const { f } = fabrik({ stop_reason: 'max_tokens', parsed_output: null });
+    await expect(erkenneVokabeln('k', [BILD], f)).rejects.toMatchObject({ art: 'zu-viel' });
   });
 });
 
@@ -232,6 +251,19 @@ describe('Lektionen (Ansicht)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Keine Verbindung');
     expect(screen.getByAltText('Foto 1')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Fotos auswerten' })).toBeEnabled();
+  });
+
+  it('nennt die technische Ursache, damit man den Fehler melden kann', async () => {
+    const erkenne = vi.fn(async () => {
+      throw new FotoImportFehler('limit', '429 rate_limit_error');
+    });
+    await zeige({ erkenne });
+    await userEvent.click(await screen.findByRole('button', { name: '📷 Neue Lektion aus Fotos' }));
+    await fotoHochladen();
+    await userEvent.click(screen.getByRole('button', { name: 'Fotos auswerten' }));
+    const meldung = await screen.findByRole('alert');
+    expect(meldung).toHaveTextContent('Limit des KI-Schlüssels');
+    expect(meldung).toHaveTextContent('Technisch: 429 rate_limit_error');
   });
 
   it('setzt eine angefangene Lektion nach einem Neustart fort', async () => {

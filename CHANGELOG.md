@@ -3,6 +3,11 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.17.1 – 02.11.2026
+
+- Für Eltern: Klappt das Auswerten von Fotos nicht, sagt die App jetzt genauer, woran es liegt (z. B. zu viele Fotos, KI überlastet, Limit erreicht, Schlüssel ungültig), mit einer kurzen technischen Angabe.
+- Für Eltern: Viele Fotos auf einmal werden nacheinander verkleinert, damit das Handy nicht an seine Grenzen kommt.
+
 ## 0.17.0 – 02.11.2026
 
 - Vor dem Vokabel-Üben kannst du jetzt wählen:

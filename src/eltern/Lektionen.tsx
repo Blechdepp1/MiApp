@@ -35,7 +35,7 @@ const standardEntwurf = dexieWert<Entwurf | null>('lektion-entwurf');
 
 type Schritt =
   | { art: 'liste' }
-  | { art: 'neu'; fehler?: string }
+  | { art: 'neu'; fehler?: string; detail?: string }
   | { art: 'auswerten' }
   | { art: 'vorschau'; woerter: Vokabel[]; hinweis: string; ergaenzt: string[]; fehler?: string };
 
@@ -138,13 +138,30 @@ export function Lektionen({
     }
     setSchritt({ art: 'auswerten' });
     try {
-      const bilder = await Promise.all(fotos.map((f) => leseBild(f.datei)));
+      // Nacheinander verkleinern: viele große Fotos gleichzeitig überfordern den Speicher am Handy
+      const bilder: Bild[] = [];
+      for (const f of fotos) {
+        try {
+          bilder.push(await leseBild(f.datei));
+        } catch (fehler) {
+          throw new FotoImportFehler(
+            'foto-lesen',
+            fehler instanceof Error ? fehler.message.slice(0, 120) : undefined,
+          );
+        }
+      }
       const { woerter, hinweis, ergaenzt } = await erkenne(schluessel, bilder);
       setSchritt({ art: 'vorschau', woerter, hinweis, ergaenzt });
     } catch (fehler) {
       // Fotos bleiben erhalten, damit man es direkt noch einmal versuchen kann
       const art = fehler instanceof FotoImportFehler ? fehler.art : 'fehler';
-      setSchritt({ art: 'neu', fehler: FEHLER_TEXT[art] });
+      const detail =
+        fehler instanceof FotoImportFehler
+          ? fehler.detail
+          : fehler instanceof Error
+            ? fehler.message.slice(0, 120)
+            : undefined;
+      setSchritt({ art: 'neu', fehler: FEHLER_TEXT[art], detail });
     }
   }
 
@@ -306,6 +323,9 @@ export function Lektionen({
               {schritt.fehler && (
                 <p className="verbinden-fehler" role="alert">
                   {schritt.fehler}
+                  {schritt.detail && (
+                    <small className="fehler-detail">Technisch: {schritt.detail}</small>
+                  )}
                 </p>
               )}
               <div className="verbinden-knoepfe">

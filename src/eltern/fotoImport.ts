@@ -9,11 +9,24 @@ export type Bild = { base64: string; medienTyp: 'image/jpeg' };
 export type Erkennung = { woerter: Vokabel[]; hinweis: string; ergaenzt: string[] };
 
 export type ErkennungsFehler =
-  'kein-schluessel' | 'kein-netz' | 'abgelehnt' | 'nichts-erkannt' | 'fehler';
+  | 'kein-schluessel'
+  | 'kein-netz'
+  | 'abgelehnt'
+  | 'nichts-erkannt'
+  | 'schluessel-ungueltig'
+  | 'limit'
+  | 'ueberlastet'
+  | 'zu-viel'
+  | 'foto-lesen'
+  | 'fehler';
 
 export class FotoImportFehler extends Error {
-  constructor(readonly art: ErkennungsFehler) {
-    super(art);
+  // detail: kurze technische Angabe (z. B. „429 rate_limit_error“), damit man den Fehler melden kann
+  constructor(
+    readonly art: ErkennungsFehler,
+    readonly detail?: string,
+  ) {
+    super(detail ? `${art}: ${detail}` : art);
   }
 }
 
@@ -25,9 +38,37 @@ export const FEHLER_TEXT: Record<ErkennungsFehler, string> = {
   abgelehnt: 'Die KI hat die Fotos nicht ausgewertet. Bitte andere Fotos versuchen.',
   'nichts-erkannt':
     'Auf den Fotos wurden keine Vokabeln gefunden. Ist die ganze Liste gut zu sehen?',
+  'schluessel-ungueltig':
+    'Der KI-Schlüssel wird nicht angenommen (abgelaufen oder widerrufen?). Bitte unten bei „KI (Claude)“ prüfen.',
+  limit:
+    'Das Limit des KI-Schlüssels ist gerade erreicht (zu viele Anfragen oder Monatslimit). Bitte später noch einmal versuchen oder das Limit in der Anthropic-Konsole prüfen.',
+  ueberlastet:
+    'Die KI ist gerade überlastet. Die Fotos bleiben hier, bitte gleich noch einmal versuchen.',
+  'zu-viel':
+    'Das waren zu viele Fotos oder Wörter auf einmal. Bitte höchstens 4 bis 5 Seiten pro Lektion auswerten.',
+  'foto-lesen': 'Ein Foto ließ sich nicht öffnen. Bitte das Foto entfernen und neu aufnehmen.',
   fehler:
     'Das Auswerten hat gerade nicht geklappt. Die Fotos bleiben hier, bitte noch einmal versuchen.',
 };
+
+// Fehler der API in eine verständliche Art übersetzen
+function apiFehler(fehler: unknown, AnthropicSdk: typeof Anthropic): FotoImportFehler {
+  if (fehler instanceof AnthropicSdk.APIConnectionError) return new FotoImportFehler('kein-netz');
+  if (fehler instanceof AnthropicSdk.APIError) {
+    const detail = [fehler.status, fehler.type].filter(Boolean).join(' ');
+    const status = fehler.status ?? 0;
+    if (status === 401 || status === 403)
+      return new FotoImportFehler('schluessel-ungueltig', detail);
+    if (status === 429) return new FotoImportFehler('limit', detail);
+    if (status === 413) return new FotoImportFehler('zu-viel', detail);
+    if (status >= 500) return new FotoImportFehler('ueberlastet', detail);
+    return new FotoImportFehler('fehler', detail);
+  }
+  return new FotoImportFehler(
+    'fehler',
+    fehler instanceof Error ? fehler.message.slice(0, 120) : '',
+  );
+}
 
 // Lange Seite höchstens so viele Pixel: reicht für Schrift, spart Kosten und Zeit
 export const MAX_KANTE = 1600;
@@ -122,13 +163,14 @@ export async function erkenneVokabeln(
       ],
     });
   } catch (fehler) {
-    if (fehler instanceof AnthropicSdk.APIConnectionError) throw new FotoImportFehler('kein-netz');
-    throw new FotoImportFehler('fehler');
+    throw apiFehler(fehler, AnthropicSdk);
   }
 
   if (antwort.stop_reason === 'refusal') throw new FotoImportFehler('abgelehnt');
+  // Antwort abgeschnitten: zu viele Wörter für eine Anfrage
+  if (antwort.stop_reason === 'max_tokens') throw new FotoImportFehler('zu-viel', 'max_tokens');
   const ergebnis = antwort.parsed_output;
-  if (!ergebnis) throw new FotoImportFehler('fehler');
+  if (!ergebnis) throw new FotoImportFehler('fehler', `keine Daten (${antwort.stop_reason})`);
   return bereinige(ergebnis.woerter, ergebnis.hinweis);
 }
 
