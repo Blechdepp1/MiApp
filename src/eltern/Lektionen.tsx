@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { MitwachsendesFeld } from '../basis/MitwachsendesFeld.tsx';
 import { dexieWert, type GespeicherterWert } from '../daten/schluesselWert.ts';
 import {
   istVokabelLektion,
@@ -411,16 +412,16 @@ function Vorschau({
       <ul className="verwalten-liste">
         {woerter.map((w, i) => (
           <li key={w.id} className={ergaenzt.has(w.id) ? 'lektion-ergaenzt' : undefined}>
-            <input
+            <MitwachsendesFeld
               aria-label={`Englisch ${i + 1}`}
               lang="en"
               value={w.en}
-              onChange={(e) => aendere(i, 'en', e.target.value)}
+              onChange={(wert) => aendere(i, 'en', wert)}
             />
-            <input
+            <MitwachsendesFeld
               aria-label={`Deutsch ${i + 1}`}
               value={w.de}
-              onChange={(e) => aendere(i, 'de', e.target.value)}
+              onChange={(wert) => aendere(i, 'de', wert)}
             />
             {ergaenzt.has(w.id) && (
               <span role="img" aria-label="Von der KI ergänzt" title="Von der KI ergänzt">

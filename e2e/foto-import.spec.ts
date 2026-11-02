@@ -14,6 +14,12 @@ const ANTWORT = {
         woerter: [
           { en: 'began', de: 'anfangen, beginnen', ergaenzt: false },
           { en: 'came', de: 'kommen', ergaenzt: true },
+          // Lang: darf auf dem Handy nicht abgeschnitten werden
+          {
+            en: 'to be (am/is/are) – was/were – been',
+            de: 'sein (ich bin, du bist, er/sie/es ist)',
+            ergaenzt: false,
+          },
         ],
         hinweis: '',
       }),
@@ -65,11 +71,18 @@ test('Lektion aus einem Foto anlegen (KI nachgestellt)', async ({ page }) => {
   await page.getByLabel('🖼️ Aus Galerie').setInputFiles('public/pwa-512.png');
   await page.getByRole('button', { name: 'Fotos auswerten' }).click();
 
-  await expect(page.getByText(/2 Wörter erkannt/)).toBeVisible();
+  await expect(page.getByText(/3 Wörter erkannt/)).toBeVisible();
+  // Lange Einträge brechen um und das Feld wächst mit, statt Text abzuschneiden
+  const lang = page.getByLabel('Deutsch 3');
+  await expect(lang).toHaveValue('sein (ich bin, du bist, er/sie/es ist)');
+  const masse = await lang.evaluate((f) => ({ voll: f.scrollHeight, sichtbar: f.clientHeight }));
+  expect(masse.voll).toBeLessThanOrEqual(masse.sichtbar + 1);
+  expect(masse.sichtbar).toBeGreaterThan(40);
+  if (process.env.FOTO_BILD) await page.screenshot({ path: process.env.FOTO_BILD });
   await expect(page.getByText(/1 Übersetzung hat die KI ergänzt/)).toBeVisible();
   expect(anfragen.some((u) => u.includes('/v1/messages'))).toBe(true);
   await page.getByRole('button', { name: 'Freigeben' }).click();
 
   await expect(page.getByText('Unit 5 – Irregular verbs')).toBeVisible();
-  await expect(page.getByText('2 Wörter')).toBeVisible();
+  await expect(page.getByText('3 Wörter')).toBeVisible();
 });

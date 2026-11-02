@@ -188,6 +188,15 @@ describe('Runde', () => {
 
   describe('Extra-Runde', () => {
     const heuteGeuebt = ['house', 'dog', 'cat'].map((id) => antwortAm(id, true, HEUTE));
+    // Neue Antworten tragen die Uhrzeit des Geräts: Sie müssen am selben Tag wie HEUTE liegen,
+    // sonst gilt die Extra-Runde als Übung am nächsten Tag (Test schlug ab dem 2.11. fehl)
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date(`${HEUTE}T18:00:00`));
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
 
     it('bietet eine Extra-Runde an, wenn heute nichts mehr fällig ist', () => {
       zeige(heuteGeuebt);

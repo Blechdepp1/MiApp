@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { MitwachsendesFeld } from '../basis/MitwachsendesFeld.tsx';
 import {
   MAX_TITEL,
   STATUS,
@@ -140,16 +141,16 @@ export function LektionBearbeiten({
       <ul className="verwalten-liste bearbeiten-woerter">
         {stand.woerter.map((w, i) => (
           <li key={w.id}>
-            <input
+            <MitwachsendesFeld
               aria-label={`Englisch ${i + 1}`}
               lang="en"
               value={w.en}
-              onChange={(e) => aendereWort(i, 'en', e.target.value)}
+              onChange={(wert) => aendereWort(i, 'en', wert)}
             />
-            <input
+            <MitwachsendesFeld
               aria-label={`Deutsch ${i + 1}`}
               value={w.de}
-              onChange={(e) => aendereWort(i, 'de', e.target.value)}
+              onChange={(wert) => aendereWort(i, 'de', wert)}
             />
             <button
               type="button"

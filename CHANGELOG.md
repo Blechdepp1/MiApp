@@ -3,6 +3,10 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.16.1 – 02.11.2026
+
+- Für Eltern: Beim Prüfen und Bearbeiten von Lektionen brechen lange Wörter um, und das Feld wird höher. Nichts wird mehr abgeschnitten.
+
 ## 0.16.0 – 01.11.2026
 
 - Neue Kachel „🌟 Erfolge“: Hier siehst du, was du schon alles geschafft hast.

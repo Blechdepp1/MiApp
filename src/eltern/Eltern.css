@@ -79,7 +79,8 @@
 }
 
 .verwalten-liste input,
-.verwalten-liste select {
+.verwalten-liste select,
+.verwalten-liste textarea {
   min-height: var(--touch);
   padding: 0.25rem 0.5rem;
   border: 2px solid var(--farbe-text-leise);
@@ -88,7 +89,8 @@
   color: var(--farbe-text);
 }
 
-.verwalten-liste input:not([type='number']) {
+.verwalten-liste input:not([type='number']),
+.verwalten-liste textarea {
   flex: 1 1 9rem;
   min-width: 0;
 }
@@ -594,11 +596,15 @@
 .bearbeiten-woerter li,
 .lektion-neu .verwalten-liste li {
   flex-wrap: nowrap;
+  /* Mitwachsende Felder: Papierkorb und ✨ bleiben oben in der Zeile */
+  align-items: flex-start;
   gap: 0.35rem;
 }
 
 .lerninhalte .bearbeiten-woerter input:not([type='number']),
-.lektion-neu .verwalten-liste input:not([type='number']) {
+.lerninhalte .bearbeiten-woerter textarea,
+.lektion-neu .verwalten-liste input:not([type='number']),
+.lektion-neu .verwalten-liste textarea {
   flex: 1 1 0;
   /* Eingabefelder haben sonst eine feste Mindestbreite und schieben die Zeile über den Rand */
   width: 0;
@@ -609,4 +615,14 @@
 .bearbeiten-woerter .verwalten-entfernen,
 .lektion-neu .verwalten-liste .verwalten-entfernen {
   flex: none;
+}
+
+/* Mitwachsende Wort-Felder (MitwachsendesFeld): langer Text bricht um statt abgeschnitten zu werden */
+.verwalten-liste textarea.mitwachsend {
+  resize: none;
+  overflow: hidden;
+  padding-block: 0.6rem;
+  font: inherit;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
