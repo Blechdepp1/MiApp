@@ -9,7 +9,7 @@ MiApp gibt es zweimal:
 
 Jede Änderung landet zuerst im **Testkanal**. Milenas App ändert sich erst, wenn ihr eine Version **freigebt**.
 
-Der Testkanal liegt absichtlich nicht unter `/MiApp/`: Android ordnet sonst alles darunter der installierten Live-App zu („bereits installiert“), und er ließe sich nicht als eigene App installieren. Veröffentlicht wird er aus dem Repository `Blechdepp1/MiApp-Vorschau` (Branch `gh-pages`, schreibt der Workflow mit einem Deploy-Key). Die alte Adresse `/MiApp/vorschau/` leitet um.
+Der Testkanal liegt absichtlich nicht unter `/MiApp/`: Android ordnet sonst alles darunter der installierten Live-App zu („bereits installiert“), und er ließe sich nicht als eigene App installieren. Veröffentlicht wird er vom Repository `Blechdepp1/MiApp-Vorschau`: Dessen Workflow baut den aktuellen Stand von MiApp, sobald hier die Prüfungen bestanden sind (von Hand ausgelöst und alle 15 Minuten). Die alte Adresse `/MiApp/vorschau/` leitet um.
 
 ## Testkanal einmal einrichten (Eltern-Handy)
 
