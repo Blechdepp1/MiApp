@@ -73,15 +73,23 @@ const ANSICHTEN: Record<string, (page: Page, darstellung: Darstellung) => Promis
     await expect(page.getByRole('dialog', { name: 'Sag uns was' })).toBeVisible();
   },
 
+  'Vokabeln, Auswahl': async (page, d) => {
+    await startseite(page, d);
+    await page.getByRole('link', { name: 'Vokabeln' }).click();
+    await expect(page.getByRole('button', { name: /Mix für heute/ })).toBeVisible();
+  },
+
   'Vokabelrunde, Frage': async (page, d) => {
     await startseite(page, d);
     await page.getByRole('link', { name: 'Vokabeln' }).click();
+    await page.getByRole('button', { name: /Mix für heute/ }).click();
     await expect(page.getByText('Wort 1 von 5')).toBeVisible();
   },
 
   'Vokabelrunde, Rückmeldung': async (page, d) => {
     await startseite(page, d);
     await page.getByRole('link', { name: 'Vokabeln' }).click();
+    await page.getByRole('button', { name: /Mix für heute/ }).click();
     await page.locator('.uebung-option').first().click();
     await expect(page.getByRole('button', { name: 'Weiter →' })).toBeVisible();
   },

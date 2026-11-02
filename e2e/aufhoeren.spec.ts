@@ -3,6 +3,7 @@ import { test, expect } from './basis.ts';
 test('Nachfrage beim Verlassen einer angefangenen Runde', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('link', { name: 'Vokabeln' }).click();
+  await page.getByRole('button', { name: /Mix für heute/ }).click();
   await page.locator('.uebung-option').first().click();
 
   // Zurück-Taste des Handys: Nachfrage statt Verlassen
@@ -38,6 +39,7 @@ const DEUTSCH: Record<string, string> = {
 test('Nach einer fertigen Runde führt Zurück ohne Nachfrage zur Startseite', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('link', { name: 'Vokabeln' }).click();
+  await page.getByRole('button', { name: /Mix für heute/ }).click();
   for (let i = 0; i < 5; i++) {
     const englisch = (await page.locator('.uebung-frage > span').last().textContent())!;
     await page.locator('.uebung-option', { hasText: DEUTSCH[englisch]! }).click();

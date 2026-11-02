@@ -3,6 +3,14 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.17.0 – 02.11.2026
+
+- Vor dem Vokabel-Üben kannst du jetzt wählen:
+  - 🎲 Mix für heute: Die App sucht aus, was dran ist (wie bisher).
+  - 📖 Eine Lektion üben: Du suchst dir die Lektion selbst aus. Steht ein Test an, siehst du es an der Lektion.
+  - 💪 Knifflige Wörter: die Wörter, die zuletzt schwierig waren.
+- Nach der Runde geht es mit „Noch eine Runde“ genauso weiter, oder du wählst mit „Etwas anderes üben“ neu.
+
 ## 0.16.1 – 02.11.2026
 
 - Für Eltern: Beim Prüfen und Bearbeiten von Lektionen brechen lange Wörter um, und das Feld wird höher. Nichts wird mehr abgeschnitten.

@@ -12,6 +12,7 @@ const DEUTSCH: Record<string, string> = {
 test('eine Vokabelrunde durchspielen', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('link', { name: 'Vokabeln' }).click();
+  await page.getByRole('button', { name: /Mix für heute/ }).click();
   await expect(page.getByText('Wort 1 von 5')).toBeVisible();
 
   for (let i = 1; i <= 5; i++) {

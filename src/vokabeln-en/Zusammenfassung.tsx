@@ -14,9 +14,12 @@ export type Ergebnis = {
 export function Zusammenfassung({
   ergebnis,
   onNochEinmal,
+  onAndereAuswahl,
 }: {
   ergebnis: Ergebnis;
   onNochEinmal: () => void;
+  // Zurück zur Auswahl (Mix, Lektion, schwierige Wörter)
+  onAndereAuswahl?: () => void;
 }) {
   const jubel = `Geschafft! Du hast ${ergebnis.punkte} Punkte bekommen.`;
   const ziel = ergebnis.tageszielGeradeErreicht
@@ -61,6 +64,11 @@ export function Zusammenfassung({
         <button type="button" className="runde-weiter" onClick={onNochEinmal}>
           Noch eine Runde
         </button>
+        {onAndereAuswahl && (
+          <button type="button" className="schreib-hilfe" onClick={onAndereAuswahl}>
+            Etwas anderes üben
+          </button>
+        )}
       </div>
     </div>
   );

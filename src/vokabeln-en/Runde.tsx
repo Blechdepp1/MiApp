@@ -59,6 +59,9 @@ export function Runde({
   onNochEinmal,
   sprich = vorlesen,
   endspurt = [],
+  woerter,
+  hinweis,
+  onAndereAuswahl,
 }: {
   listen: Vokabelliste[];
   ereignisse: LernEreignis[];
@@ -70,6 +73,11 @@ export function Runde({
   sprich?: typeof vorlesen;
   // Hinweis am Rundenstart, wenn eine Arbeit ansteht
   endspurt?: Endspurt[];
+  // Selbst gewählte Wörter (Lektion, schwierige Wörter); ohne wählt die Runde selbst (Mix)
+  woerter?: RundenWort[];
+  // Hinweis am Rundenstart, z. B. welche Lektion sie gerade übt
+  hinweis?: string;
+  onAndereAuswahl?: () => void;
 }) {
   const protokoll = useProtokoll();
   const { einstellungen } = useEinstellungen();
@@ -77,6 +85,7 @@ export function Runde({
   const [staende, setStaende] = useState(() => berechneStaende(ereignisse));
   // Ist heute nichts mehr fällig, darf sie freiwillig weiter wiederholen
   const [auswahl] = useState(() => {
+    if (woerter) return { extra: false, woerter };
     const normal = rundeAuswaehlen(listen, staende, heute, vorrang);
     return normal.length > 0
       ? { extra: false, woerter: normal }
@@ -100,7 +109,14 @@ export function Runde({
   const angefangen = aktuell !== null && (aktuell.nr > 0 || antwort !== null);
   const verlassen = useVerlassenBestaetigen(angefangen && !ergebnis);
 
-  if (ergebnis) return <Zusammenfassung ergebnis={ergebnis} onNochEinmal={onNochEinmal} />;
+  if (ergebnis)
+    return (
+      <Zusammenfassung
+        ergebnis={ergebnis}
+        onNochEinmal={onNochEinmal}
+        onAndereAuswahl={onAndereAuswahl}
+      />
+    );
 
   if (!aktuell) {
     const text = 'Hier gibt es noch keine Wörter zum Üben.';
@@ -184,6 +200,12 @@ export function Runde({
         />
       )}
       {auswahl.extra && aktuell.nr === 0 && <ExtraHinweis />}
+      {hinweis && aktuell.nr === 0 && (
+        <p className="runde-extra">
+          <VorleseKnopf text={hinweis} />
+          <span>{hinweis}</span>
+        </p>
+      )}
       {aktuell.nr === 0 &&
         endspurt.map((e) => {
           const text = endspurtText(e);

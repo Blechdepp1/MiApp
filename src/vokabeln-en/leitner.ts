@@ -159,3 +159,20 @@ export function extraRundeAuswaehlen(
     .map(({ w }) => w);
   return geuebt.slice(0, RUNDE_MAX);
 }
+
+// Selbst gewählte Lektion: erst was fällig ist und ein paar neue Wörter, dann mit schon geübten
+// Wörtern derselben Lektion bis zu einer vollen Runde aufgefüllt (unsichere zuerst). Noch nicht
+// fällige Wörter werden dabei nur geübt, nicht hochgestuft (siehe naechsterStand).
+export function lektionsRundeAuswaehlen(
+  liste: Vokabelliste,
+  staende: Map<string, WortStand>,
+  heute: string,
+  zufall: () => number = Math.random,
+): RundenWort[] {
+  const zuerst = rundeAuswaehlen([liste], staende, heute);
+  const dabei = new Set(zuerst.map((w) => w.wort.id));
+  const auffuellen = extraRundeAuswaehlen([liste], staende, zufall).filter(
+    (w) => !dabei.has(w.wort.id),
+  );
+  return [...zuerst, ...auffuellen].slice(0, RUNDE_MAX);
+}
