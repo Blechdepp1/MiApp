@@ -9,6 +9,7 @@ import {
   rundeAuswaehlen,
   schluessel,
   uebungFuer,
+  verwechselbar,
   type WortStand,
 } from './leitner.ts';
 import type { Vokabelliste } from './typen.ts';
@@ -260,5 +261,52 @@ describe('rundeAuswaehlen', () => {
     const runde = rundeAuswaehlen([liste(20)], berechneStaende(ereignisse), '2026-11-01');
     expect(runde).toHaveLength(RUNDE_MAX);
     expect(runde.every((r) => r.stand.fach === 1)).toBe(true);
+  });
+});
+
+describe('neue Wörter verteilt (V13)', () => {
+  function woerter(...en: string[]): Vokabelliste {
+    return {
+      id: 'l',
+      name: 'Test',
+      woerter: en.map((e, i) => ({ id: `w${i}`, en: e, de: `de${i}` })),
+    };
+  }
+
+  it('nimmt neue Wörter über die ganze Liste verteilt statt der Reihe nach', () => {
+    const farben = ['red', 'blue', 'green', 'yellow', 'black'];
+    const andere =
+      'school teacher lesson pencil ruler table chair window garden kitchen bread apple river mountain doctor'.split(
+        ' ',
+      );
+    const liste = woerter(...farben, ...andere);
+    const runde = rundeAuswaehlen([liste], new Map(), '2026-11-01');
+    expect(runde).toHaveLength(NEU_PRO_RUNDE);
+    // höchstens zwei der fünf Farben am selben Tag
+    expect(runde.filter((r) => farben.includes(r.wort.en)).length).toBeLessThanOrEqual(2);
+  });
+
+  it('nimmt verwechselbare Wörter nicht in dieselbe Runde, wenn es andere gibt', () => {
+    const liste = woerter('quiet', 'quite', 'house', 'garden', 'kitchen', 'window', 'door');
+    const runde = rundeAuswaehlen([liste], new Map(), '2026-11-01').map((r) => r.wort.en);
+    expect(runde).toHaveLength(NEU_PRO_RUNDE);
+    expect(runde.includes('quiet') && runde.includes('quite')).toBe(false);
+  });
+
+  it('füllt mit ähnlichen Wörtern auf, wenn es sonst zu wenige wären', () => {
+    const runde = rundeAuswaehlen([woerter('quiet', 'quite')], new Map(), '2026-11-01');
+    expect(runde).toHaveLength(2);
+  });
+
+  it('erkennt verwechselbare Wörter', () => {
+    expect(verwechselbar({ en: 'quiet' }, { en: 'quite' })).toBe(true);
+    expect(verwechselbar({ en: 'three' }, { en: 'there' })).toBe(true);
+    expect(verwechselbar({ en: 'cat' }, { en: 'car' })).toBe(true);
+    expect(verwechselbar({ en: 'cat' }, { en: 'dog' })).toBe(false);
+    expect(verwechselbar({ en: 'house' }, { en: 'mouse, mice' })).toBe(true);
+    // Formen desselben Verbs gehören zusammen
+    expect(verwechselbar({ en: 'sing', gruppe: 'v' }, { en: 'sang', gruppe: 'v' })).toBe(false);
+    // Deutsch-Aufgaben haben kein englisches Wort
+    expect(verwechselbar({ id: 'a' }, { id: 'b' })).toBe(false);
   });
 });

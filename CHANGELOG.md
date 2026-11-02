@@ -3,6 +3,14 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.19.0 – 02.11.2026
+
+- Unregelmäßige Verben üben: Jede Form (*go – went – gone*) lernst du einzeln. Beim Auswählen stehen die drei Formen desselben Verbs nebeneinander, und zum Nachsprechen kommt die ganze Reihe.
+- Nach einer richtigen Antwort sagt die App öfter, was passiert ist, zum Beispiel „Das sitzt. Es kommt erst in 7 Tagen wieder.“
+- Neue Wörter kommen über die Lektion verteilt, und Wörter, die sich zum Verwechseln ähneln (*quiet/quite*), sind nicht am selben Tag neu.
+- Auf der Startseite hat der Vorlese-Knopf jeder Kachel einen eigenen Streifen unten. So tippst du nicht mehr aus Versehen auf „Vorlesen“ statt auf „Öffnen“.
+- Für Eltern: Bei „Neue Lektion aus Fotos“ könnt ihr „Unregelmäßige Verben“ wählen. Die KI liest die Liste ab und ergänzt fehlende Formen. Verben lassen sich auch als Liste einfügen („go – went – gone – gehen“).
+
 ## 0.18.0 – 02.11.2026
 
 - Neue Kachel „✏️ Deutsch“: Grammatik üben wie im Heft „Deutsch Fit“ (S. 3–10):

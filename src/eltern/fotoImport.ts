@@ -1,4 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk';
+import type { Verb } from '../lektionen/lektion.ts';
 import type { Vokabel } from '../vokabeln-en/typen.ts';
 import { erzeugeKiClient, KI_MODELL, type KiClientFabrik } from './ki.ts';
 
@@ -7,6 +8,8 @@ export type Bild = { base64: string; medienTyp: 'image/jpeg' };
 
 // ergaenzt: ids der Wörter, deren Übersetzung im Heft fehlte und von der KI stammt
 export type Erkennung = { woerter: Vokabel[]; hinweis: string; ergaenzt: string[] };
+// Dasselbe für eine Tabelle unregelmäßiger Verben
+export type VerbErkennung = { verben: Verb[]; hinweis: string; ergaenzt: string[] };
 
 export type ErkennungsFehler =
   | 'kein-schluessel'
@@ -121,12 +124,17 @@ const SCHEMA = {
   additionalProperties: false,
 } as const;
 
-// Erkennt die Wortpaare auf einem oder mehreren Fotos
-export async function erkenneVokabeln(
+// Fotos mit Anweisung und Schema an die KI schicken und das geprüfte Ergebnis zurückgeben
+async function frageKi<T>(
   schluessel: string,
   bilder: readonly Bild[],
-  fabrik: KiClientFabrik = erzeugeKiClient,
-): Promise<Erkennung> {
+  system: string,
+  schema: Parameters<
+    typeof import('@anthropic-ai/sdk/helpers/beta/json-schema').betaJSONSchemaOutputFormat
+  >[0],
+  text: string,
+  fabrik: KiClientFabrik,
+): Promise<T> {
   const [client, { default: AnthropicSdk }, { betaJSONSchemaOutputFormat }] = await Promise.all([
     fabrik(schluessel),
     import('@anthropic-ai/sdk'),
@@ -141,8 +149,8 @@ export async function erkenneVokabeln(
       // Lehnt das Modell fälschlich ab, übernimmt serverseitig ein passendes anderes Modell
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',
-      system: SYSTEM,
-      output_config: { format: betaJSONSchemaOutputFormat(SCHEMA) },
+      system,
+      output_config: { format: betaJSONSchemaOutputFormat(schema) },
       messages: [
         {
           role: 'user',
@@ -151,13 +159,7 @@ export async function erkenneVokabeln(
               type: 'image',
               source: { type: 'base64', media_type: b.medienTyp, data: b.base64 },
             })),
-            {
-              type: 'text',
-              text:
-                bilder.length > 1
-                  ? `Hier sind ${bilder.length} Fotos derselben Vokabelliste. Lies alle Wortpaare ab.`
-                  : 'Lies alle Wortpaare auf diesem Foto ab.',
-            },
+            { type: 'text', text },
           ],
         },
       ],
@@ -171,7 +173,119 @@ export async function erkenneVokabeln(
   if (antwort.stop_reason === 'max_tokens') throw new FotoImportFehler('zu-viel', 'max_tokens');
   const ergebnis = antwort.parsed_output;
   if (!ergebnis) throw new FotoImportFehler('fehler', `keine Daten (${antwort.stop_reason})`);
+  return ergebnis as T;
+}
+
+// Erkennt die Wortpaare auf einem oder mehreren Fotos
+export async function erkenneVokabeln(
+  schluessel: string,
+  bilder: readonly Bild[],
+  fabrik: KiClientFabrik = erzeugeKiClient,
+): Promise<Erkennung> {
+  const ergebnis = await frageKi<{
+    woerter: { en: string; de: string; ergaenzt: boolean }[];
+    hinweis: string;
+  }>(
+    schluessel,
+    bilder,
+    SYSTEM,
+    SCHEMA,
+    bilder.length > 1
+      ? `Hier sind ${bilder.length} Fotos derselben Vokabelliste. Lies alle Wortpaare ab.`
+      : 'Lies alle Wortpaare auf diesem Foto ab.',
+    fabrik,
+  );
   return bereinige(ergebnis.woerter, ergebnis.hinweis);
+}
+
+const SYSTEM_VERBEN = `Du liest Listen unregelmäßiger englischer Verben aus Schulbüchern, Arbeitsheften und Vokabelheften der Klassen 5 bis 7 ab.
+Die Eltern prüfen dein Ergebnis anschließend, bevor ihr Kind damit übt.
+
+So gehst du vor:
+- Gib jedes Verb genau einmal aus, in der Reihenfolge der Vorlage, mit den drei Formen infinitive, simple past und past participle sowie der deutschen Bedeutung im Infinitiv.
+- Übernimm die englische Schreibweise exakt. Gibt es zwei Formen (z. B. „was/were“), trenne sie mit Komma: „was, were“.
+- Mehrere deutsche Bedeutungen trennst du mit Komma.
+- Oft stehen nicht alle Spalten da (z. B. nur „began – anfangen“), oder das Kind hat die Liste noch nicht fertig ausgefüllt. Ergänze dann die fehlenden Formen nach britischem Schulenglisch und die naheliegendste deutsche Bedeutung, wie sie in der 6. Klasse gelernt wird. Setze dann „ergaenzt“ auf true, sonst auf false.
+- Lass Lautschrift, Beispielsätze, Seitenzahlen, Überschriften und regelmäßige Verben weg.
+- Ist ein Verb unleserlich oder abgeschnitten, lass es weg, statt zu raten, und nenne es im Hinweis.
+- Der Hinweis ist ein kurzer deutscher Satz für die Eltern (z. B. was unsicher war). Ist alles klar, bleibt er leer.`;
+
+const SCHEMA_VERBEN = {
+  type: 'object',
+  properties: {
+    verben: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          infinitive: { type: 'string' },
+          simplePast: { type: 'string' },
+          pastParticiple: { type: 'string' },
+          de: { type: 'string' },
+          ergaenzt: { type: 'boolean' },
+        },
+        required: ['infinitive', 'simplePast', 'pastParticiple', 'de', 'ergaenzt'],
+        additionalProperties: false,
+      },
+    },
+    hinweis: { type: 'string' },
+  },
+  required: ['verben', 'hinweis'],
+  additionalProperties: false,
+} as const;
+
+type RohVerb = {
+  infinitive: string;
+  simplePast: string;
+  pastParticiple: string;
+  de: string;
+  ergaenzt?: boolean;
+};
+
+// Erkennt eine Liste unregelmäßiger Verben auf einem oder mehreren Fotos
+export async function erkenneVerben(
+  schluessel: string,
+  bilder: readonly Bild[],
+  fabrik: KiClientFabrik = erzeugeKiClient,
+): Promise<VerbErkennung> {
+  const ergebnis = await frageKi<{ verben: RohVerb[]; hinweis: string }>(
+    schluessel,
+    bilder,
+    SYSTEM_VERBEN,
+    SCHEMA_VERBEN,
+    bilder.length > 1
+      ? `Hier sind ${bilder.length} Fotos derselben Verbliste. Lies alle Verben ab.`
+      : 'Lies alle Verben auf diesem Foto ab.',
+    fabrik,
+  );
+  return bereinigeVerben(ergebnis.verben, ergebnis.hinweis);
+}
+
+export function bereinigeVerben(
+  roh: readonly RohVerb[],
+  hinweis = '',
+  neueId: () => string = () => crypto.randomUUID(),
+): VerbErkennung {
+  const gesehen = new Set<string>();
+  const verben: Verb[] = [];
+  const ergaenzt: string[] = [];
+  const sauber = (t: string) => t.trim().replace(/\s+/g, ' ');
+  for (const r of roh) {
+    const formen: Verb['formen'] = [
+      sauber(r.infinitive),
+      sauber(r.simplePast),
+      sauber(r.pastParticiple),
+    ];
+    const de = sauber(r.de);
+    const schluessel = formen.join('|').toLowerCase();
+    if (!de || formen.some((f) => !f) || gesehen.has(schluessel)) continue;
+    gesehen.add(schluessel);
+    const id = neueId();
+    verben.push({ id, de, formen });
+    if (r.ergaenzt) ergaenzt.push(id);
+  }
+  if (verben.length === 0) throw new FotoImportFehler('nichts-erkannt');
+  return { verben, hinweis: hinweis.trim(), ergaenzt };
 }
 
 // Leere und doppelte Paare entfernen, ids vergeben

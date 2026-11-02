@@ -198,7 +198,7 @@ describe('DeutschSeite', () => {
 
     // 1. Wählen: richtig
     await userEvent.click(screen.getByRole('button', { name: 'Nomen' }));
-    expect(await screen.findByText(/Richtig! Super gemacht!/)).toBeInTheDocument();
+    expect(await screen.findByText(/Richtig!/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Weiter →' }));
 
     // 2. Schreiben: Umlaut vergessen → eigener Hinweis, Prüffrage, kommt nochmal

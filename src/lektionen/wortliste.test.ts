@@ -1,4 +1,4 @@
-import { liesWortliste } from './wortliste.ts';
+import { liesVerbliste, liesWortliste } from './wortliste.ts';
 
 describe('liesWortliste', () => {
   it('liest Paare mit verschiedenen Trennern', () => {
@@ -31,5 +31,21 @@ describe('liesWortliste', () => {
 
   it('meldet Zeilen ohne Übersetzung', () => {
     expect(liesWortliste('did\ncame – kommen').fehler).toEqual(['did']);
+  });
+});
+
+describe('liesVerbliste', () => {
+  it('liest drei Formen und die Bedeutung', () => {
+    expect(liesVerbliste('go – went – gone – gehen\n2. be\twas, were\tbeen\tsein')).toEqual({
+      verben: [
+        { de: 'gehen', formen: ['go', 'went', 'gone'] },
+        { de: 'sein', formen: ['be', 'was, were', 'been'] },
+      ],
+      fehler: [],
+    });
+  });
+
+  it('meldet Zeilen ohne vier Teile', () => {
+    expect(liesVerbliste('began – anfangen').fehler).toEqual(['began – anfangen']);
   });
 });

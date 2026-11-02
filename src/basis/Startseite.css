@@ -56,7 +56,13 @@
 }
 
 .kachel {
-  position: relative;
+  /* Öffnen oben, Vorlesen als eigener Streifen unten: Ein schneller Daumen auf der Kachel
+     trifft „Öffnen“, nicht aus Versehen den Lautsprecher */
+  display: grid;
+  grid-template-rows: 1fr auto;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+  overflow: hidden;
 }
 
 .kachel a {
@@ -65,9 +71,7 @@
   place-items: center;
   gap: 0.5rem;
   min-height: 6.5rem;
-  padding: 2rem 0.5rem 0.75rem;
-  border-radius: var(--radius);
-  background: var(--farbe-flaeche);
+  padding: 1rem 0.5rem 0.75rem;
   color: var(--farbe-text);
   text-decoration: none;
   font-weight: 700;
@@ -80,9 +84,10 @@
 }
 
 .kachel-vorlesen {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  display: flex;
+  justify-content: center;
+  padding: 0.15rem;
+  border-top: 2px solid var(--farbe-hintergrund);
 }
 
 .kachel-vorlesen button {

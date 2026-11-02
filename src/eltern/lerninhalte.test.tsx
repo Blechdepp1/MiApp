@@ -131,6 +131,40 @@ describe('Lerninhalte', () => {
     expect(screen.getByLabelText(/Eine Zeile pro Wort/)).toHaveValue('did');
   });
 
+  it('bearbeitet eine Verb-Lektion und übernimmt eingefügte Verben', async () => {
+    const verben = lektion('v', {
+      titel: 'Irregular verbs',
+      inhalt: {
+        art: 'verben',
+        verben: [{ id: 'go', de: 'gehen', formen: ['go', 'went', 'gone'] }],
+      },
+    });
+    const { speicher } = await zeige([verben], 'v');
+    expect(await screen.findByLabelText('2. Form 1')).toHaveValue('went');
+    expect(within(liste()).getByText('1 Verb')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('Verbliste einfügen'));
+    await userEvent.type(
+      screen.getByLabelText(/Eine Zeile pro Verb/),
+      'see - saw - seen - sehen{enter}began - anfangen',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Übernehmen' }));
+    expect(screen.getByRole('status')).toHaveTextContent('1 Verben übernommen.');
+    expect(screen.getByLabelText('3. Form 2')).toHaveValue('seen');
+    expect(screen.getByLabelText(/Eine Zeile pro Verb/)).toHaveValue('began - anfangen');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Speichern' }));
+    await vi.waitFor(async () =>
+      expect((await speicher.lade('v'))!.inhalt).toEqual({
+        art: 'verben',
+        verben: [
+          { id: 'go', de: 'gehen', formen: ['go', 'went', 'gone'] },
+          { id: expect.any(String), de: 'sehen', formen: ['see', 'saw', 'seen'] },
+        ],
+      }),
+    );
+  });
+
   it('ändert die Reihenfolge innerhalb einer Gruppe', async () => {
     const { speicher } = await zeige([
       lektion('a', { reihenfolge: 0 }),

@@ -6,6 +6,7 @@ import { protokollImArbeitsspeicher, type Protokoll } from '../daten/protokoll.t
 import { ProtokollProvider } from '../daten/ProtokollKontext.tsx';
 import { speicherImArbeitsspeicher } from '../basis/einstellungen.ts';
 import { EinstellungenProvider } from '../basis/EinstellungenKontext.tsx';
+import { verbFormen } from '../lektionen/lektion.ts';
 import { berechneStaende, schluessel } from './leitner.ts';
 import { Runde } from './Runde.tsx';
 import type { Vokabelliste } from './typen.ts';
@@ -362,5 +363,38 @@ describe('Runde', () => {
     for (let i = 0; i < 3; i++) await antworte(container, true);
     await userEvent.click(await screen.findByRole('button', { name: 'Noch eine Runde' }));
     expect(nochEinmal).toHaveBeenCalled();
+  });
+
+  it('übt unregelmäßige Verben: Auswahl aus den Formen desselben Verbs, Reihe zum Nachsprechen', async () => {
+    const verben: Vokabelliste = {
+      id: 'v',
+      name: 'Irregular verbs',
+      woerter: [
+        ...verbFormen({ id: 'go', de: 'gehen', formen: ['go', 'went', 'gone'] }),
+        ...verbFormen({ id: 'see', de: 'sehen', formen: ['see', 'saw', 'seen'] }),
+      ],
+    };
+    const { container } = render(
+      <ProtokollProvider protokoll={protokollImArbeitsspeicher()}>
+        <Runde
+          listen={[verben]}
+          ereignisse={[]}
+          heute={HEUTE}
+          onNochEinmal={() => {}}
+          sprich={vi.fn(async () => 'fertig' as const)}
+        />
+      </ProtokollProvider>,
+    );
+    const gefragt = frage(container);
+    const wort = verben.woerter.find((w) => w.en === gefragt)!;
+    const optionen = within(container.querySelector('.uebung-optionen')!)
+      .getAllByRole('button', { name: (name) => !name.startsWith('Vorlesen') })
+      .map((o) => o.textContent);
+    // Nur die drei Formen dieses Verbs stehen zur Wahl
+    const eigene = verben.woerter.filter((w) => w.gruppe === wort.gruppe).map((w) => w.de);
+    expect(optionen.sort()).toEqual(eigene.sort());
+    await userEvent.click(screen.getByRole('button', { name: wort.de }));
+    expect(screen.getByRole('status')).toHaveTextContent('Richtig!');
+    expect(screen.getByText(/Sag es laut/)).toHaveTextContent(wort.reihe!);
   });
 });

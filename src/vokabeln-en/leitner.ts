@@ -1,5 +1,6 @@
 import { tagVon } from '../belohnung/logik.ts';
 import type { LernEreignis, Uebung } from '../daten/ereignisse.ts';
+import { abstand, hauptform } from './bewertung.ts';
 import type { Vokabelliste } from './typen.ts';
 
 // Leitner-System mit 5 Fächern: richtig → ein Fach höher und länger Pause, falsch → zurück in Fach 1
@@ -149,7 +150,43 @@ export function rundeAuswaehlen<L extends LernListe = Vokabelliste>(
     );
   const neu = alle.filter((w) => w.stand.fach === 0).sort(zuerst);
   const platzFuerNeu = Math.min(NEU_PRO_RUNDE, RUNDE_MAX - Math.min(faellig.length, RUNDE_MAX));
-  return [...faellig.slice(0, RUNDE_MAX), ...neu.slice(0, platzFuerNeu)];
+  return [...faellig.slice(0, RUNDE_MAX), ...neueWoerter(neu, platzFuerNeu)];
+}
+
+// Neue Wörter nicht streng der Reihe nach, sondern über jede Liste verteilt (V13): Im Heft stehen
+// ähnliche Wörter oft beieinander (Farben, Wochentage), und gleichzeitig neu werden sie leichter
+// verwechselt. Wörter, die sich zum Verwechseln ähneln (quiet/quite), kommen nicht in dieselbe Runde,
+// solange es genug andere gibt.
+function neueWoerter<L extends LernListe>(neu: RundenWort<L>[], anzahl: number): RundenWort<L>[] {
+  const verteilt: RundenWort<L>[] = [];
+  for (const liste of new Set(neu.map((w) => w.liste))) {
+    const eigene = neu.filter((w) => w.liste === liste);
+    const schritt = Math.max(1, Math.ceil(eigene.length / NEU_PRO_RUNDE));
+    for (let start = 0; start < schritt; start++) {
+      for (let i = start; i < eigene.length; i += schritt) verteilt.push(eigene[i]!);
+    }
+  }
+  const gewaehlt: RundenWort<L>[] = [];
+  const zurueck: RundenWort<L>[] = [];
+  for (const w of verteilt) {
+    if (gewaehlt.length >= anzahl) break;
+    if (gewaehlt.some((g) => verwechselbar(g.wort, w.wort))) zurueck.push(w);
+    else gewaehlt.push(w);
+  }
+  return [...gewaehlt, ...zurueck].slice(0, anzahl);
+}
+
+// Nur für Vokabeln (Einträge mit englischem Wort); Formen desselben Verbs gehören zusammen
+export function verwechselbar(a: object, b: object): boolean {
+  if (!('en' in a && 'en' in b) || typeof a.en !== 'string' || typeof b.en !== 'string') {
+    return false;
+  }
+  if ('gruppe' in a && 'gruppe' in b && a.gruppe !== undefined && a.gruppe === b.gruppe) {
+    return false;
+  }
+  const x = hauptform(a.en).toLowerCase();
+  const y = hauptform(b.en).toLowerCase();
+  return abstand(x, y) <= (Math.min(x.length, y.length) >= 5 ? 2 : 1);
 }
 
 // Wenn heute nichts mehr fällig ist: freiwillige Extra-Runde mit bereits geübten Wörtern,

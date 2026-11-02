@@ -20,21 +20,37 @@ const LEKTION = {
   },
 };
 
+const VERBEN = {
+  id: 'verben-1',
+  fach: 'englisch',
+  titel: 'Unregelmäßige Verben',
+  erstellt: '2026-11-02T10:00:00Z',
+  geaendert: '2026-11-02T10:00:00Z',
+  inhalt: {
+    art: 'verben',
+    verben: [
+      { id: 'begin', de: 'anfangen, beginnen', formen: ['begin', 'began', 'begun'] },
+      { id: 'be', de: 'sein', formen: ['be', 'was, were', 'been'] },
+      { id: 'bring', de: 'bringen', formen: ['bring', 'brought', 'brought'] },
+    ],
+  },
+};
+
 async function legeLektionAn(page: Page) {
   await page.evaluate(
-    (lektion) =>
+    (lektionen) =>
       new Promise<void>((fertig) => {
         const anfrage = indexedDB.open('miapp');
         anfrage.onsuccess = () => {
           const tx = anfrage.result.transaction('lektionen', 'readwrite');
-          tx.objectStore('lektionen').put(lektion);
+          for (const lektion of lektionen) tx.objectStore('lektionen').put(lektion);
           tx.oncomplete = () => {
             anfrage.result.close();
             fertig();
           };
         };
       }),
-    LEKTION,
+    [LEKTION, VERBEN],
   );
 }
 
@@ -165,6 +181,22 @@ const ANSICHTEN: Record<string, (page: Page, darstellung: Darstellung) => Promis
     const dialog = await lerninhalte(page, d);
     await dialog.getByText('Unit 5 – Irregular verbs').click();
     await expect(dialog.getByRole('button', { name: '← Alle Lektionen' })).toBeVisible();
+  },
+
+  'Lerninhalte, Verb-Lektion': async (page, d) => {
+    const dialog = await lerninhalte(page, d);
+    await dialog.getByText('Unregelmäßige Verben').click();
+    await expect(dialog.getByLabel('2. Form 2')).toHaveValue('was, were');
+  },
+
+  'Vokabeln, Verben': async (page, d) => {
+    await startseite(page, d);
+    await legeLektionAn(page);
+    await page.reload();
+    await page.getByRole('link', { name: 'Vokabeln' }).click();
+    await page.getByRole('button', { name: /Unregelmäßige Verben/ }).click();
+    await page.locator('.uebung-option').first().click();
+    await expect(page.getByText(/Sag es laut/)).toContainText('–');
   },
 };
 

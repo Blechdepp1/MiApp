@@ -1,4 +1,5 @@
 import { test, expect } from './basis.ts';
+import { DEUTSCH } from './beispielliste.ts';
 
 test('Nachfrage beim Verlassen einer angefangenen Runde', async ({ page }) => {
   await page.goto('./');
@@ -26,15 +27,6 @@ test('Nachfrage beim Verlassen einer angefangenen Runde', async ({ page }) => {
   await page.goBack();
   expect(page.url()).toBe('about:blank');
 });
-
-// Die ersten 5 Wörter der Beispielliste
-const DEUTSCH: Record<string, string> = {
-  house: 'Haus',
-  school: 'Schule',
-  friend: 'Freund, Freundin',
-  family: 'Familie',
-  brother: 'Bruder',
-};
 
 test('Nach einer fertigen Runde führt Zurück ohne Nachfrage zur Startseite', async ({ page }) => {
   await page.goto('./');

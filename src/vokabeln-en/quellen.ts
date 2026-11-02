@@ -67,7 +67,7 @@ export function endspurt(
       lektionId: l.id,
       titel: l.titel,
       tage: Math.min(...termine),
-      woerter: l.inhalt.woerter.length,
+      woerter: alsVokabelliste(l).woerter.length,
     });
   }
   return ergebnis;

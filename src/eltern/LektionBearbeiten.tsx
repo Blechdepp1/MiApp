@@ -1,22 +1,29 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { MitwachsendesFeld } from '../basis/MitwachsendesFeld.tsx';
 import {
   MAX_TITEL,
   STATUS,
   STATUS_TEXT,
   statusVon,
+  type EnglischInhalt,
   type Lektion,
   type LektionStatus,
-  type VokabelInhalt,
 } from '../lektionen/lektion.ts';
-import { liesWortliste } from '../lektionen/wortliste.ts';
-import type { Vokabel } from '../vokabeln-en/typen.ts';
+import { liesVerbliste, liesWortliste } from '../lektionen/wortliste.ts';
+import { EintragFelder } from './Eintraege.tsx';
+import {
+  eintraegeVon,
+  inhaltAus,
+  leererEintrag,
+  NAME,
+  vergleichsText,
+  type Eintrag,
+} from './eintragsArten.ts';
 
 export type Aenderung = {
   titel: string;
   klassenarbeit?: string;
   status: LektionStatus;
-  inhalt: VokabelInhalt;
+  inhalt: EnglischInhalt;
 };
 
 const STATUS_HINWEIS: Record<LektionStatus, string> = {
@@ -25,7 +32,18 @@ const STATUS_HINWEIS: Record<LektionStatus, string> = {
   archiviert: 'Nur noch Wiederholung der Wörter, die sie schon gelernt hat.',
 };
 
-// Eine Vokabel-Lektion bearbeiten. Wörter behalten ihre id, damit der Lernstand erhalten bleibt.
+// Eingefügten Text lesen: Wortpaare oder Verben mit drei Formen
+function liesEinfuegen(art: EnglischInhalt['art'], text: string) {
+  if (art === 'verben') {
+    const { verben, fehler } = liesVerbliste(text);
+    return { neu: verben.map((v): Eintrag => ({ id: crypto.randomUUID(), ...v })), fehler };
+  }
+  const { paare, fehler } = liesWortliste(text);
+  return { neu: paare.map((p): Eintrag => ({ id: crypto.randomUUID(), ...p })), fehler };
+}
+
+// Eine Englisch-Lektion (Vokabeln oder unregelmäßige Verben) bearbeiten. Einträge behalten ihre
+// id, damit der Lernstand erhalten bleibt.
 export function LektionBearbeiten({
   lektion,
   onSpeichern,
@@ -34,7 +52,7 @@ export function LektionBearbeiten({
   onZurueck,
   kopf,
 }: {
-  lektion: Lektion & { inhalt: VokabelInhalt };
+  lektion: Lektion & { inhalt: EnglischInhalt };
   // Wird unter „Alle Lektionen“ angezeigt (z. B. der Lernstand)
   kopf?: ReactNode;
   // liefert einen Fehlertext oder null
@@ -43,12 +61,14 @@ export function LektionBearbeiten({
   onGeaendert: (ungespeichert: boolean) => void;
   onZurueck: () => void;
 }) {
+  const art = lektion.inhalt.art;
+  const name = NAME[art];
   const start = useMemo(
     () => ({
       titel: lektion.titel,
       klassenarbeit: lektion.klassenarbeit ?? '',
       status: statusVon(lektion),
-      woerter: lektion.inhalt.woerter,
+      woerter: eintraegeVon(lektion.inhalt),
     }),
     [lektion],
   );
@@ -65,35 +85,33 @@ export function LektionBearbeiten({
     setStand((s) => ({ ...s, ...neu }));
   }
 
-  function aendereWort(i: number, feld: 'en' | 'de', wert: string) {
-    aendere({ woerter: stand.woerter.map((w, j) => (j === i ? { ...w, [feld]: wert } : w)) });
+  function aendereWort(i: number, neu: Eintrag) {
+    aendere({ woerter: stand.woerter.map((w, j) => (j === i ? neu : w)) });
   }
 
   function uebernehmeListe() {
-    const { paare, fehler } = liesWortliste(einfuegen);
-    const vorhanden = new Set(stand.woerter.map((w) => `${w.en}|${w.de}`.toLowerCase()));
-    const neu: Vokabel[] = paare
-      .filter((p) => !vorhanden.has(`${p.en}|${p.de}`.toLowerCase()))
-      .map((p) => ({ id: crypto.randomUUID(), ...p }));
+    const gelesen = liesEinfuegen(art, einfuegen);
+    const vorhanden = new Set(stand.woerter.map(vergleichsText));
+    const neu = gelesen.neu.filter((e) => !vorhanden.has(vergleichsText(e)));
     aendere({ woerter: [...stand.woerter, ...neu] });
-    setNichtErkannt(fehler);
-    setEinfuegen(fehler.join('\n'));
-    setMeldung({ text: `${neu.length} Wörter übernommen.`, fehler: false });
+    setNichtErkannt(gelesen.fehler);
+    setEinfuegen(gelesen.fehler.join('\n'));
+    setMeldung({ text: `${neu.length} ${name.viele} übernommen.`, fehler: false });
   }
 
   async function speichern() {
-    const woerter = stand.woerter.map((w) => ({ ...w, en: w.en.trim(), de: w.de.trim() }));
+    const inhalt = inhaltAus(art, stand.woerter);
     const fehler = await onSpeichern({
       titel: stand.titel.trim(),
       ...(stand.klassenarbeit && { klassenarbeit: stand.klassenarbeit }),
       status: stand.status,
-      inhalt: { art: 'vokabeln', woerter },
+      inhalt,
     });
     if (fehler) {
       setMeldung({ text: fehler, fehler: true });
       return;
     }
-    setStand((s) => ({ ...s, titel: s.titel.trim(), woerter }));
+    setStand((s) => ({ ...s, titel: s.titel.trim(), woerter: eintraegeVon(inhalt) }));
     setMeldung({ text: '✓ Gespeichert', fehler: false });
   }
 
@@ -137,25 +155,23 @@ export function LektionBearbeiten({
         <p className="eltern-hinweis">{STATUS_HINWEIS[stand.status]}</p>
       </fieldset>
 
-      <h3>Wörter ({stand.woerter.length})</h3>
+      <h3>
+        {name.viele} ({stand.woerter.length})
+      </h3>
+      {art === 'verben' && (
+        <p className="eltern-hinweis">
+          Je Verb: 1. Form (infinitive), 2. Form (simple past), 3. Form (past participle), dann
+          Deutsch. Mehrere Möglichkeiten mit Komma, z. B. „was, were“.
+        </p>
+      )}
       <ul className="verwalten-liste bearbeiten-woerter">
         {stand.woerter.map((w, i) => (
           <li key={w.id}>
-            <MitwachsendesFeld
-              aria-label={`Englisch ${i + 1}`}
-              lang="en"
-              value={w.en}
-              onChange={(wert) => aendereWort(i, 'en', wert)}
-            />
-            <MitwachsendesFeld
-              aria-label={`Deutsch ${i + 1}`}
-              value={w.de}
-              onChange={(wert) => aendereWort(i, 'de', wert)}
-            />
+            <EintragFelder eintrag={w} nr={i + 1} onAendern={(neu) => aendereWort(i, neu)} />
             <button
               type="button"
               className="verwalten-entfernen"
-              aria-label={`Wort ${i + 1} löschen`}
+              aria-label={`${name.einer} ${i + 1} löschen`}
               onClick={() => aendere({ woerter: stand.woerter.filter((_, j) => j !== i) })}
             >
               🗑️
@@ -166,23 +182,27 @@ export function LektionBearbeiten({
       <div className="verbinden-knoepfe">
         <button
           type="button"
-          onClick={() =>
-            aendere({ woerter: [...stand.woerter, { id: crypto.randomUUID(), en: '', de: '' }] })
-          }
+          onClick={() => aendere({ woerter: [...stand.woerter, leererEintrag(art)] })}
         >
-          + Wort
+          + {name.einer}
         </button>
       </div>
 
       <details className="bearbeiten-einfuegen">
-        <summary>Wortliste einfügen</summary>
+        <summary>{art === 'verben' ? 'Verbliste' : 'Wortliste'} einfügen</summary>
         <label>
-          <span>Eine Zeile pro Wort, z. B. „began – anfangen, beginnen“</span>
+          <span>
+            {art === 'verben'
+              ? 'Eine Zeile pro Verb, z. B. „go – went – gone – gehen“'
+              : 'Eine Zeile pro Wort, z. B. „began – anfangen, beginnen“'}
+          </span>
           <textarea rows={6} value={einfuegen} onChange={(e) => setEinfuegen(e.target.value)} />
         </label>
         {nichtErkannt.length > 0 && (
           <p className="eltern-hinweis">
-            Diese Zeilen haben keine Übersetzung oder keinen Trenner und stehen noch oben im Feld.
+            {art === 'verben'
+              ? 'Diese Zeilen haben nicht drei Formen und eine Bedeutung und stehen noch oben im Feld.'
+              : 'Diese Zeilen haben keine Übersetzung oder keinen Trenner und stehen noch oben im Feld.'}
           </p>
         )}
         <div className="verbinden-knoepfe">

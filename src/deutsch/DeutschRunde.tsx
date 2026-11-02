@@ -22,6 +22,7 @@ import {
   type DeutschAntwort,
 } from './Aufgaben.tsx';
 import { loesungVon } from './auswahl.ts';
+import { lobText } from '../vokabeln-en/rueckmeldung.ts';
 import { HINWEIS_TEXT } from './bewertung.ts';
 import type { Aufgabe, Thema } from './typen.ts';
 import '../vokabeln-en/Vokabeln.css';
@@ -58,7 +59,7 @@ export function DeutschRunde({
     woerter.map((eintrag) => ({ eintrag, wiederholung: false })),
   );
   const [nr, setNr] = useState(0);
-  const [antwort, setAntwort] = useState<DeutschAntwort | null>(null);
+  const [antwort, setAntwort] = useState<(DeutschAntwort & { lob?: string }) | null>(null);
   const [zaehler, setZaehler] = useState({ richtig: 0, mitHilfe: 0, verbessert: 0 });
   const [ergebnis, setErgebnis] = useState<Ergebnis | null>(null);
   const verlassen = useVerlassenBestaetigen((nr > 0 || antwort !== null) && !ergebnis);
@@ -85,8 +86,9 @@ export function DeutschRunde({
   const { liste, wort: aufgabe } = schritt.eintrag;
 
   function beantworten(a: DeutschAntwort) {
+    const vorher = wortStand(staende, liste.id, aufgabe.id);
     const { stand, verbessert } = naechsterStand(
-      wortStand(staende, liste.id, aufgabe.id),
+      vorher,
       { richtig: a.richtig, uebung: UEBUNG[aufgabe.art], mitHilfe: a.mitHilfe },
       heute,
     );
@@ -99,7 +101,14 @@ export function DeutschRunde({
     if (!a.richtig && !schritt!.wiederholung) {
       setSchritte((s) => [...s, { eintrag: schritt!.eintrag, wiederholung: true }]);
     }
-    setAntwort(a);
+    setAntwort({
+      ...a,
+      ...(a.richtig && {
+        lob: a.mitHilfe
+          ? 'Richtig! Der Tipp hat geholfen. Morgen probierst du es ohne Tipp.'
+          : lobText(vorher, stand, { verbessert, nr, heute }),
+      }),
+    });
     protokoll.hinzufuegen({
       typ: 'antwort',
       listeId: liste.id,
@@ -177,13 +186,13 @@ function Rueckmeldung({
   kommtNochmal,
   onWeiter,
 }: {
-  antwort: DeutschAntwort;
+  antwort: DeutschAntwort & { lob?: string };
   aufgabe: Aufgabe;
   kommtNochmal: boolean;
   onWeiter: () => void;
 }) {
   const loesung = loesungVon(aufgabe);
-  const lob = antwort.mitHilfe ? 'Richtig! Der Tipp hat geholfen.' : 'Richtig! Super gemacht!';
+  const lob = antwort.lob ?? 'Richtig! Super gemacht!';
   const nochmal = kommtNochmal ? ' Die Aufgabe kommt gleich noch einmal.' : '';
   const erklaerung = antwort.hinweis ? HINWEIS_TEXT[antwort.hinweis] : 'Nicht schlimm!';
   return (

@@ -24,6 +24,7 @@ import { antwortOptionen, sprechtext, type Zufall } from './runde.ts';
 import type { Vokabel, Vokabelliste } from './typen.ts';
 import { hauptform } from './bewertung.ts';
 import { Nachschreiben } from './Nachschreiben.tsx';
+import { lobText } from './rueckmeldung.ts';
 import { UebungSchreiben } from './UebungSchreiben.tsx';
 import { UebungWaehlen } from './UebungWaehlen.tsx';
 import { Zusammenfassung, type Ergebnis } from './Zusammenfassung.tsx';
@@ -48,7 +49,14 @@ function vorbereiten(
 }
 
 // eingabe: in der Schreibübung Getipptes (für die Markierung der Fehlerstelle)
-type Antwort = { richtig: boolean; fast?: boolean; mitHilfe?: boolean; eingabe?: string };
+// lob: Text nach einer richtigen Antwort (sagt, was passiert ist)
+type Antwort = {
+  richtig: boolean;
+  fast?: boolean;
+  mitHilfe?: boolean;
+  eingabe?: string;
+  lob?: string;
+};
 
 export function Runde({
   listen,
@@ -150,7 +158,15 @@ export function Runde({
     if (!richtig && !schritt.wiederholung) {
       setSchritte((s) => [...s, { eintrag: schritt.eintrag, wiederholung: true }]);
     }
-    setAntwort({ richtig, fast, mitHilfe, ...(eingabe !== undefined && { eingabe }) });
+    setAntwort({
+      richtig,
+      fast,
+      mitHilfe,
+      ...(eingabe !== undefined && { eingabe }),
+      ...(richtig && {
+        lob: lobText(stand, neu, { mitHilfe, verbessert, nr: aktuell!.nr, heute }),
+      }),
+    });
     // Das englische Wort gleich noch einmal hören, während es zu sehen ist (Klang, Schriftbild und
     // Bedeutung zusammen; bei LRS besonders hilfreich). Abschaltbar in den Einstellungen.
     if (einstellungen.wortVorsagen === 'an') {
@@ -285,7 +301,7 @@ function Rueckmeldung({
   onWeiter: () => void;
 }) {
   const { einstellungen } = useEinstellungen();
-  const lob = 'Richtig! Super gemacht!';
+  const lob = antwort.lob ?? 'Richtig! Super gemacht!';
   const fast = 'Fast richtig! Das zählt. So schreibt man es:';
   return (
     <div className="runde-rueckmeldung" data-richtig={antwort.richtig}>
@@ -331,9 +347,13 @@ function Rueckmeldung({
       )}
       {einstellungen.nachsprechen === 'an' && (
         <p className="runde-nachsprechen">
-          <VorleseKnopf text={sprechtext(wort.en)} sprache="en" />
+          {/* Bei Verben die ganze Reihe im Rhythmus: go – went – gone */}
+          <VorleseKnopf
+            text={sprechtext(wort.reihe?.replaceAll(' – ', ', ') ?? wort.en)}
+            sprache="en"
+          />
           <span>
-            🗣️ Sag es laut: <strong lang="en">{hauptform(wort.en)}</strong>
+            🗣️ Sag es laut: <strong lang="en">{wort.reihe ?? hauptform(wort.en)}</strong>
           </span>
         </p>
       )}

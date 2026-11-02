@@ -6,10 +6,13 @@ import { LektionenProvider } from '../lektionen/LektionenKontext.tsx';
 import { lektionenImArbeitsspeicher, type LektionenSpeicher } from '../lektionen/speicher.ts';
 import {
   bereinige,
+  bereinigeVerben,
+  erkenneVerben,
   erkenneVokabeln,
   FotoImportFehler,
   type Bild,
   type Erkennung,
+  type VerbErkennung,
 } from './fotoImport.ts';
 import { geraetImArbeitsspeicher, type Rolle } from './geraet.ts';
 import { GeraetProvider } from './GeraetKontext.tsx';
@@ -93,6 +96,52 @@ describe('erkenneVokabeln', () => {
   });
 });
 
+describe('erkenneVerben', () => {
+  it('liest eine Verbliste mit drei Formen und merkt Ergänztes', async () => {
+    const { f, anfragen } = fabrik({
+      stop_reason: 'end_turn',
+      parsed_output: {
+        verben: [
+          {
+            infinitive: 'begin',
+            simplePast: 'began',
+            pastParticiple: 'begun',
+            de: 'anfangen, beginnen',
+            ergaenzt: true,
+          },
+          {
+            infinitive: 'be',
+            simplePast: 'was, were',
+            pastParticiple: 'been',
+            de: 'sein',
+            ergaenzt: false,
+          },
+        ],
+        hinweis: '',
+      },
+    });
+    const ergebnis = await erkenneVerben('k', [BILD], f);
+    expect(ergebnis.verben.map((v) => [v.formen, v.de])).toEqual([
+      [['begin', 'began', 'begun'], 'anfangen, beginnen'],
+      [['be', 'was, were', 'been'], 'sein'],
+    ]);
+    expect(ergebnis.ergaenzt).toEqual([ergebnis.verben[0]!.id]);
+    expect(JSON.stringify(anfragen[0])).toContain('unregelmäßiger englischer Verben');
+  });
+
+  it('entfernt unvollständige und doppelte Verben', () => {
+    let n = 0;
+    const roh = { infinitive: 'go', simplePast: 'went', pastParticiple: 'gone', de: 'gehen' };
+    const { verben } = bereinigeVerben(
+      [roh, { ...roh, de: 'laufen' }, { ...roh, infinitive: 'see', simplePast: '' }],
+      '',
+      () => `v${++n}`,
+    );
+    expect(verben).toEqual([{ id: 'v1', de: 'gehen', formen: ['go', 'went', 'gone'] }]);
+    expect(() => bereinigeVerben([], '')).toThrow(FotoImportFehler);
+  });
+});
+
 describe('bereinige', () => {
   it('entfernt Leeres und Doppeltes und vergibt ids', () => {
     let n = 0;
@@ -140,10 +189,19 @@ describe('Lektionen (Ansicht)', () => {
     hinweis: 'Ein Wort war schwer zu lesen.',
     ergaenzt: [],
   };
+  const VERBEN: VerbErkennung = {
+    verben: [
+      { id: 'v1', de: 'gehen', formen: ['go', 'went', 'gone'] },
+      { id: 'v2', de: 'sehen', formen: ['see', 'saw', 'sen'] },
+    ],
+    hinweis: '',
+    ergaenzt: ['v1'],
+  };
 
   async function zeige({
     rolle = 'eltern' as Rolle,
     erkenne = vi.fn(async () => ERKANNT),
+    erkenneV = vi.fn(async () => VERBEN),
     schluessel = 'sk-ant-test' as string | undefined,
     lektionen = lektionenImArbeitsspeicher() as LektionenSpeicher,
     entwurf = wertImArbeitsspeicher<Entwurf | null>(),
@@ -158,6 +216,7 @@ describe('Lektionen (Ansicht)', () => {
           <Lektionen
             kiSchluessel={wertImArbeitsspeicher(schluessel)}
             erkenne={erkenne}
+            erkenneV={erkenneV}
             leseBild={leseBild}
             entwurf={entwurf}
             kamera={kamera}
@@ -166,7 +225,7 @@ describe('Lektionen (Ansicht)', () => {
       </LektionenProvider>,
     );
     await screen.findByRole('heading', { name: 'Lektionen' });
-    return { lektionen, erkenne, leseBild, entwurf };
+    return { lektionen, erkenne, erkenneV, leseBild, entwurf };
   }
 
   async function fotoHochladen() {
@@ -209,6 +268,35 @@ describe('Lektionen (Ansicht)', () => {
         { en: 'house', de: 'Haus' },
         { en: 'school', de: 'Schule' },
         { en: 'teacher', de: 'Lehrer' },
+      ],
+    });
+  });
+
+  it('legt eine Lektion mit unregelmäßigen Verben an', async () => {
+    const { lektionen, erkenne, erkenneV } = await zeige();
+    await userEvent.click(await screen.findByRole('button', { name: '📷 Neue Lektion aus Fotos' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Unregelmäßige Verben' }));
+    await userEvent.type(screen.getByLabelText('Titel'), 'Irregular verbs');
+    await fotoHochladen();
+    await userEvent.click(screen.getByRole('button', { name: 'Fotos auswerten' }));
+
+    expect(await screen.findByText(/2 Verben erkannt/)).toBeInTheDocument();
+    expect(erkenneV).toHaveBeenCalledWith('sk-ant-test', [BILD]);
+    expect(erkenne).not.toHaveBeenCalled();
+    expect(screen.getByText(/Bei 1 Verb hat die KI/)).toBeInTheDocument();
+
+    const fehler = screen.getByLabelText('3. Form 2');
+    await userEvent.clear(fehler);
+    await userEvent.type(fehler, 'seen');
+    await userEvent.click(screen.getByRole('button', { name: 'Freigeben' }));
+
+    expect(await screen.findByText('2 Verben')).toBeInTheDocument();
+    const [gespeichert] = await lektionen.alle();
+    expect(gespeichert!.inhalt).toEqual({
+      art: 'verben',
+      verben: [
+        { id: 'v1', de: 'gehen', formen: ['go', 'went', 'gone'] },
+        { id: 'v2', de: 'sehen', formen: ['see', 'saw', 'seen'] },
       ],
     });
   });
@@ -348,7 +436,7 @@ describe('Lektionen (Ansicht)', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     await zeige({ lektionen });
     const zeile = (await screen.findByText('Unit 1')).closest('li')!;
-    expect(within(zeile).getByText('1 Wörter')).toBeInTheDocument();
+    expect(within(zeile).getByText('1 Wort')).toBeInTheDocument();
     await userEvent.click(within(zeile).getByRole('button', { name: 'Unit 1 bearbeiten' }));
     await userEvent.click(screen.getByRole('button', { name: '🗑️ Lektion löschen' }));
     await userEvent.click(screen.getByRole('button', { name: 'Schließen' }));

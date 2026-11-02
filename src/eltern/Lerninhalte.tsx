@@ -6,6 +6,7 @@ import { fortschritt } from './statistik.ts';
 import {
   alsVokabelliste,
   istVokabelLektion,
+  umfang,
   pruefeLektion,
   sortiereLektionen,
   STATUS,
@@ -26,7 +27,7 @@ const FAECHER: { fach: string; name: string }[] = [
 const VERWERFEN = 'Deine Änderungen an dieser Lektion sind noch nicht gespeichert. Verwerfen?';
 
 function beschreibung(l: Lektion): string {
-  const teile = [istVokabelLektion(l) ? `${l.inhalt.woerter.length} Wörter` : l.fach];
+  const teile = [umfang(l)];
   if (l.klassenarbeit) {
     teile.push(`Klassenarbeit ${new Date(l.klassenarbeit).toLocaleDateString('de-DE')}`);
   }

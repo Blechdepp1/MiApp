@@ -101,6 +101,8 @@ Nichts in der App **widerspricht** den LRS-Grundsätzen oder dem Forschungsstand
 
 ### V4 Unregelmäßige Verben (Rang 4) 🔒
 
+> **Umgesetzt in 0.19.0:** Inhaltsart `{ art: 'verben', verben: { id, de, formen }[] }`. Jede Form wird ein eigenes Wort (`verbId-1/2/3`, eigener Leitner-Stand); gleiche Formen (*brought/brought*, *put/put/put*) werden zusammengefasst, damit beim Anhören klar ist, welche gemeint ist. Beim Wählen stehen die Formen desselben Verbs zur Auswahl, das Nachsprechen zeigt die ganze Reihe. Foto-Import mit eigener KI-Anweisung (ergänzt fehlende Formen, markiert sie), Einfügen als „go – went – gone – gehen“. Gruppen nach Klangmuster sind noch offen.
+
 **Was Milena erlebt:** Eine eigene Lektionsart „Verben“. Sie hört die Reihe im Rhythmus (*go – went – gone*) und spricht mit, wählt dann die richtige Vergangenheitsform aus drei, später schreibt sie einzelne Formen („gehen, Vergangenheit: ___“). Verben mit gleichem Klangmuster stehen in Gruppen (*sing/sang/sung, drink/drank/drunk*).
 **Warum:** In Klasse 6 kommen meist das *simple past* und die unregelmäßigen Verben. Sie müssen auswendig gelernt werden. Konsens: nach Häufigkeit und Klangmuster ordnen, laut im Rhythmus sprechen, jede Form einzeln abfragen (⚪, Klangmuster 🟡). Heute lassen sich Dreierreihen nicht sinnvoll eintragen (L5).
 **Dateien:** `src/lektionen/lektion.ts` (neue Inhaltsart `{ art: 'verben', verben: { id, de, formen: [inf, past, participle] }[] }`), `src/eltern/fotoImport.ts` (Schema und Anweisung für Verbtabellen), `src/eltern/LektionBearbeiten.tsx`, neues Übungsmodul (z. B. `src/vokabeln-en/verben.ts` + `UebungVerb.tsx`), `leitner.ts` (Stand je Verb**form**, Schlüssel `listeId/verbId/form`), `quellen.ts`, Tests und E2E
@@ -177,11 +179,15 @@ Nichts in der App **widerspricht** den LRS-Grundsätzen oder dem Forschungsstand
 
 ### V12 Rückmeldetexte, die informieren (Rang 12)
 
+> **Umgesetzt in 0.19.0** (`rueckmeldung.ts`), auch in den Deutsch-Runden.
+
 **Was Milena erlebt:** Statt immer „Richtig! Super gemacht!“ wechseln die Texte und sagen manchmal, was passiert: „Richtig! *night* kennst du jetzt seit einer Woche.“ / „Richtig! Das Wort kommt erst in 7 Tagen wieder.“
 **Warum:** Informierende Rückmeldung wirkt stärker als reines Lob (Wisniewski u. a. 2020 🟢), und Kompetenzerleben motiviert (⚪).
 **Dateien:** `src/vokabeln-en/Runde.tsx` (`Rueckmeldung`), Tests
 
 ### V13 Ähnliche neue Wörter trennen (Rang 13)
+
+> **Umgesetzt in 0.19.0:** neue Wörter mit festem Schritt über jede Liste verteilt; verwechselbare Wörter (Abstand ≤ 1, ab 5 Buchstaben ≤ 2) nicht in derselben Runde, solange es genug andere gibt.
 
 **Was Milena erlebt:** Nichts. Neue Wörter werden nicht mehr streng in Listenreihenfolge eingeführt, sondern über die Lektion verteilt, damit z. B. nicht fünf Farben am selben Tag neu sind.
 **Warum:** Ähnliche neue Wörter werden leichter verwechselt (Nakata & Suzuki 2019 🟡). Die Evidenz ist schwach, der Aufwand aber klein.

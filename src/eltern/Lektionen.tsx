@@ -1,24 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
-import { MitwachsendesFeld } from '../basis/MitwachsendesFeld.tsx';
 import { dexieWert, type GespeicherterWert } from '../daten/schluesselWert.ts';
 import {
-  istVokabelLektion,
   MAX_TITEL,
   pruefeLektion,
   sortiereLektionen,
   STATUS_TEXT,
   statusVon,
+  umfang,
   type Lektion,
 } from '../lektionen/lektion.ts';
 import { useLektionen, useLektionenSpeicher } from '../lektionen/LektionenKontext.tsx';
-import type { Vokabel } from '../vokabeln-en/typen.ts';
+import { EintragFelder } from './Eintraege.tsx';
+import { inhaltAus, leererEintrag, NAME, type Art, type Eintrag } from './eintragsArten.ts';
 import {
+  erkenneVerben,
   erkenneVokabeln,
   FEHLER_TEXT,
   FotoImportFehler,
   verkleinere,
   type Bild,
   type Erkennung,
+  type VerbErkennung,
 } from './fotoImport.ts';
 import { useGeraet } from './GeraetKontext.tsx';
 import { Kamera } from './Kamera.tsx';
@@ -30,19 +32,21 @@ type Foto = { datei: File; vorschau: string };
 
 // Angefangene Lektion. Android beendet die App oft, während die Kamera offen ist;
 // danach geht es mit Titel, Datum und Fotos weiter, statt von vorn zu beginnen.
-export type Entwurf = { titel: string; klassenarbeit: string; fotos: File[] };
+// inhaltsArt fehlt bei Entwürfen älterer Versionen und gilt dann als Vokabeln
+export type Entwurf = { titel: string; klassenarbeit: string; fotos: File[]; inhaltsArt?: Art };
 const standardEntwurf = dexieWert<Entwurf | null>('lektion-entwurf');
 
 type Schritt =
   | { art: 'liste' }
   | { art: 'neu'; fehler?: string; detail?: string }
   | { art: 'auswerten' }
-  | { art: 'vorschau'; woerter: Vokabel[]; hinweis: string; ergaenzt: string[]; fehler?: string };
+  | { art: 'vorschau'; eintraege: Eintrag[]; hinweis: string; ergaenzt: string[]; fehler?: string };
 
-// Lektionen ansehen und neue aus Fotos anlegen (Englisch-Vokabeln in Version 1)
+// Lektionen ansehen und neue aus Fotos anlegen (Englisch: Vokabeln oder unregelmäßige Verben)
 export function Lektionen({
   kiSchluessel = standardKiSchluessel,
   erkenne = erkenneVokabeln,
+  erkenneV = erkenneVerben,
   leseBild = verkleinere,
   entwurf = standardEntwurf,
   kamera = kameraVerfuegbar() ? {} : undefined,
@@ -52,6 +56,7 @@ export function Lektionen({
   entwurf?: GespeicherterWert<Entwurf | null>;
   kiSchluessel?: GespeicherterWert<string>;
   erkenne?: (schluessel: string, bilder: Bild[]) => Promise<Erkennung>;
+  erkenneV?: (schluessel: string, bilder: Bild[]) => Promise<VerbErkennung>;
   leseBild?: (datei: File) => Promise<Bild>;
 }) {
   const istEltern = useGeraet().geraet?.rolle === 'eltern';
@@ -60,6 +65,7 @@ export function Lektionen({
   const [schritt, setSchritt] = useState<Schritt>({ art: 'liste' });
   const [titel, setTitel] = useState('');
   const [klassenarbeit, setKlassenarbeit] = useState('');
+  const [inhaltsArt, setInhaltsArt] = useState<Art>('vokabeln');
   const [fotos, setFotos] = useState<Foto[]>([]);
 
   // Vorschaubilder beim Verlassen der Seite freigeben
@@ -83,6 +89,7 @@ export function Lektionen({
           neu.forEach((f) => offeneVorschauen.current.add(f.vorschau));
           setTitel(e.titel);
           setKlassenarbeit(e.klassenarbeit);
+          setInhaltsArt(e.inhaltsArt ?? 'vokabeln');
           setFotos(neu);
           setSchritt({ art: 'neu' });
         }
@@ -96,9 +103,11 @@ export function Lektionen({
   useEffect(() => {
     if (!entwurfGeladen || schritt.art === 'vorschau') return;
     const wert =
-      schritt.art === 'liste' ? null : { titel, klassenarbeit, fotos: fotos.map((f) => f.datei) };
+      schritt.art === 'liste'
+        ? null
+        : { titel, klassenarbeit, inhaltsArt, fotos: fotos.map((f) => f.datei) };
     entwurf.speichern(wert).catch(() => {});
-  }, [entwurf, entwurfGeladen, schritt.art, titel, klassenarbeit, fotos]);
+  }, [entwurf, entwurfGeladen, schritt.art, titel, klassenarbeit, inhaltsArt, fotos]);
 
   // Neue Lektion als eigene Vollbild-Ansicht: Jeder Schritt beginnt oben, nichts springt
   const vollbild = useRef<HTMLDivElement>(null);
@@ -120,6 +129,7 @@ export function Lektionen({
     fotos.forEach(fotoEntfernen);
     setTitel('');
     setKlassenarbeit('');
+    setInhaltsArt('vokabeln');
     setSchritt({ art: 'liste' });
   }
 
@@ -150,8 +160,13 @@ export function Lektionen({
           );
         }
       }
-      const { woerter, hinweis, ergaenzt } = await erkenne(schluessel, bilder);
-      setSchritt({ art: 'vorschau', woerter, hinweis, ergaenzt });
+      if (inhaltsArt === 'verben') {
+        const { verben, hinweis, ergaenzt } = await erkenneV(schluessel, bilder);
+        setSchritt({ art: 'vorschau', eintraege: verben, hinweis, ergaenzt });
+      } else {
+        const { woerter, hinweis, ergaenzt } = await erkenne(schluessel, bilder);
+        setSchritt({ art: 'vorschau', eintraege: woerter, hinweis, ergaenzt });
+      }
     } catch (fehler) {
       // Fotos bleiben erhalten, damit man es direkt noch einmal versuchen kann
       const art = fehler instanceof FotoImportFehler ? fehler.art : 'fehler';
@@ -165,7 +180,7 @@ export function Lektionen({
     }
   }
 
-  async function freigeben(woerter: Vokabel[], hinweis: string) {
+  async function freigeben(eintraege: Eintrag[], hinweis: string) {
     const jetzt = new Date().toISOString();
     const lektion: Lektion = {
       id: crypto.randomUUID(),
@@ -174,14 +189,11 @@ export function Lektionen({
       ...(klassenarbeit && { klassenarbeit }),
       erstellt: jetzt,
       geaendert: jetzt,
-      inhalt: {
-        art: 'vokabeln',
-        woerter: woerter.map((w) => ({ ...w, en: w.en.trim(), de: w.de.trim() })),
-      },
+      inhalt: inhaltAus(inhaltsArt, eintraege),
     };
     const fehler = pruefeLektion(lektion);
     if (fehler) {
-      setSchritt({ art: 'vorschau', woerter, hinweis, ergaenzt: [], fehler });
+      setSchritt({ art: 'vorschau', eintraege, hinweis, ergaenzt: [], fehler });
       return;
     }
     await speicher.speichere(lektion);
@@ -204,7 +216,7 @@ export function Lektionen({
                   <span className="lektion-text">
                     <strong>{l.titel}</strong>
                     <span>
-                      {istVokabelLektion(l) ? `${l.inhalt.woerter.length} Wörter` : l.fach}
+                      {umfang(l)}
                       {statusVon(l) !== 'aktiv' && ` · ${STATUS_TEXT[statusVon(l)]}`}
                       {l.klassenarbeit &&
                         ` · Klassenarbeit ${new Date(l.klassenarbeit).toLocaleDateString('de-DE')}`}
@@ -248,9 +260,26 @@ export function Lektionen({
           <h2>Neue Lektion</h2>
           {schritt.art === 'neu' && (
             <div className="lektion-neu">
-              <p>
-                Fach: <strong>Englisch – Vokabeln</strong>
-              </p>
+              <fieldset className="bearbeiten-status">
+                <legend>Englisch – was ist auf den Fotos?</legend>
+                <div>
+                  {(['vokabeln', 'verben'] as const).map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      aria-pressed={inhaltsArt === a}
+                      onClick={() => setInhaltsArt(a)}
+                    >
+                      {a === 'verben' ? 'Unregelmäßige Verben' : 'Vokabeln'}
+                    </button>
+                  ))}
+                </div>
+                {inhaltsArt === 'verben' && (
+                  <p className="eltern-hinweis">
+                    Eine Liste wie „go – went – gone – gehen“. Fehlende Formen ergänzt die KI.
+                  </p>
+                )}
+              </fieldset>
               <label>
                 <span>Titel</span>
                 <input
@@ -350,7 +379,8 @@ export function Lektionen({
 
           {schritt.art === 'vorschau' && (
             <Vorschau
-              woerter={schritt.woerter}
+              art={inhaltsArt}
+              eintraege={schritt.eintraege}
               hinweis={schritt.hinweis}
               ergaenzt={schritt.ergaenzt}
               fehler={schritt.fehler}
@@ -382,7 +412,8 @@ export function Lektionen({
 }
 
 function Vorschau({
-  woerter: start,
+  art,
+  eintraege: start,
   hinweis,
   ergaenzt: startErgaenzt,
   fehler,
@@ -391,37 +422,42 @@ function Vorschau({
   onFreigeben,
   onVerwerfen,
 }: {
-  woerter: Vokabel[];
+  art: Art;
+  eintraege: Eintrag[];
   hinweis: string;
   ergaenzt: string[];
   fehler?: string;
   titel: string;
   setTitel: (t: string) => void;
-  onFreigeben: (woerter: Vokabel[], hinweis: string) => void;
+  onFreigeben: (eintraege: Eintrag[], hinweis: string) => void;
   onVerwerfen: () => void;
 }) {
-  const [woerter, setWoerter] = useState(start);
-  // Markierung verschwindet, sobald die Eltern die Übersetzung selbst anpassen
+  const name = NAME[art];
+  const [eintraege, setEintraege] = useState(start);
+  // Markierung verschwindet, sobald die Eltern das Ergänzte selbst anpassen
   const [ergaenzt, setErgaenzt] = useState(() => new Set(startErgaenzt));
-  const anzahlErgaenzt = woerter.filter((w) => ergaenzt.has(w.id)).length;
+  const anzahlErgaenzt = eintraege.filter((w) => ergaenzt.has(w.id)).length;
 
-  function aendere(i: number, feld: 'en' | 'de', wert: string) {
-    const id = woerter[i]!.id;
-    if (feld === 'de' && ergaenzt.has(id)) {
-      setErgaenzt(new Set([...ergaenzt].filter((e) => e !== id)));
+  function aendere(i: number, neu: Eintrag) {
+    const alt = eintraege[i]!;
+    if (ergaenzt.has(alt.id) && ('formen' in neu || neu.de !== alt.de)) {
+      setErgaenzt(new Set([...ergaenzt].filter((e) => e !== alt.id)));
     }
-    setWoerter(woerter.map((w, j) => (j === i ? { ...w, [feld]: wert } : w)));
+    setEintraege(eintraege.map((w, j) => (j === i ? neu : w)));
   }
 
   return (
     <div className="lektion-neu">
       <p role="status">
-        ✓ {woerter.length} Wörter erkannt. Bitte kurz prüfen und bei Bedarf korrigieren.
+        ✓ {eintraege.length} {name.viele} erkannt. Bitte kurz prüfen und bei Bedarf korrigieren.
       </p>
       {anzahlErgaenzt > 0 && (
         <p className="eltern-hinweis">
-          ✨ {anzahlErgaenzt === 1 ? '1 Übersetzung hat' : `${anzahlErgaenzt} Übersetzungen hat`}{' '}
-          die KI ergänzt, weil sie im Heft noch fehlte. Sie sind markiert, bitte besonders prüfen.
+          ✨{' '}
+          {art === 'verben'
+            ? `Bei ${anzahlErgaenzt === 1 ? '1 Verb' : `${anzahlErgaenzt} Verben`} hat die KI Formen oder die Bedeutung ergänzt.`
+            : `${anzahlErgaenzt === 1 ? '1 Übersetzung hat' : `${anzahlErgaenzt} Übersetzungen hat`} die KI ergänzt, weil sie im Heft noch fehlte.`}{' '}
+          Sie sind markiert, bitte besonders prüfen.
         </p>
       )}
       {hinweis && <p className="eltern-hinweis">Hinweis der KI: {hinweis}</p>}
@@ -430,19 +466,9 @@ function Vorschau({
         <input value={titel} maxLength={MAX_TITEL} onChange={(e) => setTitel(e.target.value)} />
       </label>
       <ul className="verwalten-liste">
-        {woerter.map((w, i) => (
+        {eintraege.map((w, i) => (
           <li key={w.id} className={ergaenzt.has(w.id) ? 'lektion-ergaenzt' : undefined}>
-            <MitwachsendesFeld
-              aria-label={`Englisch ${i + 1}`}
-              lang="en"
-              value={w.en}
-              onChange={(wert) => aendere(i, 'en', wert)}
-            />
-            <MitwachsendesFeld
-              aria-label={`Deutsch ${i + 1}`}
-              value={w.de}
-              onChange={(wert) => aendere(i, 'de', wert)}
-            />
+            <EintragFelder eintrag={w} nr={i + 1} onAendern={(neu) => aendere(i, neu)} />
             {ergaenzt.has(w.id) && (
               <span role="img" aria-label="Von der KI ergänzt" title="Von der KI ergänzt">
                 ✨
@@ -451,8 +477,8 @@ function Vorschau({
             <button
               type="button"
               className="verwalten-entfernen"
-              aria-label={`Wort ${i + 1} löschen`}
-              onClick={() => setWoerter(woerter.filter((_, j) => j !== i))}
+              aria-label={`${name.einer} ${i + 1} löschen`}
+              onClick={() => setEintraege(eintraege.filter((_, j) => j !== i))}
             >
               🗑️
             </button>
@@ -465,16 +491,13 @@ function Vorschau({
         </p>
       )}
       <div className="verbinden-knoepfe">
-        <button
-          type="button"
-          onClick={() => setWoerter([...woerter, { id: crypto.randomUUID(), en: '', de: '' }])}
-        >
-          + Wort
+        <button type="button" onClick={() => setEintraege([...eintraege, leererEintrag(art)])}>
+          + {name.einer}
         </button>
         <button
           type="button"
           className="verbinden-haupt"
-          onClick={() => onFreigeben(woerter, hinweis)}
+          onClick={() => onFreigeben(eintraege, hinweis)}
         >
           Freigeben
         </button>
