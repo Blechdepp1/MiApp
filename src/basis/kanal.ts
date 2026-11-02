@@ -1,6 +1,7 @@
-// Live-App für Milena unter /MiApp/ oder Testkanal für die Eltern unter /MiApp/vorschau/.
+// Live-App für Milena unter /MiApp/ oder Testkanal für die Eltern unter /MiApp-Vorschau/
+// (eigenes Repository Blechdepp1/MiApp-Vorschau, gleiche Website-Herkunft).
 // Der Testkanal ist eine eigene Installation mit eigenen Daten auf dem Gerät und in Dropbox.
-export const IST_VORSCHAU = import.meta.env.BASE_URL.endsWith('/vorschau/');
+export const IST_VORSCHAU = import.meta.env.BASE_URL.endsWith('-Vorschau/');
 
 export const KANAL = IST_VORSCHAU
   ? { datenbank: 'miapp-vorschau', dropboxOrdner: '/vorschau', speicherPraefix: 'miapp-vorschau' }

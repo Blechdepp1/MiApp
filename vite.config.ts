@@ -9,7 +9,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // GitHub Pages liefert die App unter /MiApp/ aus, den Testkanal unter /MiApp/vorschau/
 const VORSCHAU = process.env.MIAPP_KANAL === 'vorschau';
-const BASIS = VORSCHAU ? '/MiApp/vorschau/' : '/MiApp/';
+// Der Testkanal liegt bewusst nicht unter /MiApp/: Android ordnet sonst jede Seite darunter der
+// installierten Live-App zu, und die Vorschau ließe sich nicht als eigene App installieren
+const BASIS = VORSCHAU ? '/MiApp-Vorschau/' : '/MiApp/';
 const ICON_ENDUNG = VORSCHAU ? '-vorschau' : '';
 const VERSION = (JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }).version;
 

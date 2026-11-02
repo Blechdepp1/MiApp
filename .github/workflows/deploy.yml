@@ -1,6 +1,7 @@
 name: Prüfen und veröffentlichen
 
-# Jeder Push auf main: alles prüfen, dann den Testkanal /MiApp/vorschau/ aktualisieren.
+# Jeder Push auf main: alles prüfen, dann den Testkanal /MiApp-Vorschau/ aktualisieren
+# (eigenes Repository Blechdepp1/MiApp-Vorschau, Branch gh-pages).
 # Milenas App /MiApp/ wird immer aus der letzten Freigabe (Git-Tag v*) gebaut und ändert
 # sich deshalb erst, wenn eine neue Version freigegeben wurde (siehe docs/geraetetest.md).
 
@@ -54,6 +55,7 @@ jobs:
       - name: Testkanal bauen (aktueller Stand von main)
         run: |
           MIAPP_KANAL=vorschau npm run build
+          touch dist/.nojekyll
           mv dist "$RUNNER_TEMP/vorschau"
 
       - name: Live-App bauen (letzte Freigabe)
@@ -71,11 +73,19 @@ jobs:
             npm run build
             mv dist "$RUNNER_TEMP/seite"
           fi
-          mv "$RUNNER_TEMP/vorschau" "$RUNNER_TEMP/seite/vorschau"
+          # Alte Vorschau-Adresse /MiApp/vorschau/ leitet zur neuen um
+          cp -r weiterleitung/vorschau "$RUNNER_TEMP/seite/vorschau"
 
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ runner.temp }}/seite
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vorschau
+          path: ${{ runner.temp }}/vorschau
+          include-hidden-files: true
+          retention-days: 1
 
   deploy:
     needs: bauen
@@ -89,3 +99,30 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Testkanal ins Repository Blechdepp1/MiApp-Vorschau schieben (GitHub Pages aus gh-pages).
+  # Der Deploy-Key darf nur dieses eine Repository beschreiben.
+  vorschau:
+    needs: bauen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: vorschau
+          path: vorschau
+      - name: In Blechdepp1/MiApp-Vorschau veröffentlichen
+        env:
+          DEPLOY_KEY: ${{ secrets.VORSCHAU_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/vorschau
+          chmod 600 ~/.ssh/vorschau
+          ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
+          cd vorschau
+          git init -q -b gh-pages
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -q -m "Vorschau aus Blechdepp1/MiApp@${GITHUB_SHA::7}"
+          export GIT_SSH_COMMAND='ssh -i ~/.ssh/vorschau -o IdentitiesOnly=yes'
+          git push -f -q git@github.com:Blechdepp1/MiApp-Vorschau.git gh-pages

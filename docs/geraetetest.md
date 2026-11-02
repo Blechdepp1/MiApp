@@ -5,15 +5,17 @@ MiApp gibt es zweimal:
 | | Adresse | Für wen | Daten |
 |---|---|---|---|
 | **Live-App** | https://blechdepp1.github.io/MiApp/ | Milena (und Eltern) | echte Punkte, Lektionen, Belohnungen |
-| **Testkanal** | https://blechdepp1.github.io/MiApp/vorschau/ | nur Eltern | eigene Testdaten, Dropbox-Unterordner `vorschau/` |
+| **Testkanal** | https://blechdepp1.github.io/MiApp-Vorschau/ | nur Eltern | eigene Testdaten, Dropbox-Unterordner `vorschau/` |
 
 Jede Änderung landet zuerst im **Testkanal**. Milenas App ändert sich erst, wenn ihr eine Version **freigebt**.
 
+Der Testkanal liegt absichtlich nicht unter `/MiApp/`: Android ordnet sonst alles darunter der installierten Live-App zu („bereits installiert“), und er ließe sich nicht als eigene App installieren. Veröffentlicht wird er aus dem Repository `Blechdepp1/MiApp-Vorschau` (Branch `gh-pages`, schreibt der Workflow mit einem Deploy-Key). Die alte Adresse `/MiApp/vorschau/` leitet um.
+
 ## Testkanal einmal einrichten (Eltern-Handy)
 
-1. In Chrome https://blechdepp1.github.io/MiApp/vorschau/ öffnen → Menü → „Zum Startbildschirm hinzufügen“. Das Symbol heißt **„MiApp Test“**, die Leiste oben ist orange.
+1. In Chrome https://blechdepp1.github.io/MiApp-Vorschau/ öffnen → Menü → „Installieren“. Die App heißt **„MiApp Test“**, das Symbol ist gelb, die Leiste oben orange.
 2. Gerät einrichten (Rolle und PIN wie gewohnt). Der Testkanal hat **eigene Daten** – was ihr dort übt oder anlegt, sieht Milena nicht.
-3. Optional Dropbox verbinden. Dafür muss die Adresse `https://blechdepp1.github.io/MiApp/vorschau/` einmal in der Dropbox App Console unter **Redirect URIs** eingetragen sein. Die Testdaten liegen dann im Unterordner `vorschau/`.
+3. Optional Dropbox verbinden. Dafür muss die Adresse `https://blechdepp1.github.io/MiApp-Vorschau/` einmal in der Dropbox App Console unter **Redirect URIs** eingetragen sein. Die Testdaten liegen dann im Unterordner `vorschau/`.
 
 ## Checkliste vor jeder Freigabe (ca. 5 Minuten, im Testkanal)
 
