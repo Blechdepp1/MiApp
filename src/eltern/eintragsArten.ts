@@ -1,4 +1,5 @@
 import type { EnglischInhalt, Verb } from '../lektionen/lektion.ts';
+import { liesVerbliste, liesWortliste } from '../lektionen/wortliste.ts';
 import type { Vokabel } from '../vokabeln-en/typen.ts';
 
 // Einträge einer Englisch-Lektion bearbeiten: Wortpaare oder unregelmäßige Verben (drei Formen)
@@ -39,4 +40,22 @@ export function leererEintrag(art: Art): Eintrag {
 // Zum Erkennen von Doppelten beim Einfügen
 export function vergleichsText(e: Eintrag): string {
   return ('formen' in e ? [...e.formen, e.de] : [e.en, e.de]).join('|').toLowerCase();
+}
+
+// Eingefügten Text lesen (Wortpaare oder Verben mit drei Formen), schon vorhandene weglassen.
+// fehler: Zeilen, die nicht gelesen werden konnten
+export function ausText(
+  art: Art,
+  text: string,
+  vorhanden: readonly Eintrag[],
+): { neu: Eintrag[]; fehler: string[] } {
+  const gelesen =
+    art === 'verben'
+      ? (({ verben, fehler }) => ({ eintraege: verben, fehler }))(liesVerbliste(text))
+      : (({ paare, fehler }) => ({ eintraege: paare, fehler }))(liesWortliste(text));
+  const schon = new Set(vorhanden.map(vergleichsText));
+  const neu = gelesen.eintraege
+    .map((e): Eintrag => ({ id: crypto.randomUUID(), ...e }))
+    .filter((e) => !schon.has(vergleichsText(e)));
+  return { neu, fehler: gelesen.fehler };
 }

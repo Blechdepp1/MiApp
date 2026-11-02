@@ -301,6 +301,33 @@ describe('Lektionen (Ansicht)', () => {
     });
   });
 
+  it('legt eine Verb-Lektion ohne Fotos aus einer eingefügten Liste an', async () => {
+    const { lektionen, erkenneV } = await zeige();
+    await userEvent.click(await screen.findByRole('button', { name: '📷 Neue Lektion aus Fotos' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Unregelmäßige Verben' }));
+    await userEvent.click(screen.getByRole('button', { name: '✍️ Ohne Fotos: Liste eintippen' }));
+    await userEvent.type(screen.getByLabelText('Titel'), 'Irregular verbs');
+    await userEvent.type(
+      screen.getByLabelText(/Eine Zeile pro Verb/),
+      'go - went - gone - gehen{enter}see - saw - seen - sehen',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Übernehmen' }));
+    expect(screen.getByRole('status')).toHaveTextContent('2 Verben übernommen.');
+    await userEvent.click(screen.getByRole('button', { name: 'Freigeben' }));
+
+    expect(await screen.findByText('2 Verben')).toBeInTheDocument();
+    expect(erkenneV).not.toHaveBeenCalled();
+    const [gespeichert] = await lektionen.alle();
+    expect(gespeichert).toMatchObject({ titel: 'Irregular verbs' });
+    expect(gespeichert!.inhalt).toMatchObject({
+      art: 'verben',
+      verben: [
+        { de: 'gehen', formen: ['go', 'went', 'gone'] },
+        { de: 'sehen', formen: ['see', 'saw', 'seen'] },
+      ],
+    });
+  });
+
   it('markiert von der KI ergänzte Übersetzungen, bis sie angepasst werden', async () => {
     const erkenne = vi.fn(async () => ({ ...ERKANNT, ergaenzt: ['w2'] }));
     await zeige({ erkenne });

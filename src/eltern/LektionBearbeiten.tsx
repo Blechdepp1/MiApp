@@ -8,16 +8,8 @@ import {
   type Lektion,
   type LektionStatus,
 } from '../lektionen/lektion.ts';
-import { liesVerbliste, liesWortliste } from '../lektionen/wortliste.ts';
-import { EintragFelder } from './Eintraege.tsx';
-import {
-  eintraegeVon,
-  inhaltAus,
-  leererEintrag,
-  NAME,
-  vergleichsText,
-  type Eintrag,
-} from './eintragsArten.ts';
+import { EintragFelder, ListeEinfuegen } from './Eintraege.tsx';
+import { eintraegeVon, inhaltAus, leererEintrag, NAME, type Eintrag } from './eintragsArten.ts';
 
 export type Aenderung = {
   titel: string;
@@ -31,16 +23,6 @@ const STATUS_HINWEIS: Record<LektionStatus, string> = {
   pausiert: 'Wird noch nicht geübt.',
   archiviert: 'Nur noch Wiederholung der Wörter, die sie schon gelernt hat.',
 };
-
-// Eingefügten Text lesen: Wortpaare oder Verben mit drei Formen
-function liesEinfuegen(art: EnglischInhalt['art'], text: string) {
-  if (art === 'verben') {
-    const { verben, fehler } = liesVerbliste(text);
-    return { neu: verben.map((v): Eintrag => ({ id: crypto.randomUUID(), ...v })), fehler };
-  }
-  const { paare, fehler } = liesWortliste(text);
-  return { neu: paare.map((p): Eintrag => ({ id: crypto.randomUUID(), ...p })), fehler };
-}
 
 // Eine Englisch-Lektion (Vokabeln oder unregelmäßige Verben) bearbeiten. Einträge behalten ihre
 // id, damit der Lernstand erhalten bleibt.
@@ -74,8 +56,6 @@ export function LektionBearbeiten({
   );
   const [stand, setStand] = useState(start);
   const [meldung, setMeldung] = useState<{ text: string; fehler: boolean } | null>(null);
-  const [einfuegen, setEinfuegen] = useState('');
-  const [nichtErkannt, setNichtErkannt] = useState<string[]>([]);
 
   const ungespeichert = JSON.stringify(stand) !== JSON.stringify(start);
   useEffect(() => onGeaendert(ungespeichert), [ungespeichert, onGeaendert]);
@@ -87,16 +67,6 @@ export function LektionBearbeiten({
 
   function aendereWort(i: number, neu: Eintrag) {
     aendere({ woerter: stand.woerter.map((w, j) => (j === i ? neu : w)) });
-  }
-
-  function uebernehmeListe() {
-    const gelesen = liesEinfuegen(art, einfuegen);
-    const vorhanden = new Set(stand.woerter.map(vergleichsText));
-    const neu = gelesen.neu.filter((e) => !vorhanden.has(vergleichsText(e)));
-    aendere({ woerter: [...stand.woerter, ...neu] });
-    setNichtErkannt(gelesen.fehler);
-    setEinfuegen(gelesen.fehler.join('\n'));
-    setMeldung({ text: `${neu.length} ${name.viele} übernommen.`, fehler: false });
   }
 
   async function speichern() {
@@ -188,29 +158,14 @@ export function LektionBearbeiten({
         </button>
       </div>
 
-      <details className="bearbeiten-einfuegen">
-        <summary>{art === 'verben' ? 'Verbliste' : 'Wortliste'} einfügen</summary>
-        <label>
-          <span>
-            {art === 'verben'
-              ? 'Eine Zeile pro Verb, z. B. „go – went – gone – gehen“'
-              : 'Eine Zeile pro Wort, z. B. „began – anfangen, beginnen“'}
-          </span>
-          <textarea rows={6} value={einfuegen} onChange={(e) => setEinfuegen(e.target.value)} />
-        </label>
-        {nichtErkannt.length > 0 && (
-          <p className="eltern-hinweis">
-            {art === 'verben'
-              ? 'Diese Zeilen haben nicht drei Formen und eine Bedeutung und stehen noch oben im Feld.'
-              : 'Diese Zeilen haben keine Übersetzung oder keinen Trenner und stehen noch oben im Feld.'}
-          </p>
-        )}
-        <div className="verbinden-knoepfe">
-          <button type="button" disabled={!einfuegen.trim()} onClick={uebernehmeListe}>
-            Übernehmen
-          </button>
-        </div>
-      </details>
+      <ListeEinfuegen
+        art={art}
+        eintraege={stand.woerter}
+        onUebernehmen={(neu) => {
+          aendere({ woerter: [...stand.woerter, ...neu] });
+          setMeldung({ text: `${neu.length} ${name.viele} übernommen.`, fehler: false });
+        }}
+      />
 
       <div className="bearbeiten-loeschen-bereich">
         <button type="button" className="bearbeiten-loeschen" onClick={onLoeschen}>

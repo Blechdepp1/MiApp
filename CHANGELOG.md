@@ -10,6 +10,7 @@ Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei F
 - Neue Wörter kommen über die Lektion verteilt, und Wörter, die sich zum Verwechseln ähneln (*quiet/quite*), sind nicht am selben Tag neu.
 - Auf der Startseite hat der Vorlese-Knopf jeder Kachel einen eigenen Streifen unten. So tippst du nicht mehr aus Versehen auf „Vorlesen“ statt auf „Öffnen“.
 - Für Eltern: Bei „Neue Lektion aus Fotos“ könnt ihr „Unregelmäßige Verben“ wählen. Die KI liest die Liste ab und ergänzt fehlende Formen. Verben lassen sich auch als Liste einfügen („go – went – gone – gehen“).
+- Für Eltern: Neue Lektionen gehen jetzt auch ohne Fotos: „Ohne Fotos: Liste eintippen“ und die Wörter oder Verben eintippen oder als Liste einfügen, z. B. vom PC.
 
 ## 0.18.0 – 02.11.2026
 

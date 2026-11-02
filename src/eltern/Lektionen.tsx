@@ -10,7 +10,7 @@ import {
   type Lektion,
 } from '../lektionen/lektion.ts';
 import { useLektionen, useLektionenSpeicher } from '../lektionen/LektionenKontext.tsx';
-import { EintragFelder } from './Eintraege.tsx';
+import { EintragFelder, ListeEinfuegen } from './Eintraege.tsx';
 import { inhaltAus, leererEintrag, NAME, type Art, type Eintrag } from './eintragsArten.ts';
 import {
   erkenneVerben,
@@ -40,7 +40,15 @@ type Schritt =
   | { art: 'liste' }
   | { art: 'neu'; fehler?: string; detail?: string }
   | { art: 'auswerten' }
-  | { art: 'vorschau'; eintraege: Eintrag[]; hinweis: string; ergaenzt: string[]; fehler?: string };
+  | {
+      art: 'vorschau';
+      eintraege: Eintrag[];
+      hinweis: string;
+      ergaenzt: string[];
+      fehler?: string;
+      // Ohne Fotos angelegt: Liste selbst eintippen oder einfügen
+      ohneFotos?: boolean;
+    };
 
 // Lektionen ansehen und neue aus Fotos anlegen (Englisch: Vokabeln oder unregelmäßige Verben)
 export function Lektionen({
@@ -193,7 +201,8 @@ export function Lektionen({
     };
     const fehler = pruefeLektion(lektion);
     if (fehler) {
-      setSchritt({ art: 'vorschau', eintraege, hinweis, ergaenzt: [], fehler });
+      const ohneFotos = schritt.art === 'vorschau' && schritt.ohneFotos;
+      setSchritt({ art: 'vorschau', eintraege, hinweis, ergaenzt: [], fehler, ohneFotos });
       return;
     }
     await speicher.speichere(lektion);
@@ -261,7 +270,7 @@ export function Lektionen({
           {schritt.art === 'neu' && (
             <div className="lektion-neu">
               <fieldset className="bearbeiten-status">
-                <legend>Englisch – was ist auf den Fotos?</legend>
+                <legend>Englisch – was soll sie üben?</legend>
                 <div>
                   {(['vokabeln', 'verben'] as const).map((a) => (
                     <button
@@ -366,6 +375,20 @@ export function Lektionen({
                 >
                   Fotos auswerten
                 </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSchritt({
+                      art: 'vorschau',
+                      eintraege: [],
+                      hinweis: '',
+                      ergaenzt: [],
+                      ohneFotos: true,
+                    })
+                  }
+                >
+                  ✍️ Ohne Fotos: Liste eintippen
+                </button>
                 <button type="button" onClick={zuruecksetzen}>
                   Abbrechen
                 </button>
@@ -384,6 +407,7 @@ export function Lektionen({
               hinweis={schritt.hinweis}
               ergaenzt={schritt.ergaenzt}
               fehler={schritt.fehler}
+              ohneFotos={schritt.ohneFotos}
               titel={titel}
               setTitel={setTitel}
               onFreigeben={freigeben}
@@ -417,12 +441,14 @@ function Vorschau({
   hinweis,
   ergaenzt: startErgaenzt,
   fehler,
+  ohneFotos = false,
   titel,
   setTitel,
   onFreigeben,
   onVerwerfen,
 }: {
   art: Art;
+  ohneFotos?: boolean;
   eintraege: Eintrag[];
   hinweis: string;
   ergaenzt: string[];
@@ -437,6 +463,7 @@ function Vorschau({
   // Markierung verschwindet, sobald die Eltern das Ergänzte selbst anpassen
   const [ergaenzt, setErgaenzt] = useState(() => new Set(startErgaenzt));
   const anzahlErgaenzt = eintraege.filter((w) => ergaenzt.has(w.id)).length;
+  const [uebernommen, setUebernommen] = useState<number | null>(null);
 
   function aendere(i: number, neu: Eintrag) {
     const alt = eintraege[i]!;
@@ -449,7 +476,11 @@ function Vorschau({
   return (
     <div className="lektion-neu">
       <p role="status">
-        ✓ {eintraege.length} {name.viele} erkannt. Bitte kurz prüfen und bei Bedarf korrigieren.
+        {uebernommen !== null
+          ? `✓ ${uebernommen} ${name.viele} übernommen.`
+          : ohneFotos
+            ? `Trag die ${name.viele} ein oder füge eine Liste ein, z. B. vom PC.`
+            : `✓ ${eintraege.length} ${name.viele} erkannt. Bitte kurz prüfen und bei Bedarf korrigieren.`}
       </p>
       {anzahlErgaenzt > 0 && (
         <p className="eltern-hinweis">
@@ -485,6 +516,15 @@ function Vorschau({
           </li>
         ))}
       </ul>
+      <ListeEinfuegen
+        art={art}
+        eintraege={eintraege}
+        offen={ohneFotos}
+        onUebernehmen={(neu) => {
+          setEintraege([...eintraege, ...neu]);
+          setUebernommen(neu.length);
+        }}
+      />
       {fehler && (
         <p className="verbinden-fehler" role="alert">
           {fehler}
