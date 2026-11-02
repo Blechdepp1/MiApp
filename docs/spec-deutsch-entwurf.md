@@ -1,6 +1,6 @@
 # Entwurf: Deutsch-Module `rechtschreibung-de` und `lesen-de`
 
-Status: **Entwurf zur Diskussion** (01.11.2026) – noch nicht freigegeben, noch kein Code
+Status: **Entwurf zur Diskussion** (01.11.2026). Umgesetzt ist bisher **Grammatik nach „Deutsch Fit“** (02.11.2026, siehe unten); Rechtschreibung (R1–R5) und Lesen (L1–L4) folgen.
 Grundlage: [SPEC.md](../SPEC.md) (LRS-Grundsätze, Abschnitt 2, 2a, 10a) · Forschungsstand: [didaktik-deutsch.md](didaktik-deutsch.md) (Verweise wie „B1“ beziehen sich darauf)
 
 ## 1. Ziel
@@ -322,3 +322,28 @@ Nie Punkte abziehen, keine Punkte für Noten.
 1. Eltern beantworten die offenen Fragen (vor allem 1–3).
 2. Daraus wird ein freigegebener Abschnitt in `SPEC.md` (v1.3) und ein Plan in `tasks/plan.md` (Phase 6: Deutsch), beginnend mit Scheibe 1 (R1 + R2).
 3. Vor dem ersten Code: Abstimmung zu Ereignis-/Lektionsformat und Punktwerten (SPEC 9 „Erst fragen“).
+
+---
+
+## 9. Umgesetzt: Grammatik nach „Deutsch Fit“ (Version 0.18.0)
+
+**Anlass:** Milena arbeitet in der Schule mit dem Heft „Deutsch Fit“ (Kl. 5/6). Die Eltern haben S. 3–10 fotografiert: Wortarten, Nomen (Artikel, Mehrzahl, zusammengesetzte Nomen), Verben (beugen, Vergangenheit), Adjektive (Gegenteil, steigern), Wortarten im Text, Satzarten, Satzzeichen, Subjekt und Prädikat.
+
+**Was ihre Einträge im Heft zeigen** (Grundlage für Schwerpunkte und Hinweise, B5):
+- Wortarten werden verwechselt (S. 3: *leise* als Nomen, *mutig* als Verb, *springen* als Adjektiv; S. 5: *mutig* als Verb) → Wortarten stehen im Mix zuerst, jede Aufgabe hat eine Prüffrage (Artikelprobe, „ich …“, „Das ist …“).
+- Verbformen mit Stamm-h und Vokalwechsel (*du gest, er get*; *ich liste, ich kommte*) → eigene Aufgaben mit Hinweis „Das h bleibt“ bzw. unregelmäßige Vergangenheit.
+- Umlaut in der Mehrzahl fehlt (*Buche, Baume*) → Ableiten-Hinweis „aus a, o, u wird oft ä, ö, ü“ (B3); die App erkennt einen reinen Umlaut-Fehler und sagt es freundlich.
+- Steigerung (*lusteger, am spannendnen*) und Zusammenschreibung (*Haus tür, Lese buch*) → eigene Aufgaben mit Hinweis.
+
+**Wie die Forschung umgesetzt ist** (Verweise auf `didaktik-deutsch.md`):
+- **Regeln mit Prüffragen statt Raten** (A1, B1, B2): Jede Aufgabe hat einen 💡-Tipp (freiwillig vorher, automatisch nach einem Fehler); je Thema gibt es das Merkwissen aus dem Heft zum Vorlesen.
+- **Abrufen und verteiltes Üben** (B6): Formen werden aus dem Gedächtnis geschrieben; Wiederholung nach dem gleichen Plan wie bei den Vokabeln (Leitner). Mit Tipp gelöst zählt als „mit Hilfe“ und steigt nicht auf.
+- **Wortbausteine/Ableiten** (B3): Hinweise wie *Baum → Bäume*, *geh-st*, *groß → größer*.
+- **Groß-/Kleinschreibung zählt**, denn sie hängt an der Wortart (HSP: wortübergreifende Strategie, B5); Fehler nur bei groß/klein bekommen einen eigenen Hinweis. Die Tastatur schreibt nicht automatisch groß.
+- **Sofortige, freundliche Rückmeldung**: richtige Lösung mit markierter Stelle, falsche Aufgaben kommen in der Runde noch einmal; keine roten Kreuze, kein Zeitdruck, kein Punktabzug.
+- **Vorlesen per Knopf, nicht automatisch** (C5): Sie liest Aufgabe und Satz zuerst selbst.
+- **Menge und Regelmäßigkeit** (A3): kurze Runden (höchstens 5 neue Aufgaben), zählen fürs gemeinsame Tagesziel.
+
+**Technik:** `src/deutsch/` (Themen mit festen Aufgaben, die App bewertet selbst). Antworten nutzen das bestehende `antwort`-Ereignis mit `uebung` `de-waehlen | de-schreiben | de-antippen`, Runden `runde-beendet` mit `fach: 'deutsch'`; `LESART` 3, damit Geräte nach dem Update auch vorher übersprungene Deutsch-Zeilen lesen. Ältere App-Versionen überspringen diese Zeilen ohne Fehler.
+
+**Noch offen:** Neue Deutsch-Seiten per Foto importieren (KI erzeugt Aufgaben, Eltern prüfen), Rechtschreibung mit Lernwörtern (R1/R2), Lesen (L1).

@@ -4,6 +4,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 export const ZIELE = [
   'start',
   'vokabeln',
+  'deutsch',
   'tests',
   'erfolge',
   'belohnungen',

@@ -1,0 +1,114 @@
+/* Deutsch: baut auf den Bausteinen der Vokabelrunde auf (Vokabeln.css) */
+
+.deutsch-thema {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--farbe-text-leise);
+}
+
+.deutsch-inhalt span {
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+/* Zwei Spalten für kurze Antworten (der/die/das, Satzzeichen), bei großer Schrift eine */
+.deutsch-optionen {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+}
+
+.deutsch-optionen .uebung-option {
+  text-align: center;
+}
+
+.deutsch-tipp-knopf {
+  justify-self: center;
+}
+
+.deutsch-tipp {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+}
+
+/* Satz zum Antippen: jedes Wort ist ein großer Knopf */
+.deutsch-satz {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--farbe-flaeche);
+}
+
+.deutsch-woerter {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.deutsch-wort {
+  min-height: var(--touch);
+  padding: 0.35rem 0.75rem;
+  border: 3px solid var(--farbe-text-leise);
+  border-radius: 12px;
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.deutsch-wort[aria-pressed='true'] {
+  border-color: var(--farbe-akzent);
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
+  font-weight: 700;
+}
+
+.deutsch-wort:disabled {
+  cursor: default;
+}
+
+.deutsch-wort[data-zustand='richtig'] {
+  border-color: var(--farbe-akzent);
+  box-shadow: 0 0 0 3px var(--farbe-akzent);
+  font-weight: 700;
+}
+
+/* Kein Rot: zu viel Angetipptes wird nur leiser */
+.deutsch-wort[data-zustand='daneben'] {
+  opacity: 0.55;
+}
+
+.deutsch-merkwissen {
+  grid-column: 1 / -1;
+}
+
+.deutsch-merkwissen summary {
+  min-height: var(--touch);
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.deutsch-merkwissen ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.deutsch-merkwissen li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}

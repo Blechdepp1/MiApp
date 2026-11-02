@@ -1,6 +1,6 @@
 import { tagVon } from '../belohnung/logik.ts';
 import type { LernEreignis, Uebung } from '../daten/ereignisse.ts';
-import type { Vokabel, Vokabelliste } from './typen.ts';
+import type { Vokabelliste } from './typen.ts';
 
 // Leitner-System mit 5 Fächern: richtig → ein Fach höher und länger Pause, falsch → zurück in Fach 1
 export const FAECHER = 5;
@@ -95,11 +95,19 @@ export function uebungFuer(stand: WortStand): Uebung {
   return stand.erkannt === 0 ? 'erkennen' : 'waehlen-de-en';
 }
 
-export type RundenWort = { liste: Vokabelliste; wort: Vokabel; stand: WortStand };
+// Alles, was der Wiederholungsplan braucht: eine Liste mit id und Einträgen mit id. So nutzen ihn
+// Englisch-Vokabeln (Vokabelliste) und Deutsch-Themen gleichermaßen.
+export type LernListe = { id: string; woerter: readonly { id: string }[] };
+
+export type RundenWort<L extends LernListe = Vokabelliste> = {
+  liste: L;
+  wort: L['woerter'][number];
+  stand: WortStand;
+};
 
 // Listen mit Vorrang (z. B. Klassenarbeit steht an) kommen jeweils zuerst
 function vorrangZuerst(vorrang: ReadonlySet<string>) {
-  return (a: RundenWort, b: RundenWort) =>
+  return (a: RundenWort<LernListe>, b: RundenWort<LernListe>) =>
     Number(vorrang.has(b.liste.id)) - Number(vorrang.has(a.liste.id));
 }
 
@@ -107,7 +115,11 @@ function vorrangZuerst(vorrang: ReadonlySet<string>) {
 // wenn es mindestens so lange her ist – auch wenn es nach Leitner noch Pause hätte
 export const AUFFRISCHEN_NACH_TAGEN = 2;
 
-function istFaellig(w: RundenWort, heute: string, vorrang: ReadonlySet<string>): boolean {
+function istFaellig(
+  w: RundenWort<LernListe>,
+  heute: string,
+  vorrang: ReadonlySet<string>,
+): boolean {
   if (w.stand.fach === 0) return false;
   if (w.stand.faelligAb <= heute) return true;
   return (
@@ -117,14 +129,14 @@ function istFaellig(w: RundenWort, heute: string, vorrang: ReadonlySet<string>):
 }
 
 // Fällige Wörter zuerst (schwierigste zuerst), dann neue, insgesamt höchstens RUNDE_MAX
-export function rundeAuswaehlen(
-  listen: readonly Vokabelliste[],
+export function rundeAuswaehlen<L extends LernListe = Vokabelliste>(
+  listen: readonly L[],
   staende: Map<string, WortStand>,
   heute: string,
   vorrang: ReadonlySet<string> = new Set(),
-): RundenWort[] {
+): RundenWort<L>[] {
   const zuerst = vorrangZuerst(vorrang);
-  const alle = listen.flatMap((liste) =>
+  const alle: RundenWort<L>[] = listen.flatMap((liste) =>
     liste.woerter.map((wort) => ({ liste, wort, stand: wortStand(staende, liste.id, wort.id) })),
   );
   const faellig = alle
@@ -142,15 +154,15 @@ export function rundeAuswaehlen(
 
 // Wenn heute nichts mehr fällig ist: freiwillige Extra-Runde mit bereits geübten Wörtern,
 // unsichere zuerst, innerhalb eines Fachs zufällig, damit nicht immer dieselben kommen
-export function extraRundeAuswaehlen(
-  listen: readonly Vokabelliste[],
+export function extraRundeAuswaehlen<L extends LernListe = Vokabelliste>(
+  listen: readonly L[],
   staende: Map<string, WortStand>,
   zufall: () => number = Math.random,
   vorrang: ReadonlySet<string> = new Set(),
-): RundenWort[] {
+): RundenWort<L>[] {
   const zuerst = vorrangZuerst(vorrang);
   const geuebt = listen
-    .flatMap((liste) =>
+    .flatMap((liste): RundenWort<L>[] =>
       liste.woerter.map((wort) => ({ liste, wort, stand: wortStand(staende, liste.id, wort.id) })),
     )
     .filter((w) => w.stand.fach > 0)
@@ -163,12 +175,12 @@ export function extraRundeAuswaehlen(
 // Selbst gewählte Lektion: erst was fällig ist und ein paar neue Wörter, dann mit schon geübten
 // Wörtern derselben Lektion bis zu einer vollen Runde aufgefüllt (unsichere zuerst). Noch nicht
 // fällige Wörter werden dabei nur geübt, nicht hochgestuft (siehe naechsterStand).
-export function lektionsRundeAuswaehlen(
-  liste: Vokabelliste,
+export function lektionsRundeAuswaehlen<L extends LernListe = Vokabelliste>(
+  liste: L,
   staende: Map<string, WortStand>,
   heute: string,
   zufall: () => number = Math.random,
-): RundenWort[] {
+): RundenWort<L>[] {
   const zuerst = rundeAuswaehlen([liste], staende, heute);
   const dabei = new Set(zuerst.map((w) => w.wort.id));
   const auffuellen = extraRundeAuswaehlen([liste], staende, zufall).filter(

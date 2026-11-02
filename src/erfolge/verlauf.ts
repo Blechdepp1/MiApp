@@ -38,8 +38,8 @@ export function gutschriften(
         zeit: e.zeit,
         art: 'runde',
         punkte: punkteFuerRunde(e),
-        symbol: '📚',
-        text: 'Vokabelrunde geschafft',
+        symbol: e.fach === 'deutsch' ? '✏️' : '📚',
+        text: e.fach === 'deutsch' ? 'Deutschrunde geschafft' : 'Vokabelrunde geschafft',
       });
       const tag = tagVon(e.zeit);
       const runden = (rundenAmTag.get(tag) ?? 0) + 1;
@@ -151,16 +151,24 @@ export function tageMitErfolgen(liste: readonly Gutschrift[]): Tag[] {
 
 // Mehrere Runden eines Tages als eine Zeile („3 Vokabelrunden geschafft“), an der Stelle der letzten
 export function zusammengefasst(eintraege: readonly Gutschrift[]): Gutschrift[] {
-  const runden = eintraege.filter((g) => g.art === 'runde');
-  if (runden.length < 2) return [...eintraege];
+  // Je Fach getrennt: „3 Vokabelrunden“, „2 Deutschrunden“
+  const gruppen = new Map<string, Gutschrift[]>();
+  for (const g of eintraege) {
+    if (g.art === 'runde') gruppen.set(g.text, [...(gruppen.get(g.text) ?? []), g]);
+  }
   const ergebnis: Gutschrift[] = [];
   for (const g of eintraege) {
-    if (g.art !== 'runde') ergebnis.push(g);
-    else if (g === runden[0])
+    if (g.art !== 'runde') {
+      ergebnis.push(g);
+      continue;
+    }
+    const gruppe = gruppen.get(g.text)!;
+    if (gruppe.length === 1) ergebnis.push(g);
+    else if (g === gruppe[0])
       ergebnis.push({
         ...g,
-        punkte: runden.reduce((s, r) => s + r.punkte, 0),
-        text: `${runden.length} Vokabelrunden geschafft`,
+        punkte: gruppe.reduce((s, r) => s + r.punkte, 0),
+        text: `${gruppe.length} ${g.text.replace('runde geschafft', 'runden geschafft')}`,
       });
   }
   return ergebnis;

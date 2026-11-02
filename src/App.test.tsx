@@ -75,7 +75,14 @@ describe('App', () => {
 
   it('zeigt auf der Startseite Kacheln mit Vorlese-Knopf', async () => {
     await zeige();
-    for (const name of ['Vokabeln', 'Tests', 'Erfolge', 'Belohnungen', 'Einstellungen']) {
+    for (const name of [
+      'Vokabeln',
+      'Deutsch',
+      'Tests',
+      'Erfolge',
+      'Belohnungen',
+      'Einstellungen',
+    ]) {
       const kachel = screen.getByRole('link', { name }).closest('li')!;
       expect(within(kachel).getByRole('button', { name: 'Vorlesen' })).toBeInTheDocument();
     }
@@ -85,6 +92,7 @@ describe('App', () => {
   const TITEL: Record<Ziel, RegExp> = {
     start: /^Hallo/,
     vokabeln: /^Vokabeln$/,
+    deutsch: /^Deutsch$/,
     tests: /^Meine Tests$/,
     erfolge: /^Meine Erfolge$/,
     belohnungen: /^Belohnungen$/,

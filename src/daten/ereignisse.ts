@@ -1,7 +1,9 @@
 // Lern-Ereignisse: Jede Aktion wird als Eintrag gespeichert, Punkte und Fortschritt werden daraus berechnet.
 // Jedes Gerät schreibt nur eigene Ereignisse; beim Sync werden die Protokolle anhand der id zusammengeführt.
 
-export type Uebung = 'erkennen' | 'waehlen-de-en' | 'schreiben';
+// Englisch: erkennen, waehlen-de-en, schreiben. Deutsch (Grammatik): auswählen, schreiben, im Satz antippen.
+export type Uebung =
+  'erkennen' | 'waehlen-de-en' | 'schreiben' | 'de-waehlen' | 'de-schreiben' | 'de-antippen';
 
 type Basis = { id: string; geraet: string; zeit: string };
 
@@ -15,7 +17,14 @@ export type EreignisDaten =
       fastRichtig?: boolean;
       mitHilfe?: boolean;
     }
-  | { typ: 'runde-beendet'; richtig: number; mitHilfe: number; verbessert: number }
+  // fach fehlt bei Englisch-Runden (auch bei allen älteren)
+  | {
+      typ: 'runde-beendet';
+      richtig: number;
+      mitHilfe: number;
+      verbessert: number;
+      fach?: 'deutsch';
+    }
   // Name und Symbol werden mitgespeichert, damit die Liste auch nach Änderungen an den Belohnungen stimmt
   | { typ: 'eingeloest'; belohnungId: string; preis: number; name?: string; symbol?: string }
   | { typ: 'bestaetigt'; einloesungId: string }

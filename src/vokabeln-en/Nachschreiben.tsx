@@ -5,10 +5,20 @@ import { sprechtext } from './runde.ts';
 import type { Vokabel } from './typen.ts';
 
 // Lösung mit sanft markierten Stellen, die anders waren (unterstrichen, nicht rot)
-export function MarkierteLoesung({ eingabe, loesung }: { eingabe: string; loesung: string }) {
+export function MarkierteLoesung({
+  eingabe,
+  loesung,
+  lang = 'en',
+  grossKlein = false,
+}: {
+  eingabe: string;
+  loesung: string;
+  lang?: string;
+  grossKlein?: boolean;
+}) {
   return (
-    <span className="schreib-vergleich" lang="en">
-      {unterschiede(eingabe, loesung).map((b, i) =>
+    <span className="schreib-vergleich" lang={lang}>
+      {unterschiede(eingabe, loesung, grossKlein).map((b, i) =>
         b.anders ? (
           <span key={i} className="schreib-anders">
             {b.zeichen}

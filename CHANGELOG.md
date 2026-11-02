@@ -3,6 +3,15 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.18.0 – 02.11.2026
+
+- Neue Kachel „✏️ Deutsch“: Grammatik üben wie im Heft „Deutsch Fit“ (S. 3–10):
+  - Wortarten erkennen, Nomen (Artikel, Mehrzahl, zusammensetzen), Verben (beugen, Vergangenheit), Adjektive (Gegenteil, steigern)
+  - Wortarten im Text finden, Satzarten, Satzzeichen, Subjekt und Prädikat
+- Bei jeder Aufgabe hilft dir ein 💡 Tipp, und zu jedem Thema gibt es das Merkwissen zum Anhören.
+- Wörter im Satz tippst du einfach an, zum Beispiel das Subjekt.
+- Deutsch-Runden bringen dieselben Punkte wie Vokabelrunden und zählen fürs Tagesziel.
+
 ## 0.17.1 – 02.11.2026
 
 - Für Eltern: Klappt das Auswerten von Fotos nicht, sagt die App jetzt genauer, woran es liegt (z. B. zu viele Fotos, KI überlastet, Limit erreicht, Schlüssel ungültig), mit einer kurzen technischen Angabe.

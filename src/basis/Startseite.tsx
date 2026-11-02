@@ -10,6 +10,7 @@ import './Startseite.css';
 
 const KACHELN: { ziel: Ziel; symbol: string; text: string; vorlesen: string }[] = [
   { ziel: 'vokabeln', symbol: '📚', text: 'Vokabeln', vorlesen: 'Vokabeln üben' },
+  { ziel: 'deutsch', symbol: '✏️', text: 'Deutsch', vorlesen: 'Deutsch üben' },
   { ziel: 'tests', symbol: '📝', text: 'Tests', vorlesen: 'Meine Tests und Klassenarbeiten' },
   { ziel: 'erfolge', symbol: '🌟', text: 'Erfolge', vorlesen: 'Meine Erfolge' },
   { ziel: 'belohnungen', symbol: '🏆', text: 'Belohnungen', vorlesen: 'Deine Belohnungen' },

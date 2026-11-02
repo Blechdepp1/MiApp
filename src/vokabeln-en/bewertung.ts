@@ -66,11 +66,11 @@ export function bewerteSchreiben(eingabe: string, loesung: string): Bewertung {
 export type Buchstabe = { zeichen: string; anders: boolean };
 
 // Welche Buchstaben der Lösung hat die Eingabe nicht getroffen? Für die sanfte Markierung nach
-// einem Schreibfehler. Vergleich ohne Groß-/Kleinschreibung; zu viel getippte Buchstaben
-// markieren den Buchstaben der Lösung an dieser Stelle.
-export function unterschiede(eingabe: string, loesung: string): Buchstabe[] {
-  const a = eingabe.trim().toLowerCase();
-  const b = loesung.toLowerCase();
+// einem Schreibfehler. Vergleich ohne Groß-/Kleinschreibung (Deutsch: mit, dort ist sie Lernziel);
+// zu viel getippte Buchstaben markieren den Buchstaben der Lösung an dieser Stelle.
+export function unterschiede(eingabe: string, loesung: string, grossKlein = false): Buchstabe[] {
+  const a = grossKlein ? eingabe.trim() : eingabe.trim().toLowerCase();
+  const b = grossKlein ? loesung : loesung.toLowerCase();
   const d: number[][] = Array.from({ length: a.length + 1 }, (_, i) =>
     Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
   );

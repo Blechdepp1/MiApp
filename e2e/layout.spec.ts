@@ -94,6 +94,28 @@ const ANSICHTEN: Record<string, (page: Page, darstellung: Darstellung) => Promis
     await expect(page.getByRole('button', { name: 'Weiter →' })).toBeVisible();
   },
 
+  'Deutsch, Auswahl': async (page, d) => {
+    await startseite(page, d);
+    await page.getByRole('link', { name: 'Deutsch' }).click();
+    await expect(page.getByRole('button', { name: /Mix für heute/ })).toBeVisible();
+  },
+
+  'Deutsch, Antippen': async (page, d) => {
+    await startseite(page, d);
+    await page.getByRole('link', { name: 'Deutsch' }).click();
+    await page.getByRole('button', { name: /Wortarten im Text/ }).click();
+    await expect(page.getByRole('group', { name: 'Wörter im Satz' })).toBeVisible();
+  },
+
+  'Deutsch, Rückmeldung': async (page, d) => {
+    await startseite(page, d);
+    await page.getByRole('link', { name: 'Deutsch' }).click();
+    await page.getByRole('button', { name: /Verben: beugen/ }).click();
+    await page.getByRole('textbox').fill('xyz');
+    await page.getByRole('button', { name: 'Prüfen' }).click();
+    await expect(page.getByRole('button', { name: 'Weiter →' })).toBeVisible();
+  },
+
   Tests: async (page, d) => {
     await startseite(page, d);
     await page.getByRole('link', { name: 'Tests' }).click();

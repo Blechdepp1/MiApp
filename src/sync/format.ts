@@ -25,4 +25,5 @@ export function istZuNeu(text: string, format = DATENFORMAT): boolean {
 // Was diese App-Version aus den Dateien lesen kann (Ereignis-Arten, Felder). Steigt sie,
 // liest der Abgleich einmal alle Dateien neu – auch solche, die eine ältere Version beim
 // Lesen übersprungen hat, weil sie Teile davon noch nicht kannte.
-export const LESART = 2;
+// 3: Deutsch-Übungen (antwort mit uebung „de-…“, runde-beendet mit fach)
+export const LESART = 3;

@@ -52,10 +52,20 @@ const PRUEFUNGEN: Record<string, (e: Record<string, unknown>) => boolean> = {
   antwort: (e) =>
     istText(e.listeId) &&
     istText(e.wortId) &&
-    einsVon(e.uebung, ['erkennen', 'waehlen-de-en', 'schreiben']) &&
+    einsVon(e.uebung, [
+      'erkennen',
+      'waehlen-de-en',
+      'schreiben',
+      'de-waehlen',
+      'de-schreiben',
+      'de-antippen',
+    ]) &&
     typeof e.richtig === 'boolean',
   'runde-beendet': (e) =>
-    istZahl(e.richtig, 0, 100) && istZahl(e.mitHilfe, 0, 100) && istZahl(e.verbessert, 0, 100),
+    istZahl(e.richtig, 0, 100) &&
+    istZahl(e.mitHilfe, 0, 100) &&
+    istZahl(e.verbessert, 0, 100) &&
+    (e.fach === undefined || e.fach === 'deutsch'),
   eingeloest: (e) =>
     istText(e.belohnungId) &&
     istZahl(e.preis, 1, 1_000_000) &&
