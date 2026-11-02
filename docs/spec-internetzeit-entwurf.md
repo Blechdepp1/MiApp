@@ -1,4 +1,4 @@
-# Entwurf: Internetzeit am Fernseher als Belohnung (FRITZ!Box)
+# Entwurf: Bildschirmzeit als Belohnung (Fernseher über FRITZ!Box, Handy über Family Link)
 
 Status: **Entwurf, geparkt** (02.11.2026). Noch kein Spec und kein Code. Vor dem Bauen steht eine Machbarkeitsprüfung an der FRITZ!Box (Phase 0), danach die offenen Fragen am Ende.
 Grundlage: [SPEC.md](../SPEC.md) (Belohnungen, Ereignis-Protokoll, Dropbox-Abgleich), AVM-Schnittstelle TR-064 mit dem Dienst [X_AVM-DE_HostFilter](https://fritz.com/fileadmin/user_upload/Global/Service/Schnittstellen/x_hostfilterSCPD.pdf) (Übersicht: [fritz.com/pages/interfaces](https://fritz.com/en/pages/interfaces)).
@@ -8,6 +8,8 @@ Grundlage: [SPEC.md](../SPEC.md) (Belohnungen, Ereignis-Protokoll, Dropbox-Abgle
 1. Die Eltern legen in MiApp eine besondere Belohnung an, z. B. „📺 30 Minuten Fernseh-Internet“. Milena löst sie wie jede Belohnung mit ihren Punkten ein.
 2. Ein kleines Programm, die **Internet-Brücke**, läuft auf dem immer eingeschalteten Rechner **SVR-NAS-01** im Heimnetz. Es sieht die Einlösung im Ereignis-Protokoll in der Dropbox und schaltet über die FRITZ!Box das Internet für den Fernseher für die gekaufte Zeit frei.
 3. Die App zeigt Milena, dass die Zeit läuft und bis wann. Danach sperrt die Brücke wieder. Das FRITZ!Box-Passwort verlässt dabei nie den SVR-NAS-01.
+
+Für **Milenas Handy** gibt es dasselbe als halbautomatische Variante: Sie löst „📱 Handy-Zeit“ ein, die Eltern geben die Bonuszeit mit zwei Tippern in Google Family Link und bestätigen in MiApp (Teil I5). Eine Automatik dafür ist bewusst nicht vorgesehen (siehe I5).
 
 ## Warum nicht direkt aus der App
 
@@ -138,7 +140,34 @@ Ersetzt das heutige Zeitbudget der FRITZ!Box: Wochenplan in den Eltern-Einstellu
 - **Rückfallregel bei Ausfall:** Für Weg B legt ihr in der FRITZ!Box zusätzlich eine harte Sperrzeit fest (z. B. 21:00–6:00) als Sicherheitsnetz. Läuft die Brücke nicht, gilt mindestens diese.
 - **Fälschen von Einlösungen:** Wer die Dropbox-Dateien schreiben kann, könnte eine Einlösung vortäuschen. Die Brücke rechnet die Punkte nach, und mit „Bestätigung nötig“ braucht es ein Eltern-Gerät. Das reicht für den Familienalltag. Eine echte Absicherung (Signatur je Gerät) wäre deutlich aufwendiger und ist nicht vorgesehen.
 - **Rechte:** Der FRITZ!Box-Benutzer der Brücke darf nur, was Phase 0 als nötig ermittelt hat. Kein Fernzugang (MyFRITZ) für diesen Benutzer.
-- **Nur der Fernseher:** Die Brücke schaltet ausschließlich die in ihrer Einstellung eingetragene(n) IP-Adresse(n). Milenas Handy bleibt bei Google Family Link.
+- **Nur der Fernseher:** Die Brücke schaltet ausschließlich die in ihrer Einstellung eingetragene(n) IP-Adresse(n). Milenas Handy bleibt bei Google Family Link (I5).
+
+### I5 – Handy-Zeit über Google Family Link (halbautomatisch)
+
+**Warum nicht automatisch:** Google bietet für Family Link keine offizielle Schnittstelle. Es gibt ein inoffizielles Home-Assistant-Projekt ([HAFamilyLink](https://community.home-assistant.io/t/google-family-link-for-home-assistant-parental-controls-device-monitoring-for-your-kids/948848)), das Bonuszeit vergeben kann. Es nutzt aber nachgebaute Google-Schnittstellen, kann jederzeit kaputtgehen, verstößt möglicherweise gegen Googles Nutzungsbedingungen ([Release-Hinweise](https://github.com/noiwid/HAFamilyLink/releases/tag/v0.5.0)) und braucht eine angemeldete Google-Sitzung eines Elternteils auf dem Rechner. Diese Sitzung reicht womöglich weit über Family Link hinaus (Mail, Fotos, Zahlungen). Das widerspricht dem Grundsatz „so wenig Rechte wie möglich“ und ist deshalb ausgeschlossen. Sollte Google eine offizielle Schnittstelle anbieten, wird das neu bewertet.
+
+**Was Milena erlebt:** In „Belohnungen“ steht z. B. „📱 30 Minuten Handy-Zeit – 150 Punkte“. Nach dem Einlösen sieht sie: „Mama oder Papa geben dir gleich die Zeit.“ Sobald ihr bestätigt habt: „📱 30 Minuten Handy-Zeit sind freigegeben.“
+
+**Was die Eltern erleben:**
+1. Im Eltern-Bereich und oben auf der Startseite der Eltern-Geräte erscheint wie heute „🎁 1 Belohnung wartet“. Bei Handy-Zeit steht dort zusätzlich, wie viele Minuten es sind.
+2. Ein Knopf **„Family Link öffnen“** startet die Family-Link-App auf dem Eltern-Handy (Android-Intent für das Paket `com.google.android.apps.kids.familylink`, ohne Daten in der Adresse). Dort: Milenas Gerät → Bonuszeit → Minuten.
+3. Zurück in MiApp: **„Erledigt“** bestätigt die Einlösung (heutiges `bestaetigt`-Ereignis).
+4. Passt es gerade nicht (z. B. abends), gibt **„Heute nicht“** die Punkte zurück und zeigt Milena einen freundlichen Satz. Den Text legen die Eltern beim Ablehnen fest oder wählen einen Vorschlag.
+
+**Benachrichtigung der Eltern:**
+- **Ohne Brücke:** Die Einlösung erscheint auf den Eltern-Geräten, sobald MiApp dort offen ist (Abgleich in wenigen Sekunden, wie seit 0.15.0). Eine Push-Benachrichtigung ist ohne eigenen Server nicht möglich.
+- **Mit Brücke (I2):** Die Brücke auf dem SVR-NAS-01 kann eine Web-Push-Nachricht an die Eltern-Geräte schicken („Milena möchte 30 Minuten Handy-Zeit“). Die Eltern-Geräte melden sich dafür einmal an, die Anmeldung liegt in der Dropbox, der Schlüssel zum Senden nur auf dem SVR-NAS-01. Dasselbe gilt dann auch für Fernseh-Einlösungen mit Bestätigung.
+
+**Datenformat (🔒 erst fragen):**
+- `Belohnung.art` bekommt den zweiten Wert `'handy'` (mit `minuten`), wie `'internet'` in I1.
+- Neues Ereignis `{ typ: 'abgelehnt', einloesungId, text? }` von einem Eltern-Gerät. Die Punkte zählen wieder. Davon profitieren auch normale Belohnungen, die heute nicht abgelehnt werden können.
+- Tageslimit und Uhrzeiten wie in I1. Ohne Brücke prüft sie die App beim Einlösen, die Eltern entscheiden ohnehin selbst.
+
+**Akzeptanzkriterien:**
+- [ ] Handy-Zeit lässt sich ohne Brücke einlösen, bestätigen und ablehnen. Abgelehnte Einlösungen kosten keine Punkte.
+- [ ] Der Knopf „Family Link öffnen“ erscheint nur auf Android-Eltern-Geräten. Ist Family Link nicht installiert, öffnet er die Play-Store-Seite.
+- [ ] MiApp speichert keine Google-Anmeldedaten und spricht nie selbst mit Google.
+- [ ] Milenas Ansicht sagt jederzeit, ob ihre Handy-Zeit wartet, freigegeben oder abgelehnt ist, mit Vorlese-Knopf.
 
 ## Pädagogik (kurz)
 
@@ -155,6 +184,8 @@ Ersetzt das heutige Zeitbudget der FRITZ!Box: Wochenplan in den Eltern-Einstellu
 | I2 Brücke (Dienst, Dropbox, TR-064, Regeln, Tests) | 1,5–2 Tage |
 | I3 feste Zeiten (nur Weg B) | 0,5 Tage |
 | Einrichtung auf dem SVR-NAS-01 | 0,5 Tage |
+| I5 Handy-Zeit über Family Link (ohne Brücke) | 0,5–1 Tag |
+| Web-Push über die Brücke (optional) | 0,5–1 Tag |
 
 ## Offene Fragen an die Eltern
 
@@ -165,3 +196,4 @@ Ersetzt das heutige Zeitbudget der FRITZ!Box: Wochenplan in den Eltern-Einstellu
 5. **Regeln:** Wie viele Minuten pro Einlösung, welcher Preis, welches Tageslimit, welche Uhrzeiten? Soll die Bestätigung durch euch nötig sein?
 6. **Weg A oder B:** Wollt ihr die heutige Kindersicherung behalten (Tickets, falls es geht) oder die Fernsehzeit ganz über MiApp steuern?
 7. **Reaktion bei Missbrauch:** Wenn Milena z. B. nachts einlösen will, reicht „heute nicht mehr möglich“, oder sollen die Eltern eine Nachricht bekommen?
+8. **Handy-Zeit:** Wie viele Minuten pro Einlösung und welcher Preis? Gemeinsames Tageslimit mit dem Fernseher oder getrennt? Wer von euch bekommt die Benachrichtigung?
