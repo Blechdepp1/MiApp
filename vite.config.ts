@@ -74,8 +74,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        // Eigene id: Testkanal und Live-App lassen sich nebeneinander installieren
-        id: BASIS,
+        // Eigene id: Testkanal und Live-App lassen sich nebeneinander installieren. Die Vorschau
+        // hat eine neue id bekommen, weil Chrome am Eltern-Handy eine hängende Installation unter
+        // der alten id festhielt („bereits installiert“, ließ sich aber nicht öffnen).
+        id: VORSCHAU ? `${BASIS}app` : BASIS,
         name: VORSCHAU ? 'MiApp Vorschau (Eltern)' : 'MiApp – Lernen',
         short_name: VORSCHAU ? 'MiApp Test' : 'MiApp',
         description: 'Lern-App mit Vorlesen, Vokabeln und Belohnungen',
