@@ -15,6 +15,12 @@ export type Gutschrift = {
   text: string;
 };
 
+const RUNDE = {
+  englisch: { symbol: '📚', text: 'Vokabelrunde geschafft' },
+  deutsch: { symbol: '✏️', text: 'Deutschrunde geschafft' },
+  mathe: { symbol: '➗', text: 'Matherunde geschafft' },
+} as const;
+
 function testName(t: Pick<TestEintrag, 'art' | 'fach'>) {
   return `${artName(t.art)} in ${fachName(t.fach)}`;
 }
@@ -38,8 +44,8 @@ export function gutschriften(
         zeit: e.zeit,
         art: 'runde',
         punkte: punkteFuerRunde(e),
-        symbol: e.fach === 'deutsch' ? '✏️' : '📚',
-        text: e.fach === 'deutsch' ? 'Deutschrunde geschafft' : 'Vokabelrunde geschafft',
+        symbol: RUNDE[e.fach ?? 'englisch'].symbol,
+        text: RUNDE[e.fach ?? 'englisch'].text,
       });
       const tag = tagVon(e.zeit);
       const runden = (rundenAmTag.get(tag) ?? 0) + 1;

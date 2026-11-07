@@ -26,4 +26,5 @@ export function istZuNeu(text: string, format = DATENFORMAT): boolean {
 // liest der Abgleich einmal alle Dateien neu – auch solche, die eine ältere Version beim
 // Lesen übersprungen hat, weil sie Teile davon noch nicht kannte.
 // 3: Deutsch-Übungen (antwort mit uebung „de-…“, runde-beendet mit fach)
-export const LESART = 3;
+// 4: Mathe-Einmaleins (antwort mit uebung „ma-…“, runde-beendet mit fach „mathe“)
+export const LESART = 4;

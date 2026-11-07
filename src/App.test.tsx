@@ -78,6 +78,7 @@ describe('App', () => {
     for (const name of [
       'Vokabeln',
       'Deutsch',
+      'Mathe',
       'Tests',
       'Erfolge',
       'Belohnungen',
@@ -93,6 +94,7 @@ describe('App', () => {
     start: /^Hallo/,
     vokabeln: /^Vokabeln$/,
     deutsch: /^Deutsch$/,
+    mathe: /^Mathe$/,
     tests: /^Meine Tests$/,
     erfolge: /^Meine Erfolge$/,
     belohnungen: /^Belohnungen$/,

@@ -59,13 +59,15 @@ const PRUEFUNGEN: Record<string, (e: Record<string, unknown>) => boolean> = {
       'de-waehlen',
       'de-schreiben',
       'de-antippen',
+      'ma-waehlen',
+      'ma-tippen',
     ]) &&
     typeof e.richtig === 'boolean',
   'runde-beendet': (e) =>
     istZahl(e.richtig, 0, 100) &&
     istZahl(e.mitHilfe, 0, 100) &&
     istZahl(e.verbessert, 0, 100) &&
-    (e.fach === undefined || e.fach === 'deutsch'),
+    (e.fach === undefined || e.fach === 'deutsch' || e.fach === 'mathe'),
   eingeloest: (e) =>
     istText(e.belohnungId) &&
     istZahl(e.preis, 1, 1_000_000) &&

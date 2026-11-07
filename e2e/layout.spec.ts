@@ -133,6 +133,20 @@ const ANSICHTEN: Record<string, (page: Page, darstellung: Darstellung) => Promis
     await expect(page.getByRole('button', { name: 'Weiter →' })).toBeVisible();
   },
 
+  'Mathe, Auswahl': async (page, d) => {
+    await startseite(page, d);
+    await page.getByRole('link', { name: 'Mathe' }).click();
+    await expect(page.getByRole('button', { name: /7er-Reihe/ })).toBeVisible();
+  },
+
+  'Mathe, Rückmeldung': async (page, d) => {
+    await startseite(page, d);
+    await page.getByRole('link', { name: 'Mathe' }).click();
+    await page.getByRole('button', { name: /8er-Reihe/ }).click();
+    await page.locator('.uebung-option').first().click();
+    await expect(page.getByRole('button', { name: 'Weiter →' })).toBeVisible();
+  },
+
   Tests: async (page, d) => {
     await startseite(page, d);
     await page.getByRole('link', { name: 'Tests' }).click();

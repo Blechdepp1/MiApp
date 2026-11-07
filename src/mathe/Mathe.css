@@ -1,0 +1,46 @@
+/* Mathe: baut auf Vokabeln.css und Deutsch.css auf */
+
+.mathe-aufgabe {
+  font-variant-numeric: tabular-nums;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.mathe-eingabe {
+  display: inline-block;
+  min-width: 2.5ch;
+  padding: 0 0.3rem;
+  border-bottom: 4px solid var(--farbe-akzent);
+  text-align: center;
+}
+
+.ziffernblock {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.ziffer {
+  min-height: calc(var(--touch) + 0.5rem);
+  border: 3px solid var(--farbe-text-leise);
+  border-radius: 12px;
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-text);
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ziffer:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.ziffer-fertig {
+  border-color: var(--farbe-akzent);
+  background: var(--farbe-akzent);
+  color: var(--farbe-auf-akzent);
+  font-size: 1.1rem;
+}

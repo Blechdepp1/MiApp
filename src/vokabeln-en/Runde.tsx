@@ -184,9 +184,10 @@ export function Runde({
   }
 
   async function weiter() {
-    setAntwort(null);
+    // Beim letzten Wort bleibt die Rückmeldung bis zur Zusammenfassung stehen
     const naechster = schritte[aktuell!.nr + 1];
     if (naechster) {
+      setAntwort(null);
       setAktuell(vorbereiten(aktuell!.nr + 1, naechster, staende, alleWoerter, zufall));
       return;
     }

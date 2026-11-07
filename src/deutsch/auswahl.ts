@@ -1,21 +1,21 @@
 import type { Fortschritt } from '../eltern/statistik.ts';
 import { lernstand } from '../eltern/statistik.ts';
 import {
-  extraRundeAuswaehlen,
-  lektionsRundeAuswaehlen,
-  rundeAuswaehlen,
+  gemischteRunde,
   wortStand,
+  type LernListe,
   type RundenWort,
   type WortStand,
 } from '../vokabeln-en/leitner.ts';
-import { mische, type Zufall } from '../vokabeln-en/runde.ts';
+import type { Zufall } from '../vokabeln-en/runde.ts';
 import { loesungText } from './bewertung.ts';
 import type { Aufgabe, Thema } from './typen.ts';
 
 export type Wahl = { art: 'mix' } | { art: 'thema'; id: string };
 
+// Für alle Fächer mit Themen (Deutsch, Mathe)
 export function fortschrittThema(
-  thema: Thema,
+  thema: LernListe,
   staende: ReadonlyMap<string, WortStand>,
 ): Fortschritt {
   const f: Fortschritt = { neu: 0, lernt: 0, sicher: 0, gesamt: thema.woerter.length };
@@ -23,11 +23,7 @@ export function fortschrittThema(
   return f;
 }
 
-// Mix: was fällig ist und ein paar neue Aufgaben, Themen in Heft-Reihenfolge; ist nichts mehr
-// fällig, eine Extra-Runde mit schon Geübtem. Ein Thema: wie eine Lektion.
-// Innerhalb eines Themas werden neue Aufgaben zufällig gezogen und die Runde gemischt
-// (Interleaving). Sonst kämen z. B. zehnmal hintereinander Nomen, und man könnte ohne
-// Nachdenken immer dieselbe Antwort tippen.
+// Mix oder ein Thema, Aufgaben gemischt (siehe gemischteRunde)
 export function deutschAuswahl(
   wahl: Wahl,
   themen: readonly Thema[],
@@ -35,16 +31,7 @@ export function deutschAuswahl(
   heute: string,
   zufall: Zufall = Math.random,
 ): RundenWort<Thema>[] {
-  const gemischt = themen.map((t) => ({ ...t, woerter: mische(t.woerter, zufall) }));
-  let auswahl: RundenWort<Thema>[];
-  if (wahl.art === 'thema') {
-    const thema = gemischt.find((t) => t.id === wahl.id);
-    auswahl = thema ? lektionsRundeAuswaehlen(thema, staende, heute, zufall) : [];
-  } else {
-    const normal = rundeAuswaehlen(gemischt, staende, heute);
-    auswahl = normal.length > 0 ? normal : extraRundeAuswaehlen(gemischt, staende, zufall);
-  }
-  return mische(auswahl, zufall);
+  return gemischteRunde(wahl.art === 'thema' ? wahl.id : null, themen, staende, heute, zufall);
 }
 
 export function loesungVon(a: Aufgabe): string {

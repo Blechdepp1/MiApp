@@ -1,6 +1,7 @@
 import { tagVon } from '../belohnung/logik.ts';
 import type { LernEreignis, Uebung } from '../daten/ereignisse.ts';
 import { abstand, hauptform } from './bewertung.ts';
+import { mische } from './runde.ts';
 import type { Vokabelliste } from './typen.ts';
 
 // Leitner-System mit 5 Fächern: richtig → ein Fach höher und länger Pause, falsch → zurück in Fach 1
@@ -224,4 +225,27 @@ export function lektionsRundeAuswaehlen<L extends LernListe = Vokabelliste>(
     (w) => !dabei.has(w.wort.id),
   );
   return [...zuerst, ...auffuellen].slice(0, RUNDE_MAX);
+}
+
+// Für Fächer mit festen Aufgaben (Deutsch, Mathe). Mix (themaId null): was fällig ist und ein paar
+// neue Aufgaben, Themen in ihrer Reihenfolge; ist nichts mehr fällig, eine Extra-Runde mit schon
+// Geübtem. Ein Thema: wie eine Lektion. Innerhalb eines Themas werden neue Aufgaben zufällig
+// gezogen und die Runde gemischt (Interleaving), sonst käme z. B. zehnmal dieselbe Antwort.
+export function gemischteRunde<L extends LernListe>(
+  themaId: string | null,
+  themen: readonly L[],
+  staende: Map<string, WortStand>,
+  heute: string,
+  zufall: () => number = Math.random,
+): RundenWort<L>[] {
+  const gemischt = themen.map((t) => ({ ...t, woerter: mische(t.woerter, zufall) }));
+  let auswahl: RundenWort<L>[];
+  if (themaId !== null) {
+    const thema = gemischt.find((t) => t.id === themaId);
+    auswahl = thema ? lektionsRundeAuswaehlen(thema, staende, heute, zufall) : [];
+  } else {
+    const normal = rundeAuswaehlen(gemischt, staende, heute);
+    auswahl = normal.length > 0 ? normal : extraRundeAuswaehlen(gemischt, staende, zufall);
+  }
+  return mische(auswahl, zufall);
 }

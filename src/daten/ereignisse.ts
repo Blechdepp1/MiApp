@@ -2,8 +2,16 @@
 // Jedes Gerät schreibt nur eigene Ereignisse; beim Sync werden die Protokolle anhand der id zusammengeführt.
 
 // Englisch: erkennen, waehlen-de-en, schreiben. Deutsch (Grammatik): auswählen, schreiben, im Satz antippen.
+// Mathe (Einmaleins): Ergebnis auswählen oder eintippen.
 export type Uebung =
-  'erkennen' | 'waehlen-de-en' | 'schreiben' | 'de-waehlen' | 'de-schreiben' | 'de-antippen';
+  | 'erkennen'
+  | 'waehlen-de-en'
+  | 'schreiben'
+  | 'de-waehlen'
+  | 'de-schreiben'
+  | 'de-antippen'
+  | 'ma-waehlen'
+  | 'ma-tippen';
 
 type Basis = { id: string; geraet: string; zeit: string };
 
@@ -23,7 +31,7 @@ export type EreignisDaten =
       richtig: number;
       mitHilfe: number;
       verbessert: number;
-      fach?: 'deutsch';
+      fach?: 'deutsch' | 'mathe';
     }
   // Name und Symbol werden mitgespeichert, damit die Liste auch nach Änderungen an den Belohnungen stimmt
   | { typ: 'eingeloest'; belohnungId: string; preis: number; name?: string; symbol?: string }

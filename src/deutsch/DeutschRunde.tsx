@@ -120,8 +120,9 @@ export function DeutschRunde({
   }
 
   async function weiter() {
-    setAntwort(null);
+    // Bei der letzten Aufgabe bleibt die Rückmeldung bis zur Zusammenfassung stehen
     if (schritte[nr + 1]) {
+      setAntwort(null);
       setNr(nr + 1);
       return;
     }

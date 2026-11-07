@@ -19,7 +19,7 @@ export type DeutschAntwort = {
 };
 
 // Der Tipp (Prüffrage) vor dem Antworten: freiwillig, zählt dann als „mit Hilfe“
-function Tipp({ hilfe, onGezeigt }: { hilfe?: string; onGezeigt: () => void }) {
+export function Tipp({ hilfe, onGezeigt }: { hilfe?: string; onGezeigt: () => void }) {
   const [offen, setOffen] = useState(false);
   if (!hilfe) return null;
   if (!offen)

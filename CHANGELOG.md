@@ -3,6 +3,13 @@
 Jede Version steht hier in einfachen Worten. Die App zeigt den Abschnitt ihrer Version unter „Was ist neu?“.
 Versionsnummern: Die mittlere Zahl steigt bei neuen Funktionen, die letzte bei Fehlerbehebungen.
 
+## 0.20.0 – 07.11.2026
+
+- Neue Kachel „➗ Mathe“: das Einmaleins, Reihe für Reihe (mal und geteilt). Wähle den Mix für heute oder eine Reihe.
+- Neue Aufgaben wählst du zuerst aus drei Ergebnissen aus. Kommen sie wieder, rechnest du im Kopf und tippst das Ergebnis auf dem großen Ziffernblock ein.
+- Der 💡 Tipp verrät dir einen Rechentrick, z. B. „Rechne 10 · 6 = 60, dann − 6“. Zu jeder Reihe gibt es Merkwissen zum Anhören.
+- Ohne Uhr und ohne Zeitdruck. Mathe-Runden bringen dieselben Punkte wie die anderen und zählen fürs Tagesziel.
+
 ## 0.19.0 – 02.11.2026
 
 - Unregelmäßige Verben üben: Jede Form (*go – went – gone*) lernst du einzeln. Beim Auswählen stehen die drei Formen desselben Verbs nebeneinander, und zum Nachsprechen kommt die ganze Reihe.
